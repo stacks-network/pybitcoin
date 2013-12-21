@@ -7,7 +7,7 @@ Coins
 from setuptools import setup
 
 setup(
-	name='coins',
+	name='Coins',
 	version='0.1.3',
 	url='https://github.com/halfmoonlabs/coins',
 	license='MIT',
