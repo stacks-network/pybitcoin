@@ -13,7 +13,7 @@ setup(
 	license='MIT',
 	author='Halfmoon Labs',
 	author_email='hello@halfmoon.io',
-	description='Wallet interface for popular cryptocurrencies, including Bitcoin.',
+	description='Wallet interface for popular cryptocurrencies, including Bitcoin, Litecoin, Namecoin, Peercoin, and Primecoin.',
 	packages=[
 		'coins',
 	],
