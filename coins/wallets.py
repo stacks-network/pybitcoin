@@ -21,20 +21,15 @@ class BitcoinWallet():
         'private_key': 0+128,
     }
 
-    def __init__(self, hex_private_key=None):
+    def __init__(self, hex_private_key=random_secret_exponent()):
         """ Takes in a private key/secret exponent as a 64-character
         hex string.
         """
-        if not hex_private_key:
-            hex_private_key = random_secret_exponent()
-
         if not (len(hex_private_key) == 64 and is_hex(hex_private_key)):
             raise Exception('Invalid private key. Must be a 64-char hex string.')
 
-        int_secret_exponent = int(hex_private_key, 16)
-
         self.private_key = ecdsa.keys.SigningKey.from_secret_exponent(
-            int_secret_exponent, self.curve, self.hash_function
+            int(hex_private_key, 16), self.curve, self.hash_function
         )
 
     def bin_private_key(self):
@@ -44,8 +39,7 @@ class BitcoinWallet():
         return binascii.hexlify(self.bin_private_key())
 
     def bin_public_key(self):
-        public_key = self.private_key.get_verifying_key()
-        return '\x04' + public_key.to_string()
+        return '\x04' + self.private_key.get_verifying_key().to_string()
 
     def hex_public_key(self):
         return binascii.hexlify(self.bin_public_key())
@@ -57,12 +51,12 @@ class BitcoinWallet():
         return binascii.hexlify(self.bin_hash_160())
 
     def wif_private_key(self):
-        version_byte = self.version_bytes['private_key']
-        return base58check_encode(self.bin_private_key(), version_byte=version_byte)
+        return base58check_encode(self.bin_private_key(),
+            version_byte=self.version_bytes['private_key'])
 
     def address(self):
-        version_byte = self.version_bytes['pubkey_hash']
-        return base58check_encode(self.bin_hash_160(), version_byte=version_byte)
+        return base58check_encode(self.bin_hash_160(),
+            version_byte=self.version_bytes['pubkey_hash'])
 
 class LitecoinWallet(BitcoinWallet):
     version_bytes = {
