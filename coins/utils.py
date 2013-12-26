@@ -74,3 +74,10 @@ def base58check_encode(s, version_byte=0):
     
     return '1' * leading_bytes + change_keyspace(hex_s, HEX_KEYSPACE, B58_KEYSPACE)
 
+def random_passphrase(phrase_length, word_list):
+    random.seed(dev_random_entropy(64))
+    passphrase_words = []
+    for i in range(phrase_length):
+        passphrase_words.append(random.choice(word_list))
+    return " ".join(passphrase_words)
+

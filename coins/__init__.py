@@ -7,7 +7,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 
 from .wallets import BitcoinWallet, LitecoinWallet, NamecoinWallet, \
     PeercoinWallet, PrimecoinWallet
