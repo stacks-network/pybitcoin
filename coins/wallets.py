@@ -7,16 +7,15 @@
     :license: MIT, see LICENSE for more details.
 """
 
+import os
 import json
 import ecdsa
 import hashlib
 import binascii
-from utils import random_secret_exponent, is_hex, binary_hash160, \
-    base58check_encode, random_passphrase
 
-WORD_LIST_FILENAME = 'coins/data/top_20k_english_words.json'
-with open(WORD_LIST_FILENAME, 'r') as f:
-    TOP_20K_ENGLISH_WORDS = json.loads(f.read())
+from .utils import random_secret_exponent, is_hex, binary_hash160, \
+    base58check_encode, random_passphrase
+from .words import TOP_20K_ENGLISH_WORDS
 
 class BitcoinWallet():
     curve = ecdsa.curves.SECP256k1
@@ -43,17 +42,19 @@ class BitcoinWallet():
     @classmethod
     def from_passphrase(cls, passphrase=None):
         """ Create wallet from a passphrase input (a brain wallet)."""
+        PHRASE_LENGTH = 12
+
         if not passphrase:
-            passphrase = random_passphrase(12, TOP_20K_ENGLISH_WORDS)
+            passphrase = random_passphrase(PHRASE_LENGTH, TOP_20K_ENGLISH_WORDS)
         
-        if not (passphrase and len(passphrase.split()) >= 12):
+        if not (passphrase and len(passphrase.split()) >= PHRASE_LENGTH):
             raise Exception('Passphrase must be at least 12 words.')
 
         hex_private_key = hashlib.sha256(passphrase).hexdigest()
 
-        b = cls(hex_private_key)
-        b.passphrase = passphrase
-        return b
+        wallet = cls(hex_private_key)
+        wallet.passphrase = passphrase
+        return wallet
 
     def bin_private_key(self):
         return self.private_key.to_string()
