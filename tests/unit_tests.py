@@ -1,9 +1,9 @@
 import unittest
 from test import test_support
 
-from coins.wallets import BitcoinWallet
+from coins.addresses import BitcoinAddress
 
-class BitcoinWalletTest(unittest.TestCase):
+class BitcoinAddressTest(unittest.TestCase):
 
 	def setUp(self):
 		self.reference = {
@@ -14,38 +14,38 @@ class BitcoinWalletTest(unittest.TestCase):
 			'hex_public_key': '0478d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455',
 			'hex_hash160': 'c4c5d791fcb4654a1ef5e03fe0ad3d9c598f9827',
 		}
-		self.wallet = BitcoinWallet.from_secret_exponent(self.reference['hex_private_key'])
+		self.address = BitcoinAddress.from_secret_exponent(self.reference['hex_private_key'])
 
 	def tearDown(self):
 		pass
 
 	def test_hex_private_key(self):
-		self.assertTrue(self.wallet.hex_private_key() == self.reference['hex_private_key'])
+		self.assertTrue(self.address.hex_private_key() == self.reference['hex_private_key'])
 
 	def text_wif_private_key(self):
-		self.assertTrue(self.wallet.wif_private_key() == self.reference['wif_private_key'])
+		self.assertTrue(self.address.wif_private_key() == self.reference['wif_private_key'])
 
 	def test_address(self):
-		self.assertTrue(self.wallet.address() == self.reference['address'])
+		self.assertTrue(self.address.address() == self.reference['address'])
 
 	def test_hex_hash160(self):
-		self.assertTrue(self.wallet.hex_hash160() == self.reference['hex_hash160'])
+		self.assertTrue(self.address.hex_hash160() == self.reference['hex_hash160'])
 
 	def test_public_key(self):
-		self.assertTrue(self.wallet.hex_public_key() == self.reference['hex_public_key'])
+		self.assertTrue(self.address.hex_public_key() == self.reference['hex_public_key'])
 
-class BitcoinBrainWalletTest(BitcoinWalletTest):
+class BitcoinBrainWalletAddressTest(BitcoinAddressTest):
 	def setUp(self):
-		BitcoinWalletTest.setUp(self)
-		self.wallet = BitcoinWallet.from_passphrase(self.reference['passphrase'])
+		BitcoinAddressTest.setUp(self)
+		self.address = BitcoinAddress.from_passphrase(self.reference['passphrase'])
 
 	def test_passphrase(self):
-		self.assertTrue(self.wallet.passphrase() == self.reference['passphrase'])
+		self.assertTrue(self.address.passphrase() == self.reference['passphrase'])
 
-class BitcoinWalletFromWIFTest(BitcoinWalletTest):
+class BitcoinAddressFromWIFTest(BitcoinAddressTest):
 	def setUp(self):
-		BitcoinWalletTest.setUp(self)
-		self.wallet = BitcoinWallet.from_wif_private_key(self.reference['wif_private_key'])
+		BitcoinAddressTest.setUp(self)
+		self.address = BitcoinAddress.from_wif_private_key(self.reference['wif_private_key'])
 
 from coins.utils import b58check_encode, b58check_decode, b58check_unpack, \
 	is_wif_private_key, is_hex_private_key
@@ -80,9 +80,9 @@ class BitcoinUtilsTest(unittest.TestCase):
 
 def test_main():
 	test_support.run_unittest(
-		BitcoinWalletTest,
-		BitcoinBrainWalletTest,
-		BitcoinWalletFromWIFTest,
+		BitcoinAddressTest,
+		BitcoinBrainWalletAddressTest,
+		BitcoinAddressFromWIFTest,
 		BitcoinUtilsTest
 	)
 

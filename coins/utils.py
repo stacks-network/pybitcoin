@@ -141,8 +141,11 @@ def is_valid_b58check(b58check_s):
     else:
         return False
 
-def is_hex_private_key(s):
+def is_secret_exponent(s):
     return (len(s) == 64 and is_hex(s))
+
+def is_hex_private_key(s):
+    return is_secret_exponent(s)
 
 def is_wif_private_key(s):
     return (len(s) == 51 and is_valid_b58check(s))
