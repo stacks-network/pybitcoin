@@ -1,4 +1,4 @@
-coins
+Coins
 =====
 
 Cryptocurrency wallet interfaces for Bitcoin, Litecoin, Namecoin, Peercoin, and Primecoin.
