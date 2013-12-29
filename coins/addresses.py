@@ -18,14 +18,11 @@ from .utils import random_secret_exponent, random_passphrase, \
     is_hex, is_secret_exponent, is_wif_private_key
 from .words import TOP_20K_ENGLISH_WORDS
 
-
 class BitcoinAddress():
     _curve = ecdsa.curves.SECP256k1
     _hash_function = hashlib.sha256
-    _version_bytes = {
-        'pubkey_hash': 0,
-        'private_key': 0+128,
-    }
+    _pubkeyhash_version_byte = 0
+    _private_key_version_byte = _pubkeyhash_version_byte + 128
 
     def __init__(self, secret_exponent=None):
         """ Takes in a private key/secret exponent as a 64-character
@@ -37,7 +34,7 @@ class BitcoinAddress():
         else:
             secret_exponent = random_secret_exponent()
 
-        self.private_key = ecdsa.keys.SigningKey.from_secret_exponent(
+        self._ecsda_private_key = ecdsa.keys.SigningKey.from_secret_exponent(
             int(secret_exponent, 16), self._curve, self._hash_function
         )
 
@@ -46,16 +43,13 @@ class BitcoinAddress():
         return cls(secret_exponent)
 
     @classmethod
-    def from_passphrase(cls, passphrase=None):
+    def from_passphrase(cls, passphrase=None, num_words=12):
         """ Create address from a passphrase input (a brain wallet address)."""
-        PHRASE_LENGTH = 12
-        
         if passphrase:
-            pass
-            #if not len(passphrase.split()) >= PHRASE_LENGTH:
-            #    raise Exception("Passphrase must be at least 12 words.")
+            if not len(passphrase.split()) >= num_words:
+                raise Exception("Warning! Passphrase must be at least " + str(num_words) + " words.")
         else:
-            passphrase = random_passphrase(PHRASE_LENGTH, TOP_20K_ENGLISH_WORDS)
+            passphrase = random_passphrase(num_words, TOP_20K_ENGLISH_WORDS)
 
         # convert the passphrase to a hex private key
         hex_private_key = hashlib.sha256(passphrase).hexdigest()
@@ -79,17 +73,17 @@ class BitcoinAddress():
         return cls(hex_private_key)
 
     def bin_private_key(self):
-        return self.private_key.to_string()
+        return self._ecsda_private_key.to_string()
 
     def hex_private_key(self):
         return binascii.hexlify(self.bin_private_key())
 
-    def hex_secret_exponent(self):
+    def secret_exponent(self):
         """ The secret exponent *is* the private key in hex form. """
         return self.hex_private_key()
 
     def bin_public_key(self):
-        return '\x04' + self.private_key.get_verifying_key().to_string()
+        return '\x04' + self._ecsda_private_key.get_verifying_key().to_string()
 
     def hex_public_key(self):
         return binascii.hexlify(self.bin_public_key())
@@ -102,13 +96,23 @@ class BitcoinAddress():
 
     """ Methods with different values for different cryptocurrencies. """
 
-    def wif_private_key(self):
+    def b58check_private_key(self):
+        """ Returns the private key in b58check or WIF (wallet import format) form. """
         return b58check_encode(self.bin_private_key(),
-            version_byte=self._version_bytes['private_key'])
+            version_byte=self._private_key_version_byte)
 
-    def address(self):
+    def wif_private_key(self):
+        return self.b58check_private_key()
+
+    def private_key(self):
+        return self.b58check_private_key()
+
+    def b58check_address(self):
         return b58check_encode(self.bin_hash160(),
-            version_byte=self._version_bytes['pubkey_hash'])
+            version_byte=self._pubkeyhash_version_byte)
+
+    def __str__(self):
+        return self.b58check_address()
 
     """ Brain wallet address methods """
 
@@ -120,26 +124,14 @@ class BitcoinAddress():
     
 
 class LitecoinAddress(BitcoinAddress):
-    _version_bytes = {
-        'pubkey_hash': 48,
-        'private_key': 48+128,
-    }
+    _pubkeyhash_version_byte = 48
 
 class NamecoinAddress(BitcoinAddress):
-    _version_bytes = {
-        'pubkey_hash': 52,
-        'private_key': 52+128,
-    }
+    _pubkeyhash_version_byte = 52
 
 class PeercoinAddress(BitcoinAddress):
-    _version_bytes = {
-        'pubkey_hash': 55,
-        'private_key': 55+128,
-    }
+    _pubkeyhash_version_byte = 55
 
 class PrimecoinAddress(BitcoinAddress):
-    _version_bytes = {
-        'pubkey_hash': 23,
-        'private_key': 23+128,
-    }
+    _pubkeyhash_version_byte = 23
 

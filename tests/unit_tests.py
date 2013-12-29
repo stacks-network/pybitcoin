@@ -22,11 +22,11 @@ class BitcoinAddressTest(unittest.TestCase):
 	def test_hex_private_key(self):
 		self.assertTrue(self.address.hex_private_key() == self.reference['hex_private_key'])
 
-	def text_wif_private_key(self):
+	def test_wif_private_key(self):
 		self.assertTrue(self.address.wif_private_key() == self.reference['wif_private_key'])
 
 	def test_address(self):
-		self.assertTrue(self.address.address() == self.reference['address'])
+		self.assertTrue(str(self.address) == self.reference['address'])
 
 	def test_hex_hash160(self):
 		self.assertTrue(self.address.hex_hash160() == self.reference['hex_hash160'])
@@ -37,7 +37,7 @@ class BitcoinAddressTest(unittest.TestCase):
 class BitcoinBrainWalletAddressTest(BitcoinAddressTest):
 	def setUp(self):
 		BitcoinAddressTest.setUp(self)
-		self.address = BitcoinAddress.from_passphrase(self.reference['passphrase'])
+		self.address = BitcoinAddress.from_passphrase(self.reference['passphrase'], num_words=4)
 
 	def test_passphrase(self):
 		self.assertTrue(self.address.passphrase() == self.reference['passphrase'])
