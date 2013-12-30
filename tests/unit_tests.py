@@ -34,6 +34,8 @@ class BitcoinAddressTest(unittest.TestCase):
 	def test_public_key(self):
 		self.assertTrue(self.address.hex_public_key() == self.reference['hex_public_key'])
 
+get_class = lambda x: globals()[x]
+
 class AltcoinAddressTest(unittest.TestCase):
 	def setUp(self):
 		self.reference = {
@@ -41,44 +43,41 @@ class AltcoinAddressTest(unittest.TestCase):
 			'hex_private_key': 'c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a',
 			'hex_public_key': '0478d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455',
 			'hex_hash160': 'c4c5d791fcb4654a1ef5e03fe0ad3d9c598f9827',
-			'bitcoin_wif_pk':'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
-			'bitcoin_address': '1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T',
-			'litecoin_wif_pk': '6vcfLvDpYnHdbVxoQa6Lmo3k9iR5xVjKwwf3dp4XgmQT3QJywYi',
-			'litecoin_address': 'LdAPi7uXrLLmeh7u57pzkZc3KovxEDYRJq',
-			'namecoin_wif_pk': '74Pe3r1wxUzY8nHd2taLb5SqpAsxZK6q6VwUcQp7fPS11tYZd9P',
-			'namecoin_address': 'NEWoeZ6gh4CGvRgFAoAGh4hBqpxizGT6gZ',
-			'peercoin_wif_pk': '7ADsaYN3Wm2DYF2jkdSLT3FAZWj7WRdTTR9oLrsoeMTAVgq1Mho',
-			'peercoin_address': 'PSXcbszYpbauNj6WF4AE9SWYjLjZArBajH',
-			'primecoin_wif_pk': '6623w812F9NyDzSAk5aMvn4PFs28htfSGxtMY4s7qPEkhoV8sQS',
-			'primecoin_address': 'AZiK6QTL6pksCrdjTdW2dRoNbCVNQ7zRs6',
-			'dogecoin_wif_pk': '6KdGAk9FD87ZAjW768vMc2FoffLAFpZZnSP7F7gPnyHUA9ttj7B',
-			'dogecoin_address': 'DP5XzAYM55zzvtcLdZqG2JhszjHyNnvW8i',
+			('bitcoin', 'wif'):'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
+			('bitcoin', 'address'): '1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T',
+			('litecoin', 'wif'): '6vcfLvDpYnHdbVxoQa6Lmo3k9iR5xVjKwwf3dp4XgmQT3QJywYi',
+			('litecoin', 'address'): 'LdAPi7uXrLLmeh7u57pzkZc3KovxEDYRJq',
+			('namecoin', 'wif'): '74Pe3r1wxUzY8nHd2taLb5SqpAsxZK6q6VwUcQp7fPS11tYZd9P',
+			('namecoin', 'address'): 'NEWoeZ6gh4CGvRgFAoAGh4hBqpxizGT6gZ',
+			('peercoin', 'wif'): '7ADsaYN3Wm2DYF2jkdSLT3FAZWj7WRdTTR9oLrsoeMTAVgq1Mho',
+			('peercoin', 'address'): 'PSXcbszYpbauNj6WF4AE9SWYjLjZArBajH',
+			('primecoin', 'wif'): '6623w812F9NyDzSAk5aMvn4PFs28htfSGxtMY4s7qPEkhoV8sQS',
+			('primecoin', 'address'): 'AZiK6QTL6pksCrdjTdW2dRoNbCVNQ7zRs6',
+			('dogecoin', 'wif'): '6KdGAk9FD87ZAjW768vMc2FoffLAFpZZnSP7F7gPnyHUA9ttj7B',
+			('dogecoin', 'address'): 'DP5XzAYM55zzvtcLdZqG2JhszjHyNnvW8i',
 		}
-		self.bitcoin_address = BitcoinAddress.from_secret_exponent(self.reference['hex_private_key'])
-		self.litecoin_address = LitecoinAddress.from_secret_exponent(self.reference['hex_private_key'])
-		self.namecoin_address = NamecoinAddress.from_secret_exponent(self.reference['hex_private_key'])
-		self.peercoin_address = PeercoinAddress.from_secret_exponent(self.reference['hex_private_key'])
-		self.primecoin_address = PrimecoinAddress.from_secret_exponent(self.reference['hex_private_key'])
-		self.dogecoin_address = DogecoinAddress.from_secret_exponent(self.reference['hex_private_key'])
+		self.coin_names = ['bitcoin', 'litecoin', 'namecoin', 'peercoin', 'primecoin', 'dogecoin']
 
+		for coin_name in self.coin_names:
+			address_class = get_class(coin_name.title() + 'Address')
+			secret_exponent = self.reference['hex_private_key']
+			address = address_class.from_secret_exponent(secret_exponent)
+			setattr(self, (coin_name + '_address'), address)
+		
 	def tearDown(self):
 		pass
 
 	def test_wif_private_key(self):
-		self.assertTrue(self.bitcoin_address.private_key() == self.reference['bitcoin_wif_pk'])
-		self.assertTrue(self.litecoin_address.private_key() == self.reference['litecoin_wif_pk'])
-		self.assertTrue(self.namecoin_address.private_key() == self.reference['namecoin_wif_pk'])
-		self.assertTrue(self.peercoin_address.private_key() == self.reference['peercoin_wif_pk'])
-		self.assertTrue(self.primecoin_address.private_key() == self.reference['primecoin_wif_pk'])
-		self.assertTrue(self.dogecoin_address.private_key() == self.reference['dogecoin_wif_pk'])
-
+		for coin_name in self.coin_names:
+			private_key = getattr(self, coin_name + '_address').private_key()
+			reference_private_key = self.reference[(coin_name, 'wif')]
+			self.assertTrue(private_key == reference_private_key)
+		
 	def test_address(self):
-		self.assertTrue(str(self.bitcoin_address) == self.reference['bitcoin_address'])
-		self.assertTrue(str(self.litecoin_address) == self.reference['litecoin_address'])
-		self.assertTrue(str(self.namecoin_address) == self.reference['namecoin_address'])
-		self.assertTrue(str(self.peercoin_address) == self.reference['peercoin_address'])
-		self.assertTrue(str(self.primecoin_address) == self.reference['primecoin_address'])
-		self.assertTrue(str(self.dogecoin_address) == self.reference['dogecoin_address'])
+		for coin_name in self.coin_names:
+			address = str(getattr(self, coin_name + '_address'))
+			reference_address = self.reference[(coin_name, 'address')]
+			self.assertTrue(address == reference_address)
 
 class BitcoinBrainWalletAddressTest(BitcoinAddressTest):
 	def setUp(self):
