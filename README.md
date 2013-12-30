@@ -1,4 +1,4 @@
 Coins
 =====
 
-Cryptocurrency wallet interfaces for Bitcoin, Litecoin, Namecoin, Peercoin, and Primecoin.
+Tools for Bitcoin and other cryptocurrencies (including Litecoin, Namecoin, Peercoin, and Primecoin).
