@@ -24,7 +24,7 @@ class BitcoinAddress():
     _pubkeyhash_version_byte = 0
 
     def _private_key_version_byte(self):
-        return self._pubkeyhash_version_byte + 128
+        return (self._pubkeyhash_version_byte + 128) % 256
 
     def __init__(self, secret_exponent=None):
         """ Takes in a private key/secret exponent as a 64-character
@@ -123,7 +123,6 @@ class BitcoinAddress():
             return self._passphrase
         else:
             raise Exception("No passphrase! This isn't a brain wallet address!")
-    
 
 class LitecoinAddress(BitcoinAddress):
     _pubkeyhash_version_byte = 48
@@ -139,3 +138,36 @@ class PrimecoinAddress(BitcoinAddress):
 
 class DogecoinAddress(BitcoinAddress):
     _pubkeyhash_version_byte = 30
+
+class WorldcoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 73
+
+class FeathercoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 14
+
+class TerracoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 0
+
+class NovacoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 8
+
+class IxcoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 138
+
+class TestnetAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 111
+
+class ProtosharesAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 56
+
+class MemorycoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 50
+
+class QuarkcoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 58
+
+class InfinitecoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 102
+
+class CryptogenicbullionAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 11
