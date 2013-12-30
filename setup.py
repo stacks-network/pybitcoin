@@ -8,12 +8,12 @@ from setuptools import setup
 
 setup(
     name='Coins',
-    version='0.1.7',
+    version='0.1.8',
     url='https://github.com/halfmoonlabs/coins',
     license='MIT',
     author='Halfmoon Labs',
     author_email='hello@halfmoon.io',
-    description='Wallet interface for popular cryptocurrencies, including Bitcoin, Litecoin, Namecoin, Peercoin, and Primecoin.',
+    description='Bitcoin, Litecoin, Namecoin, Peercoin, & Primecoin tools.',
     packages=[
         'coins',
     ],
