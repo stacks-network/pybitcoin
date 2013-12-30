@@ -135,3 +135,5 @@ class PeercoinAddress(BitcoinAddress):
 class PrimecoinAddress(BitcoinAddress):
     _pubkeyhash_version_byte = 23
 
+class PrimecoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 30
