@@ -8,13 +8,13 @@ from setuptools import setup
 
 setup(
     name='Coins',
-    version='0.1.9',
+    version='0.1.10',
     url='https://github.com/halfmoonlabs/coins',
     license='MIT',
     author='Halfmoon Labs',
     author_email='hello@halfmoon.io',
     description='Tools for Bitcoin and other cryptocurrencies (including Litecoin, Namecoin, Peercoin, and Primecoin).',
-    keywords='bitcoin litecoin namecoin coins',
+    keywords='bitcoin btc litecoin namecoin cryptocurrency',
     packages=[
         'coins',
     ],
