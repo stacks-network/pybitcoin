@@ -7,7 +7,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-__version__ = '0.1.10'
+__version__ = '0.1.11'
 
 from .address import *
 from .utils import random_secret_exponent, random_passphrase, \
