@@ -51,12 +51,15 @@ class AltcoinAddressTest(unittest.TestCase):
 			'peercoin_address': 'PSXcbszYpbauNj6WF4AE9SWYjLjZArBajH',
 			'primecoin_wif_pk': '6623w812F9NyDzSAk5aMvn4PFs28htfSGxtMY4s7qPEkhoV8sQS',
 			'primecoin_address': 'AZiK6QTL6pksCrdjTdW2dRoNbCVNQ7zRs6',
+			'dogecoin_wif_pk': '6KdGAk9FD87ZAjW768vMc2FoffLAFpZZnSP7F7gPnyHUA9ttj7B',
+			'dogecoin_address': 'DP5XzAYM55zzvtcLdZqG2JhszjHyNnvW8i',
 		}
 		self.bitcoin_address = BitcoinAddress.from_secret_exponent(self.reference['hex_private_key'])
 		self.litecoin_address = LitecoinAddress.from_secret_exponent(self.reference['hex_private_key'])
 		self.namecoin_address = NamecoinAddress.from_secret_exponent(self.reference['hex_private_key'])
 		self.peercoin_address = PeercoinAddress.from_secret_exponent(self.reference['hex_private_key'])
 		self.primecoin_address = PrimecoinAddress.from_secret_exponent(self.reference['hex_private_key'])
+		self.dogecoin_address = DogecoinAddress.from_secret_exponent(self.reference['hex_private_key'])
 
 	def tearDown(self):
 		pass
@@ -67,6 +70,7 @@ class AltcoinAddressTest(unittest.TestCase):
 		self.assertTrue(self.namecoin_address.private_key() == self.reference['namecoin_wif_pk'])
 		self.assertTrue(self.peercoin_address.private_key() == self.reference['peercoin_wif_pk'])
 		self.assertTrue(self.primecoin_address.private_key() == self.reference['primecoin_wif_pk'])
+		self.assertTrue(self.dogecoin_address.private_key() == self.reference['dogecoin_wif_pk'])
 
 	def test_address(self):
 		self.assertTrue(str(self.bitcoin_address) == self.reference['bitcoin_address'])
@@ -74,6 +78,7 @@ class AltcoinAddressTest(unittest.TestCase):
 		self.assertTrue(str(self.namecoin_address) == self.reference['namecoin_address'])
 		self.assertTrue(str(self.peercoin_address) == self.reference['peercoin_address'])
 		self.assertTrue(str(self.primecoin_address) == self.reference['primecoin_address'])
+		self.assertTrue(str(self.dogecoin_address) == self.reference['dogecoin_address'])
 
 class BitcoinBrainWalletAddressTest(BitcoinAddressTest):
 	def setUp(self):
