@@ -7,6 +7,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
+import os
 import re
 import random
 import hashlib
@@ -20,12 +21,18 @@ def dev_random_entropy(numbytes):
 def dev_urandom_entropy(numbytes):
     return open("/dev/urandom", "rb").read(numbytes)
 
+def get_entropy(numbytes):
+    if os.name == 'nt':
+        return os.urandom(numbytes)
+    else:
+        return dev_random_entropy(numbytes)
+
 def random_secret_exponent():
     """ Generates a random secret exponent and returns it as a hex string. """
-    return binascii.hexlify(dev_random_entropy(32))
+    return binascii.hexlify(get_entropy(32))
 
 def random_passphrase(phrase_length, word_list):
-    random.seed(dev_random_entropy(64))
+    random.seed(get_entropy(64))
     passphrase_words = []
     for i in range(phrase_length):
         passphrase_words.append(random.choice(word_list))
