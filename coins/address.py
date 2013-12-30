@@ -22,7 +22,9 @@ class BitcoinAddress():
     _curve = ecdsa.curves.SECP256k1
     _hash_function = hashlib.sha256
     _pubkeyhash_version_byte = 0
-    _private_key_version_byte = _pubkeyhash_version_byte + 128
+
+    def _private_key_version_byte(self):
+        return self._pubkeyhash_version_byte + 128
 
     def __init__(self, secret_exponent=None):
         """ Takes in a private key/secret exponent as a 64-character
@@ -99,7 +101,7 @@ class BitcoinAddress():
     def b58check_private_key(self):
         """ Returns the private key in b58check or WIF (wallet import format) form. """
         return b58check_encode(self.bin_private_key(),
-            version_byte=self._private_key_version_byte)
+            version_byte=self._private_key_version_byte())
 
     def wif_private_key(self):
         return self.b58check_private_key()

@@ -9,7 +9,7 @@
 
 __version__ = '0.1.10'
 
-from .addresses import BitcoinAddress, LitecoinAddress, NamecoinAddress, \
+from .address import BitcoinAddress, LitecoinAddress, NamecoinAddress, \
     PeercoinAddress, PrimecoinAddress
 from .utils import random_secret_exponent, random_passphrase, \
     b58check_encode, b58check_decode, b58check_unpack, b58check_version_byte, \
