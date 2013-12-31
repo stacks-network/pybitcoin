@@ -28,7 +28,7 @@ Supported currencies:
 
 ### Standard Usage
 
-	from coins.address import BitcoinAddress, LitecoinAddress, NamecoinAddress
+	from coins.address import BitcoinAddress
 
 	a = BitcoinAddress()
 
@@ -60,8 +60,8 @@ Supported currencies:
 
 ### Altcoin addresses
 
-	ba = BitcoinAddress()
-	la = LitecoinAddress()
-	na = NamecoinAddress()
+	from coins.address import LitecoinAddress, NamecoinAddress
 
-
+	ltc_a = LitecoinAddress()
+	nmc_a = NamecoinAddress()
+	ppc_a = PeercoinAddress()
