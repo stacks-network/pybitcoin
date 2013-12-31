@@ -77,12 +77,16 @@ class AltcoinAddressTest(unittest.TestCase):
 			('infinitecoin', 'address'): 'iMQxsz16C5N5p6eaPmpCwLJXK3qtXZuvoh',
 			('cryptogenicbullion', 'wif'): '5gh7pLce23GFc9Ths88NUvs6GVdWuSYvqJ34cGcMuXA6nPooqdc',
 			('cryptogenicbullion', 'address'): '5jf5H6ssafCMPexhAbWCovXw39Q3ryw5ic',
+			('anoncoin', 'wif'): '6623w812F9NyDzSAk5aMvn4PFs28htfSGxtMY4s7qPEkhoV8sQS',
+			('anoncoin', 'address'): 'AZiK6QTL6pksCrdjTdW2dRoNbCVNQ7zRs6',
+			('megacoin', 'wif'): '6zW9hP7tFde5s98DDjLLgSFHyweXFuR5XDoG87SKg5RE2dHMpaF',
+			('megacoin', 'address'): 'MRqbgLW7GhGXHZQ57xVdip9capSqZatiut',
 		}
 		self.coin_names = [
 			'bitcoin', 'litecoin', 'namecoin', 'peercoin', 'primecoin',
 			'dogecoin', 'worldcoin', 'feathercoin', 'terracoin', 'novacoin',
 			'testnet', 'protoshares', 'memorycoin', 'quarkcoin', 'infinitecoin',
-			'cryptogenicbullion', 'ixcoin'
+			'cryptogenicbullion', 'ixcoin', 'anoncoin', 'megacoin'
 		]
 
 		for coin_name in self.coin_names:
@@ -96,7 +100,7 @@ class AltcoinAddressTest(unittest.TestCase):
 
 	def test_wif_private_key(self):
 		for coin_name in self.coin_names:
-			private_key = getattr(self, coin_name + '_address').private_key()
+			private_key = getattr(self, coin_name + '_address').wif_private_key()
 			reference_private_key = self.reference[(coin_name, 'wif')]
 			self.assertTrue(private_key == reference_private_key)
 		
@@ -117,7 +121,7 @@ class BitcoinBrainWalletAddressTest(BitcoinAddressTest):
 class BitcoinAddressFromWIFTest(BitcoinAddressTest):
 	def setUp(self):
 		BitcoinAddressTest.setUp(self)
-		self.address = BitcoinAddress.from_wif_private_key(self.reference['wif_private_key'])
+		self.address = BitcoinAddress.from_wif(self.reference['wif_private_key'])
 
 from coins.utils import b58check_encode, b58check_decode, b58check_unpack, \
 	is_wif_private_key, is_hex_private_key

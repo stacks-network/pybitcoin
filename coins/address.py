@@ -61,7 +61,7 @@ class BitcoinAddress():
         return address
 
     @classmethod
-    def from_wif_private_key(cls, wif_private_key):
+    def from_wif(cls, wif_private_key):
         """ Create address from a wif private key. """
         if wif_private_key:
             if not is_wif_private_key(wif_private_key):
@@ -104,9 +104,6 @@ class BitcoinAddress():
             version_byte=self._private_key_version_byte())
 
     def wif_private_key(self):
-        return self.b58check_private_key()
-
-    def private_key(self):
         return self.b58check_private_key()
 
     def b58check_address(self):
@@ -171,3 +168,18 @@ class InfinitecoinAddress(BitcoinAddress):
 
 class CryptogenicbullionAddress(BitcoinAddress):
     _pubkeyhash_version_byte = 11
+
+class AnoncoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 23
+
+class MegacoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 50
+
+class EarthcoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 93
+
+class NetcoinAddress(BitcoinAddress):
+    _pubkeyhash_version_byte = 112
+
+
+
