@@ -13,31 +13,45 @@ import ecdsa
 import hashlib
 import binascii
 
-from .utils import random_secret_exponent, random_passphrase, \
+from .utils import random_secret_exponent, random_256bit_passphrase, \
+    random_160bit_passphrase, \
     binary_hash160, b58check_encode, b58check_decode, \
     is_hex, is_secret_exponent, is_wif_private_key
-from .words import TOP_20K_ENGLISH_WORDS
 
 class BitcoinAddress():
     _curve = ecdsa.curves.SECP256k1
     _hash_function = hashlib.sha256
     _pubkeyhash_version_byte = 0
 
-    def _private_key_version_byte(self):
-        return (self._pubkeyhash_version_byte + 128) % 256
+    @classmethod
+    def version_byte(cls, type='pubkey_hash'):
+        if type == 'pubkey_hash':
+            return cls._pubkeyhash_version_byte
+        elif type == 'private_key':
+            return (cls._pubkeyhash_version_byte + 128) % 256
+        else:
+            raise Exception("type must be 'pubkey_hash' or 'privatekey'")
 
     def __init__(self, secret_exponent=None):
         """ Takes in a private key/secret exponent as a 64-character
         hex string.
         """
         if secret_exponent:
-            if not is_secret_exponent(secret_exponent):
+            if is_secret_exponent(secret_exponent):
+                secret_exponent = int(secret_exponent, 16)
+            else:
                 raise Exception("Invalid private key. Must be a 64-char hex string.")
         else:
-            secret_exponent = random_secret_exponent()
+            secret_exponent = int(random_secret_exponent(), 16)
+
+        # make sure that: 1 < secret_exponent < curve_order
+        if secret_exponent > self._curve.order:
+            secret_exponent = secret_exponent - self._curve.order
+        elif secret_exponent == self._curve.order:
+            secret_exponent = 1
 
         self._ecsda_private_key = ecdsa.keys.SigningKey.from_secret_exponent(
-            int(secret_exponent, 16), self._curve, self._hash_function
+            secret_exponent, self._curve, self._hash_function
         )
 
     @classmethod
@@ -45,13 +59,18 @@ class BitcoinAddress():
         return cls(secret_exponent)
 
     @classmethod
-    def from_passphrase(cls, passphrase=None, num_words=12):
+    def from_passphrase(cls, passphrase=None, min_words=12, bits_of_entropy=160):
         """ Create address from a passphrase input (a brain wallet address)."""
         if passphrase:
-            if not len(passphrase.split()) >= num_words:
-                raise Exception("Warning! Passphrase must be at least " + str(num_words) + " words.")
+            if not len(passphrase.split()) >= min_words:
+                raise Exception("Warning! Passphrase must be at least " + str(min_words) + " words.")
         else:
-            passphrase = random_passphrase(num_words, TOP_20K_ENGLISH_WORDS)
+            if bits_of_entropy == 160:
+                passphrase = random_160bit_passphrase()
+            elif bits_of_entropy == 256:
+                passphrase = random_256bit_passphrase()
+            else:
+                raise Exception("'bits_of_entropy' must be 160 or 256")
 
         # convert the passphrase to a hex private key
         hex_private_key = hashlib.sha256(passphrase).hexdigest()
@@ -67,51 +86,63 @@ class BitcoinAddress():
             if not is_wif_private_key(wif_private_key):
                 raise Exception('Private key must be in WIF format.')
         else:
-            raise Exception('A WIF private key must be provided.')
+            raise Exception("A WIF private key must be provided.")
 
         # convert the wif private key to hex format
         hex_private_key = binascii.hexlify(b58check_decode(wif_private_key))
 
         return cls(hex_private_key)
 
-    def bin_private_key(self):
+    def _bin_private_key(self):
         return self._ecsda_private_key.to_string()
 
-    def hex_private_key(self):
-        return binascii.hexlify(self.bin_private_key())
+    def _bin_public_key(self):
+        return '\x04' + self._ecsda_private_key.get_verifying_key().to_string()
+
+    def _bin_hash160(self):
+        return binary_hash160(self._bin_public_key())
+
+    def private_key(self, format='wif'):
+        if format == 'bin':
+            return self._bin_private_key()
+        elif format == 'hex':
+            return binascii.hexlify(self._bin_private_key())
+        elif format == 'wif' or format == 'b58check':
+            return b58check_encode(self._bin_private_key(),
+                version_byte=self.version_byte('private_key'))
+        else:
+            raise Exception("format must be 'bin', 'hex', 'wif', or 'b58check.")
+
+    def public_key(self, format='hex'):
+        if format == 'bin':
+            return self._bin_public_key()
+        elif format == 'hex':
+            return binascii.hexlify(self._bin_public_key())
+        else:
+            raise Exception("format must be 'bin' or 'hex'.")
+
+    def hash160(self, format='hex'):
+        if format == 'bin':
+            return self._bin_hash160()
+        elif format == 'hex':
+            return binascii.hexlify(self._bin_hash160())
+        elif format == 'b58check':
+            return b58check_encode(self._bin_hash160(),
+                version_byte=self.version_byte('pubkey_hash'))
+        else:
+            raise Exception("format must be 'bin', 'hex', or 'b58check.")
 
     def secret_exponent(self):
         """ The secret exponent *is* the private key in hex form. """
-        return self.hex_private_key()
+        return self.private_key('hex')
 
-    def bin_public_key(self):
-        return '\x04' + self._ecsda_private_key.get_verifying_key().to_string()
-
-    def hex_public_key(self):
-        return binascii.hexlify(self.bin_public_key())
-
-    def bin_hash160(self):
-        return binary_hash160(self.bin_public_key())
-
-    def hex_hash160(self):
-        return binascii.hexlify(self.bin_hash160())
-
-    """ Methods with different values for different cryptocurrencies. """
-
-    def b58check_private_key(self):
-        """ Returns the private key in b58check or WIF (wallet import format) form. """
-        return b58check_encode(self.bin_private_key(),
-            version_byte=self._private_key_version_byte())
-
-    def wif_private_key(self):
-        return self.b58check_private_key()
-
-    def b58check_address(self):
-        return b58check_encode(self.bin_hash160(),
-            version_byte=self._pubkeyhash_version_byte)
+    def wif(self):
+        """ The secret exponent *is* the private key in hex form. """
+        return self.private_key('wif')
 
     def __str__(self):
-        return self.b58check_address()
+        """ The address *is* the hash160 in b58check format. """
+        return self.hash160('b58check')
 
     """ Brain wallet address methods """
 

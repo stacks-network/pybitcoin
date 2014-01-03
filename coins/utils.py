@@ -38,6 +38,14 @@ def random_passphrase(phrase_length, word_list):
         passphrase_words.append(random.choice(word_list))
     return " ".join(passphrase_words)
 
+from .words import TOP_65536_ENGLISH_WORDS
+
+def random_256bit_passphrase():
+    return random_passphrase(16, TOP_65536_ENGLISH_WORDS[:65536])
+
+def random_160bit_passphrase():
+    return random_passphrase(12, TOP_65536_ENGLISH_WORDS[:20000])
+
 """ base/keyspace conversion """
 
 HEX_KEYSPACE = "0123456789abcdef"
