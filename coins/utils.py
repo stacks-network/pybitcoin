@@ -13,38 +13,14 @@ import random
 import hashlib
 import binascii
 
-""" random number operations. """
-
-def dev_random_entropy(numbytes):
-    return open("/dev/random", "rb").read(numbytes)
-
-def dev_urandom_entropy(numbytes):
-    return open("/dev/urandom", "rb").read(numbytes)
-
-def get_entropy(numbytes):
-    if os.name == 'nt':
-        return os.urandom(numbytes)
-    else:
-        return dev_random_entropy(numbytes)
-
-def random_secret_exponent():
-    """ Generates a random secret exponent and returns it as a hex string. """
-    return binascii.hexlify(get_entropy(32))
-
-def random_passphrase(phrase_length, word_list):
-    random.seed(get_entropy(64))
-    passphrase_words = []
-    for i in range(phrase_length):
-        passphrase_words.append(random.choice(word_list))
-    return " ".join(passphrase_words)
-
-from .words import TOP_65536_ENGLISH_WORDS
-
-def random_256bit_passphrase():
-    return random_passphrase(16, TOP_65536_ENGLISH_WORDS[:65536])
-
-def random_160bit_passphrase():
-    return random_passphrase(12, TOP_65536_ENGLISH_WORDS[:20000])
+def fit_number_in_range(num, lower_bound, upper_bound):
+    assert(isinstance(upper_bound, (int, long))
+        and isinstance(lower_bound, (int, long)) and upper_bound > lower_bound)
+    while num > upper_bound:
+        num -= (upper_bound - lower_bound)
+    while num < lower_bound:
+        num += (upper_bound - lower_bound)
+    return num
 
 """ base/keyspace conversion """
 
@@ -77,6 +53,43 @@ def change_keyspace(string, original_keyspace, target_keyspace):
     intermediate_integer = string_to_int(string, original_keyspace)
     output_string = int_to_string(intermediate_integer, target_keyspace)
     return output_string
+
+""" random number / passphrase operations """
+
+def dev_random_entropy(numbytes):
+    return open("/dev/random", "rb").read(numbytes)
+
+def dev_urandom_entropy(numbytes):
+    return open("/dev/urandom", "rb").read(numbytes)
+
+def get_entropy(numbytes):
+    if os.name == 'nt':
+        return os.urandom(numbytes)
+    else:
+        return dev_random_entropy(numbytes)
+
+def random_secret_exponent(curve_order):
+    """ Generates a random secret exponent. """
+    random_256bit_hex_string = binascii.hexlify(get_entropy(32))
+    random_256bit_int = int(random_256bit_hex_string, 16)
+    int_secret_exponent = fit_number_in_range(random_256bit_int, 1, curve_order)
+
+    return int_secret_exponent
+
+def random_passphrase(phrase_length, word_list):
+    random.seed(get_entropy(64))
+    passphrase_words = []
+    for i in range(phrase_length):
+        passphrase_words.append(random.choice(word_list))
+    return " ".join(passphrase_words)
+
+from .words import TOP_65536_ENGLISH_WORDS
+
+def random_256bit_passphrase():
+    return random_passphrase(16, TOP_65536_ENGLISH_WORDS[:65536])
+
+def random_160bit_passphrase():
+    return random_passphrase(12, TOP_65536_ENGLISH_WORDS[:20000])
 
 """ sha256 operations """
 
@@ -141,6 +154,8 @@ def b58check_version_byte(b58check_s):
 
 """ Format checking """
 
+import ecdsa
+
 def is_hex(s):
     try:
         int(s, 16)
@@ -156,16 +171,31 @@ def is_valid_b58check(b58check_s):
     else:
         return False
 
-def is_secret_exponent(s):
-    return (len(s) == 64 and is_hex(s))
+def is_valid_secret_exponent(val, curve_order):
+    return (isinstance(val, (int, long)) and val >= 1 and val < curve_order)
 
-def is_hex_private_key(s):
-    return is_secret_exponent(s)
+def is_256bit_hex_string(val):
+    return (isinstance(val, str) and len(val) == 64 and is_hex(val))
 
-def is_wif_private_key(s):
-    return (len(s) == 51 and is_valid_b58check(s))
+def is_wallet_import_format(val):
+    return (len(val) == 51 and is_valid_b58check(val))
 
-def is_address(s):
+def is_valid_b58check_address(s):
     return (len(s) == 34 and is_valid_b58check(s))
 
+def extract_pk_as_int(pk, curve_order):
+    if isinstance(pk, int):
+        secret_exponent = pk
+    elif is_256bit_hex_string(pk):
+        secret_exponent = int(pk, 16)
+    elif is_wallet_import_format(pk):
+        secret_exponent = int(binascii.hexlify(b58check_decode(pk)), 16)
+    else:
+        raise ValueError("Private key is not in a valid format (int, wif, or hex).")
+
+    # make sure that: 1 <= secret_exponent < curve_order
+    if is_valid_secret_exponent(secret_exponent, curve_order):
+        return secret_exponent
+    else:
+        raise IndexError("Secret exponent is outside of the valid range. Must be >= 1 and < the curve order.")
 

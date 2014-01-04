@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='Coins',
-    version='0.1.13',
+    version='0.2.0',
     url='https://github.com/halfmoonlabs/coins',
     license='MIT',
     author='Halfmoon Labs',

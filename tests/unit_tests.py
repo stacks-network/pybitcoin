@@ -1,7 +1,7 @@
 import unittest
 from test import test_support
 
-from coins.address import *
+from coins.keypair import *
 
 def equality_test_generator(a, b):
 	def test(self):
@@ -10,21 +10,21 @@ def equality_test_generator(a, b):
 
 def altcoin_test_generator(coin_name):
 	def test(self):
-		address_class = get_class(coin_name.title() + 'Address')
-		secret_exponent = self.reference['hex_private_key']
-		address_object = address_class.from_secret_exponent(secret_exponent)
+		keypair = get_class(coin_name.title() + 'Keypair')
+		private_key = self.reference['hex_private_key']
+		keypair = keypair.from_private_key(private_key)
 
-		private_key = address_object.private_key()
-		reference_private_key = self.reference[(coin_name, 'wif')]
-		self.assertEqual(private_key, reference_private_key)
+		wif_private_key = keypair.wif_pk()
+		reference_wif_private_key = self.reference[(coin_name, 'wif')]
+		self.assertEqual(wif_private_key, reference_wif_private_key)
 		
-		address = str(address_object)
+		address = keypair.address()
 		reference_address = self.reference[(coin_name, 'address')]
 		self.assertEqual(address, reference_address)
 
 	return test
 
-class BitcoinAddressTest(unittest.TestCase):
+class BitcoinKeypairTest(unittest.TestCase):
 
 	def setUp(self):
 		self.reference = {
@@ -35,29 +35,29 @@ class BitcoinAddressTest(unittest.TestCase):
 			'wif_private_key':'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
 			'address': '1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T',
 		}
-		self.address = BitcoinAddress(self.reference['hex_private_key'])
+		self.keypair = BitcoinKeypair(self.reference['hex_private_key'])
 
 	def tearDown(self):
 		pass
 
 	def test_hex_private_key(self):
-		self.assertTrue(self.address.private_key('hex') == self.reference['hex_private_key'])
+		self.assertTrue(self.keypair.private_key() == self.reference['hex_private_key'])
 
 	def test_wif_private_key(self):
-		self.assertTrue(self.address.private_key('wif') == self.reference['wif_private_key'])
+		self.assertTrue(self.keypair.wif_pk() == self.reference['wif_private_key'])
 
 	def test_address(self):
-		self.assertTrue(str(self.address) == self.reference['address'])
+		self.assertTrue(self.keypair.address() == self.reference['address'])
 
 	def test_hex_hash160(self):
-		self.assertTrue(self.address.hash160() == self.reference['hex_hash160'])
+		self.assertTrue(self.keypair.hash160() == self.reference['hex_hash160'])
 
 	def test_public_key(self):
-		self.assertTrue(self.address.public_key() == self.reference['hex_public_key'])
+		self.assertTrue(self.keypair.public_key() == self.reference['hex_public_key'])
 
 get_class = lambda x: globals()[x]
 
-class AltcoinAddressTest(unittest.TestCase):
+class AltcoinKeypairTest(unittest.TestCase):
 	coin_names = [
 		'bitcoin', 'litecoin', 'namecoin', 'peercoin', 'primecoin',
 		'dogecoin', 'worldcoin', 'feathercoin', 'terracoin', 'novacoin',
@@ -116,25 +116,25 @@ class AltcoinAddressTest(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-class BitcoinBrainWalletAddressTest(BitcoinAddressTest):
+class BitcoinBrainWalletKeypairTest(BitcoinKeypairTest):
 	def setUp(self):
-		BitcoinAddressTest.setUp(self)
-		self.address = BitcoinAddress.from_passphrase(self.reference['passphrase'], min_words=4)
+		BitcoinKeypairTest.setUp(self)
+		self.keypair = BitcoinKeypair.from_passphrase(self.reference['passphrase'], min_words=4)
 
 	def test_passphrase(self):
-		self.assertTrue(self.address.passphrase() == self.reference['passphrase'])
+		self.assertTrue(self.keypair.passphrase() == self.reference['passphrase'])
 
 	def test_random_passphrase_length(self):
-		random_address = BitcoinAddress.from_passphrase()
-		self.assertTrue(len(random_address.passphrase().split()) >= 12)
+		random_keypair = BitcoinKeypair.from_passphrase()
+		self.assertTrue(len(random_keypair.passphrase().split()) >= 12)
 
-class BitcoinAddressFromWIFTest(BitcoinAddressTest):
+class BitcoinKeypairFromWIFTest(BitcoinKeypairTest):
 	def setUp(self):
-		BitcoinAddressTest.setUp(self)
-		self.address = BitcoinAddress.from_wif(self.reference['wif_private_key'])
+		BitcoinKeypairTest.setUp(self)
+		self.keypair = BitcoinKeypair.from_private_key(self.reference['wif_private_key'])
 
-from coins.utils import b58check_encode, b58check_decode, b58check_unpack, \
-	is_wif_private_key, is_hex_private_key
+from coins.utils import is_hex, is_valid_secret_exponent, is_256bit_hex_string, \
+    is_wallet_import_format, is_valid_b58check_address, extract_pk_as_int
 
 class BitcoinUtilsTest(unittest.TestCase):
 	def setUp(self):
@@ -159,24 +159,24 @@ class BitcoinUtilsTest(unittest.TestCase):
 		self.assertTrue(self.wif_private_key == wif_private_key)
 
 	def test_is_wif_private_key(self):
-		self.assertTrue(is_wif_private_key(self.wif_private_key))
+		self.assertTrue(is_wallet_import_format(self.wif_private_key))
 
 	def test_is_hex_private_key(self):
-		self.assertTrue(is_hex_private_key(self.hex_private_key))
+		self.assertTrue(is_256bit_hex_string(self.hex_private_key))
 
 def test_main():
 
 	# generate altcoin tests
-	for coin_name in AltcoinAddressTest.coin_names:
+	for coin_name in AltcoinKeypairTest.coin_names:
 		test = 'test_%s' % coin_name
 		test_name = altcoin_test_generator(coin_name)
-		setattr(AltcoinAddressTest, test, test_name)
+		setattr(AltcoinKeypairTest, test, test_name)
 
 	test_support.run_unittest(
-		BitcoinAddressTest,
-		AltcoinAddressTest,
-		BitcoinBrainWalletAddressTest,
-		BitcoinAddressFromWIFTest,
+		BitcoinKeypairTest,
+		AltcoinKeypairTest,
+		BitcoinBrainWalletKeypairTest,
+		BitcoinKeypairFromWIFTest,
 		BitcoinUtilsTest
 	)
 
