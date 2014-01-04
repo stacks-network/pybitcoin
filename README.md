@@ -3,7 +3,44 @@ Coins
 
 Tools for Bitcoin and other cryptocurrencies.
 
-Supported currencies:
+## Example Usage
+
+### Custom keypairs
+
+	>>> from coins.keypair import BitcoinKeypair
+	>>> hex_private_key = '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
+	>>> k = BitcoinKeypair(hex_private_key)
+	>>> k.private_key()
+	'91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
+	>>> k.public_key()
+	'042c6b7e6da7633c8f226891cc7fa8e5ec84f8eacc792a46786efc869a408d29539a5e6f8de3f71c0014e8ea71691c7b41f45c083a074fef7ab5c321753ba2b3fe'
+	>>> k.wif_pk()
+	'5JvBUBPzU42Y7BHD7thTnySXQXMk8XEJGGQGcyBw7CCkw8RAH7m'
+	>>> k.address()
+	'13mtgVARiB1HiRyCHnKTi6rEwyje5TYKBW'
+
+### Brain wallet keypairs
+	
+	>>> passphrase = 'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
+	>>> k = BitcoinKeypair().from_passphrase(passphrase)
+	>>> k.passphrase()
+	'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
+	>>> k.address()
+	'13mtgVARiB1HiRyCHnKTi6rEwyje5TYKBW'
+
+### Randomly-generated keypairs
+
+	>>> k1 = BitcoinKeypair()
+	>>> k2 = BitcoinKeypair.from_passphrase()
+
+### Altcoin keypairs
+
+	>>> from coins.keypair import LitecoinKeypair
+	>>> ltc_k = LitecoinKeypair(hex_private_key)
+	>>> ltc_k.address()
+	'LMzqwhUFnqFLyEfMTvJkz7v1AC6v8N9Qcd'
+
+## Supported currencies
 
 - Litecoin
 - Namecoin
@@ -25,41 +62,3 @@ Supported currencies:
 - Quarkcoin
 - Netcoin
 - Earthcoin
-
-## Example Usage
-
-### Custom keypairs
-
-	>>> from coins.keypair import BitcoinKeypair
-	>>> k = BitcoinKeypair('c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a')
-	>>> k.private_key()
-	'c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a'
-	>>> k.public_key()
-	'0478d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455'
-	>>> k.wif_pk()
-	'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS'
-	>>> k.address()
-	'1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T'
-
-### Brain wallet keypairs
-
-	>>> k = BitcoinKeypair().from_passphrase('correct horse battery staple')
-	>>> k.passphrase()
-	'correct horse battery staple'
-	>>> k.address()
-	'1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T'
-
-### Randomly-generated keypairs
-
-	>>> k1 = BitcoinKeypair()
-	>>> k2 = BitcoinKeypair.from_passphrase()
-
-### Altcoin keypairs
-
-	>>> from coins.keypair import LitecoinKeypair, NamecoinKeypair
-	>>> ltc_k = LitecoinKeypair('c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a')
-	>>> ltc_k.address()
-	'LdAPi7uXrLLmeh7u57pzkZc3KovxEDYRJq'
-	>>> nmc_k = NamecoinKeypair('c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a')
-	'NEWoeZ6gh4CGvRgFAoAGh4hBqpxizGT6gZ'
-
