@@ -28,40 +28,36 @@ Supported currencies:
 
 ### Standard Usage
 
-	from coins.address import BitcoinAddress
+	>>> from coins.keypair import BitcoinKeypair
+	>>> k = BitcoinKeypair('c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a')
+	>>> k.private_key()
+	'c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a'
+	>>> k.public_key()
+	'0478d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455'
+	>>> k.wif_pk()
+	'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS'
+	>>> k.address()
+	'1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T'
 
-	a = BitcoinAddress()
+### Brain wallet keypairs
 
-### Randomly-generated addresses
+	>>> k = BitcoinKeypair().from_passphrase('correct horse battery staple')
+	>>> k.passphrase()
+	'correct horse battery staple'
+	>>> k.address()
+	'1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T'
 
-	a = BitcoinAddress()
+### Randomly-generated keypairs
 
-	print a
-	print a.wif_private_key()
-	print a.secret_exponent()
+	>>> k1 = BitcoinKeypair()
+	>>> k2 = BitcoinKeypair.from_passphrase()
 
-### Custom addresses
+### Altcoin keypairs
 
-	a1 = BitcoinAddress('c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a')
-	a2 = BitcoinAddress.from_wif('5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS')
+	>>> from coins.keypair import LitecoinKeypair, NamecoinKeypair
+	>>> ltc_k = LitecoinKeypair('c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a')
+	>>> ltc_k.address()
+	'LdAPi7uXrLLmeh7u57pzkZc3KovxEDYRJq'
+	>>> nmc_k = NamecoinKeypair('c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a')
+	'NEWoeZ6gh4CGvRgFAoAGh4hBqpxizGT6gZ'
 
-	assert(a1.secret_exponent() == 'c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a')
-	assert(a2.wif_private_key() == '5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS')
-
-### Brain wallet addresses
-
-	a = BitcoinAddress().from_passphrase()
-
-	print a.passphrase()
-
-	a = BitcoinAddress().from_passphrase('correct horse battery staple')
-
-	assert(a.passphrase() == 'correct horse battery staple')
-
-### Altcoin addresses
-
-	from coins.address import LitecoinAddress, NamecoinAddress
-
-	ltc_a = LitecoinAddress()
-	nmc_a = NamecoinAddress()
-	ppc_a = PeercoinAddress()
