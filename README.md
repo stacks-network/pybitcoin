@@ -26,7 +26,9 @@ Supported currencies:
 - Netcoin
 - Earthcoin
 
-### Standard Usage
+## Example Usage
+
+### Custom keypairs
 
 	>>> from coins.keypair import BitcoinKeypair
 	>>> k = BitcoinKeypair('c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a')
