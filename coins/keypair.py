@@ -13,8 +13,7 @@ import ecdsa
 import hashlib
 import binascii
 
-from .utils import random_secret_exponent, random_256bit_passphrase, \
-    random_160bit_passphrase
+from .utils import random_secret_exponent, random_160bit_passphrase
 from .utils import  binary_hash160, b58check_encode, b58check_decode, \
     b58check_unpack, b58check_version_byte
 from .utils import is_hex, is_valid_secret_exponent, is_256bit_hex_string, \

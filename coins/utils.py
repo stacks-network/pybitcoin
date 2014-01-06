@@ -76,20 +76,44 @@ def random_secret_exponent(curve_order):
 
     return int_secret_exponent
 
-def random_passphrase(phrase_length, word_list):
-    random.seed(get_entropy(64))
+from .words import TOP_65536_ENGLISH_WORDS
+from math import pow, ceil, log
+
+def random_passphrase_from_wordlist(phrase_length, wordlist):
+    """ An extremely entropy efficient passphrase generator.
+
+        This function:
+        -Pulls entropy from the safer alternative to /dev/urandom: /dev/random
+        -Doesn't rely on random.seed (words are selected right from the entropy)
+        -Only requires 2 entropy bytes/word for word lists of up to 65536 words
+    """
+
     passphrase_words = []
+    
+    numbytes_of_entropy = phrase_length * 2
+    entropy = list(get_entropy(numbytes_of_entropy))
+
+    bytes_per_word = int(ceil(log(len(wordlist), 2) / 8))
+
+    if (phrase_length * bytes_per_word > 64):
+        raise Exception("Error! This operation requires too much entropy. \
+            Try a shorter phrase length or word list.")
+
     for i in range(phrase_length):
-        passphrase_words.append(random.choice(word_list))
+        current_entropy = entropy[i*bytes_per_word:(i+1)*bytes_per_word]
+        index = int(''.join(current_entropy).encode('hex'), 16) % len(wordlist)
+        word = wordlist[index]
+        passphrase_words.append(word)
+
     return " ".join(passphrase_words)
 
-from .words import TOP_65536_ENGLISH_WORDS
+def random_160bit_passphrase():
+    word_list = TOP_65536_ENGLISH_WORDS
+    return random_passphrase_from_wordlist(12, word_list[0:10500])
 
 def random_256bit_passphrase():
-    return random_passphrase(16, TOP_65536_ENGLISH_WORDS[:65536])
-
-def random_160bit_passphrase():
-    return random_passphrase(12, TOP_65536_ENGLISH_WORDS[:20000])
+    word_list = TOP_65536_ENGLISH_WORDS
+    return random_passphrase_from_wordlist(16, word_list[0:65536])
 
 """ sha256 operations """
 
