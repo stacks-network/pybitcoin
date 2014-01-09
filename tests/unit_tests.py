@@ -133,8 +133,24 @@ class BitcoinKeypairFromWIFTest(BitcoinKeypairTest):
 		BitcoinKeypairTest.setUp(self)
 		self.keypair = BitcoinKeypair.from_private_key(self.reference['wif_private_key'])
 
-from coins.utils import is_hex, is_valid_secret_exponent, is_256bit_hex_string, \
-    is_wallet_import_format, is_valid_b58check_address, extract_pk_as_int
+from coins.utils import is_hex, is_secret_exponent, is_256bit_hex_string, \
+    is_wif_pk, is_b58check_address, extract_pk_as_int
+
+class RandomBitcoinKeypairsTest(unittest.TestCase):
+	def setUp(self):
+		self.keypair = BitcoinKeypair()
+		self.brainwallet_keypair = BitcoinKeypair.from_passphrase()
+
+	def tearDown(self):
+		pass
+
+	def test_keypair(self):
+		#self.assertTrue(is_256bit_hex_string(self.keypair.private_key()))
+		#self.assertTrue(is_wif_pk(self.keypair.wif_pk()))
+		self.assertTrue(is_b58check_address(self.keypair.address()))
+
+	def test_brainwallet_keypair(self):
+		self.assertTrue(len(self.brainwallet_keypair.passphrase().split()) >= 12)
 
 class BitcoinUtilsTest(unittest.TestCase):
 	def setUp(self):
@@ -159,7 +175,7 @@ class BitcoinUtilsTest(unittest.TestCase):
 		self.assertTrue(self.wif_private_key == wif_private_key)
 
 	def test_is_wif_private_key(self):
-		self.assertTrue(is_wallet_import_format(self.wif_private_key))
+		self.assertTrue(is_wif_pk(self.wif_private_key))
 
 	def test_is_hex_private_key(self):
 		self.assertTrue(is_256bit_hex_string(self.hex_private_key))
@@ -177,7 +193,8 @@ def test_main():
 		AltcoinKeypairTest,
 		BitcoinBrainWalletKeypairTest,
 		BitcoinKeypairFromWIFTest,
-		BitcoinUtilsTest
+		RandomBitcoinKeypairsTest,
+		BitcoinUtilsTest,
 	)
 
 if __name__ == '__main__':

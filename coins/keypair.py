@@ -13,11 +13,15 @@ import ecdsa
 import hashlib
 import binascii
 
-from .utils import random_secret_exponent, random_160bit_passphrase
-from .utils import  binary_hash160, b58check_encode, b58check_decode, \
-    b58check_unpack, b58check_version_byte
-from .utils import is_hex, is_valid_secret_exponent, is_256bit_hex_string, \
-    is_wallet_import_format, is_valid_b58check_address, extract_pk_as_int
+from .entropy import random_secret_exponent
+from .passphrase import random_256bit_passphrase, random_160bit_passphrase
+from .b58check import b58check_encode, b58check_decode, b58check_unpack, \
+    b58check_version_byte
+from .utils import is_hex, is_secret_exponent, is_256bit_hex_string, \
+    is_wif_pk, is_b58check_address, extract_pk_as_int
+
+def binary_hash160(s):
+    return hashlib.new('ripemd160', hashlib.sha256(s).digest()).digest()
 
 class BitcoinKeypair():
     _curve = ecdsa.curves.SECP256k1
