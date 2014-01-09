@@ -20,7 +20,7 @@ from .b58check import b58check_encode, b58check_decode, b58check_unpack, \
 from .utils import is_hex, is_secret_exponent, is_256bit_hex_string, \
     is_wif_pk, is_b58check_address, extract_pk_as_int
 
-def binary_hash160(s):
+def bin_hash160(s):
     return hashlib.new('ripemd160', hashlib.sha256(s).digest()).digest()
 
 class BitcoinKeypair():
@@ -76,7 +76,7 @@ class BitcoinKeypair():
         return '\x04' + self._ecsda_private_key.get_verifying_key().to_string()
 
     def _bin_hash160(self):
-        return binary_hash160(self._bin_public_key())
+        return bin_hash160(self._bin_public_key())
 
     def private_key(self, format='hex'):
         if format == 'bin':

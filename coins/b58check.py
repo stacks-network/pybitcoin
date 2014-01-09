@@ -19,7 +19,7 @@ B58_KEYSPACE = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 def bin_sha256(s):
     return sha256(s).digest()
 
-def binary_checksum(s):
+def bin_checksum(s):
     """ Takes in a binary string and returns a checksum. """
     return bin_sha256(bin_sha256(s))[:4]
 
@@ -30,7 +30,7 @@ def b58check_encode(bin_s, version_byte=0):
     # calculate the number of leading zeros
     num_leading_zeros = len(re.match(r'^\x00*', bin_s).group(0))
     # add in the checksum add the end
-    bin_s = bin_s + binary_checksum(bin_s)
+    bin_s = bin_s + bin_checksum(bin_s)
     # convert from b2 to b16
     hex_s = binascii.hexlify(bin_s)
     # convert from b16 to b58
@@ -50,7 +50,7 @@ def b58check_unpack(b58_s):
     # add in the leading zeros
     bin_s = '\x00' * num_leading_zeros + bin_s
     # make sure the newly calculated checksum equals the embedded checksum
-    newly_calculated_checksum = binary_checksum(bin_s[:-4])
+    newly_calculated_checksum = bin_checksum(bin_s[:-4])
     embedded_checksum = bin_s[-4:]
     assert(newly_calculated_checksum == embedded_checksum)    
     # return values
