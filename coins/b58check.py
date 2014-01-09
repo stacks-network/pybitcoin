@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+    Coins
+    ~~~~~
+
+    :copyright: (c) 2013 by Halfmoon Labs
+    :license: MIT, see LICENSE for more details.
+"""
+
 import re
 import binascii
 from hashlib import sha256

@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+    Coins
+    ~~~~~
+
+    :copyright: (c) 2013 by Halfmoon Labs
+    :license: MIT, see LICENSE for more details.
+"""
+
 from .entropy import get_entropy
 from .words import TOP_ENGLISH_WORDS
 from math import pow, ceil, log
