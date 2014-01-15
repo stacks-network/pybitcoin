@@ -1,4 +1,4 @@
-Coins
+Coinkit
 =====
 
 Tools for Bitcoin and other cryptocurrencies.
@@ -7,7 +7,7 @@ Tools for Bitcoin and other cryptocurrencies.
 
 ### Custom keypairs
 
-	>>> from coins.keypair import BitcoinKeypair
+	>>> from coinkit.keypair import BitcoinKeypair
 	>>> hex_private_key = '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
 	>>> k = BitcoinKeypair(hex_private_key)
 	>>> k.private_key()
@@ -35,7 +35,7 @@ Tools for Bitcoin and other cryptocurrencies.
 
 ### Altcoin keypairs
 
-	>>> from coins.keypair import LitecoinKeypair
+	>>> from coinkit.keypair import LitecoinKeypair
 	>>> ltc_k = LitecoinKeypair(hex_private_key)
 	>>> ltc_k.address()
 	'LMzqwhUFnqFLyEfMTvJkz7v1AC6v8N9Qcd'
