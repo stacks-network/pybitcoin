@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    Coins
+    Coinkit
     ~~~~~
 
     :copyright: (c) 2013 by Halfmoon Labs

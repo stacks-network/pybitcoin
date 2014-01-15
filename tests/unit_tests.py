@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    Coins
+    Coinkit
     ~~~~~
 
     :copyright: (c) 2013 by Halfmoon Labs
@@ -10,7 +10,11 @@
 import unittest
 from test import test_support
 
-from coins.keypair import *
+from coinkit.keypair import *
+from coinkit.utils import is_hex, is_secret_exponent, is_256bit_hex_string, \
+    is_wif_pk, is_b58check_address, extract_pk_as_int
+
+get_class = lambda x: globals()[x]
 
 def equality_test_generator(a, b):
 	def test(self):
@@ -63,8 +67,6 @@ class BitcoinKeypairTest(unittest.TestCase):
 
 	def test_public_key(self):
 		self.assertTrue(self.keypair.public_key() == self.reference['hex_public_key'])
-
-get_class = lambda x: globals()[x]
 
 class AltcoinKeypairTest(unittest.TestCase):
 	coin_names = [
@@ -142,9 +144,6 @@ class BitcoinKeypairFromWIFTest(BitcoinKeypairTest):
 		BitcoinKeypairTest.setUp(self)
 		self.keypair = BitcoinKeypair.from_private_key(self.reference['wif_private_key'])
 
-from coins.utils import is_hex, is_secret_exponent, is_256bit_hex_string, \
-    is_wif_pk, is_b58check_address, extract_pk_as_int
-
 class RandomBitcoinKeypairsTest(unittest.TestCase):
 	def setUp(self):
 		self.keypair = BitcoinKeypair()
@@ -193,9 +192,9 @@ def test_main():
 
 	# generate altcoin tests
 	for coin_name in AltcoinKeypairTest.coin_names:
-		test = 'test_%s' % coin_name
-		test_name = altcoin_test_generator(coin_name)
-		setattr(AltcoinKeypairTest, test, test_name)
+		test_name = 'test_%s' % coin_name
+		test = altcoin_test_generator(coin_name)
+		setattr(AltcoinKeypairTest, test_name, test)
 
 	test_support.run_unittest(
 		BitcoinKeypairTest,

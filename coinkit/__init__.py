@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-    Coins
+    Coinkit
     ~~~~~
 
     :copyright: (c) 2013 by Halfmoon Labs
     :license: MIT, see LICENSE for more details.
 """
 
-__version__ = '0.2.2'
+__version__ = '0.3.0'
 
 from .entropy import random_secret_exponent
 from .passphrase import random_256bit_passphrase, random_160bit_passphrase
