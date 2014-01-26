@@ -22,7 +22,7 @@ Tools for Bitcoin and other cryptocurrencies.
 ### Brain wallet keypairs
     
     >>> passphrase = 'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
-    >>> k = BitcoinKeypair().from_passphrase(passphrase)
+    >>> k = BitcoinKeypair.from_passphrase(passphrase)
     >>> k.passphrase()
     'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
     >>> k.address()
