@@ -11,6 +11,7 @@ import unittest
 from test import test_support
 
 from coinkit.keypair import *
+from coinkit.wallet import SDWallet
 from coinkit.utils import is_hex, is_secret_exponent, is_256bit_hex_string, \
     is_wif_pk, is_b58check_address, extract_pk_as_int
 
@@ -38,16 +39,16 @@ def altcoin_test_generator(coin_name):
 	return test
 
 class BitcoinKeypairTest(unittest.TestCase):
+	reference = {
+		'passphrase': 'correct horse battery staple',
+		'hex_private_key': 'c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a',
+		'hex_public_key': '0478d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455',
+		'hex_hash160': 'c4c5d791fcb4654a1ef5e03fe0ad3d9c598f9827',
+		'wif_private_key':'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
+		'address': '1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T',
+	}
 
 	def setUp(self):
-		self.reference = {
-			'passphrase': 'correct horse battery staple',
-			'hex_private_key': 'c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a',
-			'hex_public_key': '0478d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455',
-			'hex_hash160': 'c4c5d791fcb4654a1ef5e03fe0ad3d9c598f9827',
-			'wif_private_key':'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
-			'address': '1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T',
-		}
 		self.keypair = BitcoinKeypair(self.reference['hex_private_key'])
 
 	def tearDown(self):
@@ -188,6 +189,25 @@ class BitcoinUtilsTest(unittest.TestCase):
 	def test_is_hex_private_key(self):
 		self.assertTrue(is_256bit_hex_string(self.hex_private_key))
 
+class SequentialWalletTest(unittest.TestCase):
+	reference = {
+		'passphrase': 'shepherd mais pack rate enamel horace diva filesize maximum really roar mall',
+		'bitcoin_keypair_1': {
+			'address': '1DS2vmsqTwtXp1DfmDHi55Aqc6w4LBUC9k',
+		}
+	}
+
+	def setUp(self):
+		self.wallet = SDWallet(self.reference['passphrase'])
+
+	def tearDown(self):
+		pass
+
+	def test_bitcoin_keypairs(self):
+		bitcoin_keypair_1 = self.wallet.keypair(1, BitcoinKeypair)
+		self.assertTrue(self.reference['bitcoin_keypair_1']['address'], bitcoin_keypair_1.address())
+		self.assertTrue(bitcoin_keypair_1.passphrase(), self.reference['passphrase'] + ' bitcoin1')
+
 def test_main():
 
 	# generate altcoin tests
@@ -203,6 +223,7 @@ def test_main():
 		BitcoinKeypairFromWIFTest,
 		RandomBitcoinKeypairsTest,
 		BitcoinUtilsTest,
+		SequentialWalletTest,
 	)
 
 if __name__ == '__main__':
