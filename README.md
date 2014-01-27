@@ -3,9 +3,11 @@ Coinkit
 
 Tools for Bitcoin and other cryptocurrencies.
 
-## Keypairs
+## Example Usage
 
-### Custom keypairs
+### Keypairs
+
+#### Custom keypairs
 
     >>> from coinkit.keypair import BitcoinKeypair
     >>> hex_private_key = '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
@@ -19,7 +21,7 @@ Tools for Bitcoin and other cryptocurrencies.
     >>> keypair.address()
     '13mtgVARiB1HiRyCHnKTi6rEwyje5TYKBW'
 
-### Brain wallet keypairs
+#### Brain wallet keypairs
     
     >>> passphrase = 'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
     >>> keypair = BitcoinKeypair.from_passphrase(passphrase)
@@ -28,21 +30,21 @@ Tools for Bitcoin and other cryptocurrencies.
     >>> keypair.address()
     '13mtgVARiB1HiRyCHnKTi6rEwyje5TYKBW'
 
-### Randomly-generated keypairs
+#### Randomly-generated keypairs
 
     >>> keypair_from_random_private_key = BitcoinKeypair()
     >>> keypair_from_random_passphrase = BitcoinKeypair.from_passphrase()
 
-### Altcoin keypairs
+#### Altcoin keypairs
 
     >>> from coinkit.keypair import LitecoinKeypair
     >>> litecoin_keypair = LitecoinKeypair(hex_private_key)
     >>> litecoin_keypair.address()
     'LMzqwhUFnqFLyEfMTvJkz7v1AC6v8N9Qcd'
 
-## Wallets
+### Wallets
 
-### Sequential Deterministic Wallets
+#### Sequential Deterministic Wallets
 
     >>> from coinkit.wallet import SDWallet
     >>> from coinkit.keypair import BitcoinKeypair
@@ -54,9 +56,9 @@ Tools for Bitcoin and other cryptocurrencies.
     >>> bitcoin_keypair_1.address()
     '1DS2vmsqTwtXp1DfmDHi55Aqc6w4LBUC9k'
 
-## Utilities
+### Utilities
 
-### Generating random passphrases
+#### Generating random passphrases
 
     >>> from coinkit.passphrase import random_160bit_passphrase
     >>> random_160bit_passphrase()
