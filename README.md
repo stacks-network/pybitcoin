@@ -3,7 +3,7 @@ Coinkit
 
 Tools for Bitcoin and other cryptocurrencies.
 
-## Example Usage
+## Sample Usage
 
 ### Keypairs
 
