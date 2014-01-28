@@ -7,11 +7,10 @@ Tools for Bitcoin and other cryptocurrencies.
 
 ### Keypairs
 
-#### Custom keypairs
+#### Random keypairs
 
     >>> from coinkit.keypair import BitcoinKeypair
-    >>> hex_private_key = '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
-    >>> keypair = BitcoinKeypair(hex_private_key)
+    >>> keypair = BitcoinKeypair()
     >>> keypair.private_key()
     '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
     >>> keypair.public_key()
@@ -21,24 +20,28 @@ Tools for Bitcoin and other cryptocurrencies.
     >>> keypair.address()
     '13mtgVARiB1HiRyCHnKTi6rEwyje5TYKBW'
 
-#### Brain wallet keypairs
-    
-    >>> passphrase = 'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
-    >>> keypair = BitcoinKeypair.from_passphrase(passphrase)
+#### Custom keypairs
+
+    >>> hex_private_key = '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
+    >>> keypair = BitcoinKeypair(hex_private_key)
+
+#### Random brain wallet keypairs
+
+    >>> keypair = BitcoinKeypair.from_passphrase()
     >>> keypair.passphrase()
     'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
     >>> keypair.address()
     '13mtgVARiB1HiRyCHnKTi6rEwyje5TYKBW'
 
-#### Randomly-generated keypairs
+#### Custom brain wallet keypairs
 
-    >>> keypair_from_random_private_key = BitcoinKeypair()
-    >>> keypair_from_random_passphrase = BitcoinKeypair.from_passphrase()
+    >>> passphrase = 'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
+    >>> keypair = BitcoinKeypair.from_passphrase(passphrase)
 
 #### Altcoin keypairs
 
     >>> from coinkit.keypair import LitecoinKeypair
-    >>> litecoin_keypair = LitecoinKeypair(hex_private_key)
+    >>> litecoin_keypair = LitecoinKeypair()
     >>> litecoin_keypair.address()
     'LMzqwhUFnqFLyEfMTvJkz7v1AC6v8N9Qcd'
 
@@ -58,7 +61,7 @@ Tools for Bitcoin and other cryptocurrencies.
 
 ### Utilities
 
-#### Generating random passphrases
+#### Random passphrases
 
     >>> from coinkit.passphrase import random_160bit_passphrase
     >>> random_160bit_passphrase()
