@@ -45,9 +45,10 @@ class BitcoinKeypair():
         else:
             secret_exponent = random_secret_exponent(self._curve.order)
         
-        self._ecsda_private_key = ecdsa.keys.SigningKey.from_secret_exponent(
+        self._ecdsa_private_key = ecdsa.keys.SigningKey.from_secret_exponent(
             secret_exponent, self._curve, self._hash_function
         )
+        self._ecdsa_public_key = self._ecdsa_private_key.get_verifying_key()
 
     @classmethod
     def from_private_key(cls, private_key=None):
@@ -70,10 +71,10 @@ class BitcoinKeypair():
         return keypair
 
     def _bin_private_key(self):
-        return self._ecsda_private_key.to_string()
+        return self._ecdsa_private_key.to_string()
 
     def _bin_public_key(self):
-        return '\x04' + self._ecsda_private_key.get_verifying_key().to_string()
+        return '\x04' + self._ecdsa_public_key.to_string()
 
     def _bin_hash160(self):
         return bin_hash160(self._bin_public_key())
