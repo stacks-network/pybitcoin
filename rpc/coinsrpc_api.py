@@ -51,16 +51,20 @@ def namecoind_name_new(name, value, passphrase):
 
     reply = {}
 
+    #check if this name already exists
+    status = json.loads(namecoind_is_name_registered(name))
+         
+    if status['status'] == True:
+        reply['message'] = "This name already exists"
+        return jsonify(reply)
+        
     #check if passphrase is valid
     if not unlock_wallet(passphrase):
         reply['code'] = 403
         reply['message'] = "Wallet passphrase is incorrect"
         return jsonify(reply)
 
-    if not name.startswith('d/'):
-        name = 'd/' + name
         
-    #info = ['ads', 'adsadasd']
     info = namecoind.name_new(name)
     
     reply['longhex'] = info[0]
@@ -105,21 +109,27 @@ def namecoind_name_scan():
 @app.route('/namecoind/is_name_registered/<name>')
 def namecoind_is_name_registered(name):
     reply = {}
-
+    
+    if not name.startswith('d/'):
+        name = 'd/' + name
+        
     info = namecoind.name_show(name)
     if 'code' in info and info.get('code') == -4:
         reply['message'] = 'The name is not registered'
-        reply['code'] = 'No'
+        reply['status'] = False
     else:
         reply['message'] = 'The name is registered'
-        reply['code'] = 'Yes'
+        reply['status'] = True
         
-    return jsonify(reply)
+    return json.dumps(reply)
 
 #-----------------------------------
 @app.route('/namecoind/get_name_details/<name>')
 def namecoind_get_name_details(name):
-    
+
+    if not name.startswith('d/'):
+        name = 'd/' + name
+        
     info = namecoind.name_show(name)
     return jsonify(info)
 
