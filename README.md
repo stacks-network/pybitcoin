@@ -89,3 +89,15 @@ Tools for Bitcoin and other cryptocurrencies.
 - Quarkcoin
 - Netcoin
 - Earthcoin
+
+## Developers
+
+**Q:** Can I contribute to Coinkit?
+
+**A:** Of course! Any and all are encouraged to contribute. Just fork a copy of the repo and get started on something that you think would improve the current offering.
+
+**Q:** What should I work on?
+
+**A:** That's up to you! For a quick project, consider adding support for a new cryptocurrency (should only require two lines of code, not including the unit tests).
+
+Meanwhile, for something a bit more ambitious, check the issues section for outstanding feature requests.
