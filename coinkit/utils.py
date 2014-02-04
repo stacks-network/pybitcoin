@@ -3,7 +3,7 @@
     Coinkit
     ~~~~~
     
-    :copyright: (c) 2013 by Halfmoon Labs
+    :copyright: (c) 2014 by Halfmoon Labs
     :license: MIT, see LICENSE for more details.
 """
 

@@ -1,5 +1,13 @@
-from inspect import isclass
+# -*- coding: utf-8 -*-
+"""
+    Coinkit
+    ~~~~~
+    
+    :copyright: (c) 2014 by Halfmoon Labs
+    :license: MIT, see LICENSE for more details.
+"""
 
+from inspect import isclass
 from .keypair import *
 from .passphrase import random_256bit_passphrase, random_160bit_passphrase
 
