@@ -11,7 +11,7 @@ import re
 import binascii
 from hashlib import sha256
 
-from .keyspace import change_keyspace
+from characters.charset import change_charset
 
 HEX_KEYSPACE = "0123456789abcdef"
 B58_KEYSPACE = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -34,7 +34,7 @@ def b58check_encode(bin_s, version_byte=0):
     # convert from b2 to b16
     hex_s = binascii.hexlify(bin_s)
     # convert from b16 to b58
-    b58_s = change_keyspace(hex_s, HEX_KEYSPACE, B58_KEYSPACE)
+    b58_s = change_charset(hex_s, HEX_KEYSPACE, B58_KEYSPACE)
 
     return B58_KEYSPACE[0] * num_leading_zeros + b58_s
 
@@ -44,7 +44,7 @@ def b58check_unpack(b58_s):
     """
     num_leading_zeros = len(re.match(r'^1*', b58_s).group(0))
     # convert from b58 to b16
-    hex_s = change_keyspace(b58_s, B58_KEYSPACE, HEX_KEYSPACE)
+    hex_s = change_charset(b58_s, B58_KEYSPACE, HEX_KEYSPACE)
     # convert from b16 to b2
     bin_s = binascii.unhexlify(hex_s)
     # add in the leading zeros

@@ -17,8 +17,9 @@ from .entropy import random_secret_exponent
 from .passphrase import random_256bit_passphrase, random_160bit_passphrase
 from .b58check import b58check_encode, b58check_decode, b58check_unpack, \
     b58check_version_byte
-from .utils import is_hex, is_secret_exponent, is_256bit_hex_string, \
+from .utils import is_secret_exponent, is_256bit_hex_string, \
     is_wif_pk, is_b58check_address, extract_pk_as_int
+from characters.hex import is_hex
 
 def bin_hash160(s):
     return hashlib.new('ripemd160', hashlib.sha256(s).digest()).digest()

@@ -1,1 +1,2 @@
-ecdsa==0.10
+ecdsa>=0.10
+characters>=0.1

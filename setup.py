@@ -1,5 +1,5 @@
 """
-Coins
+Coinkit
 ==============
 
 """
@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='coinkit',
-    version='0.3.1',
+    version='0.3.2',
     url='https://github.com/halfmoonlabs/coinkit',
     license='MIT',
     author='Halfmoon Labs',
@@ -21,6 +21,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'ecdsa>=0.10',
+        'characters>=0.1'
     ],
     classifiers=[
         'Intended Audience :: Developers',

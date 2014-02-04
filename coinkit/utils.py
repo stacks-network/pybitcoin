@@ -14,15 +14,9 @@ import binascii
 
 """ Format checking """
 
-from .b58check import is_b58check, b58check_decode
+from characters.hex import is_hex
 
-def is_hex(s):
-    try:
-        int(s, 16)
-    except ValueError:
-        return False
-    else:
-        return True
+from .b58check import is_b58check, b58check_decode
 
 def is_secret_exponent(val, curve_order):
     return (isinstance(val, (int, long)) and val >= 1 and val < curve_order)

@@ -10,9 +10,10 @@
 import unittest
 from test import test_support
 
+from characters.hex import is_hex
 from coinkit.keypair import *
 from coinkit.wallet import SDWallet
-from coinkit.utils import is_hex, is_secret_exponent, is_256bit_hex_string, \
+from coinkit.utils import is_secret_exponent, is_256bit_hex_string, \
     is_wif_pk, is_b58check_address, extract_pk_as_int
 
 get_class = lambda x: globals()[x]
