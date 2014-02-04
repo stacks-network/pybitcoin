@@ -4,7 +4,7 @@
 # All Rights Reserved
 #-----------------------
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from pymongo import Connection
 from config import * 
 
@@ -13,11 +13,10 @@ app = Flask(__name__)
 import json
 import bitcoinrpc 
 
-bitcoind = bitcoinrpc.connect_to_remote(BITCOIND_USER, BITCOIND_PASSWD, 
-									host=BITCOIND_SERVER, port=BITCOIND_PORT, use_https=BITCOIND_USE_HTTPS)
+bitcoind = bitcoinrpc.connect_to_remote(BITCOIND_USER, BITCOIND_PASSWD, host=BITCOIND_SERVER, port=BITCOIND_PORT, use_https=BITCOIND_USE_HTTPS)
 
-namecoind = bitcoinrpc.connect_to_remote(NAMECOIND_USER, NAMECOIND_PASSWD, 
-									host=NAMECOIND_SERVER, port=NAMECOIND_PORT, use_https=NAMECOIND_USE_HTTPS)
+namecoind = bitcoinrpc.connect_to_remote(NAMECOIND_USER, NAMECOIND_PASSWD, host=NAMECOIND_SERVER, port=NAMECOIND_PORT, use_https=NAMECOIND_USE_HTTPS)
+
 
 con = Connection()
 db = con['namecoin']
@@ -46,10 +45,29 @@ def namecoind_blocks():
     return jsonify(reply)
 
 #-----------------------------------
-@app.route('/namecoind/register_name/<name>/<value>/<passphrase>')
-def namecoind_name_new(name, value, passphrase):
+@app.route('/namecoind/register_name', methods = ['POST'])
+def namecoind_name_new():
 
     reply = {}
+    data = request.values
+    #return jsonify(data)
+
+    if not 'name' in data  or not 'value' in data or not 'passphrase' in data:
+        reply['status'] = 400
+        reply['message'] = "Required: name, value, passphrase"
+        return jsonify(reply)
+
+    name = data['name']
+    value = data['value']
+    passphrase = data['passphrase']
+    freegraph = False if data.get('freegraph') is None else True   #pass True for freegraph
+    
+    if not name.startswith('d/') and not name.startswith('u/'):
+        if freegraph:
+            name = 'u/' + name
+        else:
+            name = 'd/' + name
+
 
     #check if this name already exists
     status = json.loads(namecoind_is_name_registered(name))
@@ -89,21 +107,45 @@ def namecoind_name_new(name, value, passphrase):
 #-----------------------------------
 @app.route('/namecoind/name_scan')
 def namecoind_name_scan():
-    reply = {}
-
+    
     start_name = request.args.get('start_name')     
     if start_name == None:
             start_name = "g/m"
 
     max_returned = request.args.get('max_returned')
     if max_returned == None:
-            max_returned = 500
+        max_returned = 500
     else:
-            max_returned = int(max_returned)
+        max_returned = int(max_returned)
 
-    info = namecoind.name_scan(start_name, max_returned)
-    reply = info
-    return jsonify(reply)
+    info = json.dumps(namecoind.name_scan(start_name, max_returned))
+    
+    return Response(info,  mimetype='application/json')
+     
+    #return json.dumps(info)
+
+#-----------------------------------
+@app.route('/namecoind/transfer_domain',  methods = ['POST'])
+def transfer_domain():
+
+    reply = {}
+    data = request.values
+
+    if not 'name' in data  or not 'value' in data or not 'address' in data or not 'passphrase' in data:
+            
+        reply['status'] = 400
+        reply['message'] = "Required: name, value, address, passphrase"
+        return jsonify(reply)
+
+    #first unlock the wallet
+    if not unlock_wallet(passphrase):
+        reply['code'] = 403
+        reply['message'] = "Wallet passphrase is incorrect"
+        return jsonify(reply)
+
+    
+    info = namecoind.name_update(name, value, address)
+    return jsonify(info) 
 
 #-----------------------------------
 @app.route('/namecoind/is_name_registered/<name>')
