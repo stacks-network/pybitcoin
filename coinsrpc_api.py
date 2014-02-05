@@ -63,8 +63,7 @@ def namecoind_name_new():
 
     reply = {}
     data = request.values
-    #return jsonify(data)
-
+    
     if not 'name' in data  or not 'value' in data or not 'passphrase' in data:
         reply['status'] = 400
         reply['message'] = "Required: name, value, passphrase"
@@ -74,7 +73,8 @@ def namecoind_name_new():
     value = data['value']
     passphrase = data['passphrase']
     freegraph = False if data.get('freegraph') is None else True   #pass True for freegraph
-    
+
+    #add d/ or u/ based on whether its a domain name or freegraph username
     if not name.startswith('d/') and not name.startswith('u/'):
         if freegraph:
             name = 'u/' + name
@@ -154,27 +154,43 @@ def namecoind_fg_scan():
     return pretty_dump({})
 
 #-----------------------------------
-@app.route('/namecoind/transfer_domain',  methods = ['POST'])
+@app.route('/namecoind/transfer_name',  methods = ['POST'])
 def transfer_domain():
 
     reply = {}
     data = request.values
 
-    if not 'name' in data  or not 'value' in data or not 'address' in data or not 'passphrase' in data:
-            
+    if not 'name' in data or not 'address' in data or not 'passphrase' in data:    
         reply['status'] = 400
-        reply['message'] = "Required: name, value, address, passphrase"
+        reply['message'] = "Required: name, address, passphrase"
         return jsonify(reply)
 
-    #first unlock the wallet
+    name = data['name']
+    address = data['address']
+    passphrase = data['passphrase']
+
+    if not name.startswith('d/'):
+        name = 'd/' + name
+        
+    #check if this name exists and if it does, find the value field
+    #Note that update command needs an arg of <new value>.
+    #In this case, we're simply transferring, so obtaining old value first
+
+    name_details = json.loads(namecoind_get_name_details(name))
+    if 'code' in name_details and name_details.get('code') == -4:
+        return error_reply("Name does not exist")
+
+    value = name_details.get('value')
+
+    #now unlock the wallet
     if not unlock_wallet(passphrase):
         reply['code'] = 403
         reply['message'] = "Wallet passphrase is incorrect"
         return jsonify(reply)
 
-    
+    #transfer the name
     info = namecoind.name_update(name, value, address)
-    return jsonify(info) 
+    return json.dumps(info)
 
 #-----------------------------------
 @app.route('/namecoind/is_name_registered/<name>')
@@ -202,19 +218,19 @@ def namecoind_get_name_details(name):
         name = 'd/' + name
         
     info = namecoind.name_show(name)
-    return jsonify(info)
+    return json.dumps(info)
 
 #-----------------------------------
 @app.route('/namecoind/get_filtered_domains')
 def namecoind_get_filtered_domains():
-
+    
     info = []
     data = filtered.find();
     for d in data:
         del d['_id']
         info.append(d)
         
-    return jsonify(info)
+    return json.dumps(info)
 
 #-----------------------------------
 @app.errorhandler(500)
