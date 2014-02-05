@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-----------------------
-# Copyright 2013 Halfmoon Labs, Inc.
+# Copyright 2014 Halfmoon Labs, Inc.
 # All Rights Reserved
 #-----------------------
 
@@ -12,10 +12,11 @@ app = Flask(__name__)
 
 import json
 import bitcoinrpc 
+import namecoinrpc
 
 bitcoind = bitcoinrpc.connect_to_remote(BITCOIND_USER, BITCOIND_PASSWD, host=BITCOIND_SERVER, port=BITCOIND_PORT, use_https=BITCOIND_USE_HTTPS)
 
-namecoind = bitcoinrpc.connect_to_remote(NAMECOIND_USER, NAMECOIND_PASSWD, host=NAMECOIND_SERVER, port=NAMECOIND_PORT, use_https=NAMECOIND_USE_HTTPS)
+namecoind = namecoinrpc.connect_to_remote(NAMECOIND_USER, NAMECOIND_PASSWD, host=NAMECOIND_SERVER, port=NAMECOIND_PORT, use_https=NAMECOIND_USE_HTTPS)
 
 
 con = Connection()
