@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-----------------------
-# Copyright 2013 Halfmoon Labs, Inc.
+# Copyright 2014 Halfmoon Labs, Inc.
 # All Rights Reserved
 #-----------------------
 
@@ -12,16 +12,29 @@ app = Flask(__name__)
 
 import json
 import bitcoinrpc 
+import namecoinrpc
 
 bitcoind = bitcoinrpc.connect_to_remote(BITCOIND_USER, BITCOIND_PASSWD, host=BITCOIND_SERVER, port=BITCOIND_PORT, use_https=BITCOIND_USE_HTTPS)
 
-namecoind = bitcoinrpc.connect_to_remote(NAMECOIND_USER, NAMECOIND_PASSWD, host=NAMECOIND_SERVER, port=NAMECOIND_PORT, use_https=NAMECOIND_USE_HTTPS)
+namecoind = namecoinrpc.connect_to_remote(NAMECOIND_USER, NAMECOIND_PASSWD, host=NAMECOIND_SERVER, port=NAMECOIND_PORT, use_https=NAMECOIND_USE_HTTPS)
 
 
 con = Connection()
 db = con['namecoin']
 domains = db.domains
 filtered = db.filtered
+
+#-------------------------
+def pretty_dump(input):
+
+    return json.dumps(input, sort_keys=False, indent=4, separators=(',', ': '))
+
+#---------------------------------
+def error_reply(msg):
+    reply = {}
+    reply['status'] = -1
+    reply['message'] = "ERROR: " + msg
+    return pretty_dump(reply)
 
 #-----------------------------------
 @app.route('/')
@@ -121,8 +134,24 @@ def namecoind_name_scan():
     info = json.dumps(namecoind.name_scan(start_name, max_returned))
     
     return Response(info,  mimetype='application/json')
-     
-    #return json.dumps(info)
+
+#-----------------------------------
+@app.route('/namecoind/fg_scan')
+def namecoind_fg_scan():
+    
+    username = request.args.get('username')     
+    if username == None:
+            return error_reply("No name given")
+
+    max_returned = 1
+    
+    users = namecoind.name_scan(username, max_returned)
+
+    for i in users:
+        if(i['name'] == username):
+            return pretty_dump(i)
+    
+    return pretty_dump({})
 
 #-----------------------------------
 @app.route('/namecoind/transfer_domain',  methods = ['POST'])
