@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #-----------------------
 # Copyright 2014 Halfmoon Labs, Inc.
 # All Rights Reserved
@@ -11,6 +12,7 @@ from config import *
 app = Flask(__name__)
 
 import json
+from json import JSONEncoder
 import bitcoinrpc 
 import namecoinrpc
 
@@ -27,7 +29,7 @@ filtered = db.filtered
 #-------------------------
 def pretty_dump(input):
 
-    return json.dumps(input, sort_keys=False, indent=4, separators=(',', ': '))
+    return json.dumps(input, sort_keys=False, indent=4, separators=(',', ': '), ensure_ascii=False)
 
 #---------------------------------
 def error_reply(msg, code = -1):
@@ -131,6 +133,8 @@ def namecoind_name_scan():
 @app.route('/namecoind/fg_scan')
 def namecoind_fg_scan():
     
+    reply = {}
+
     username = request.args.get('username')     
     if username == None:
         return error_reply("No name given")
@@ -141,9 +145,13 @@ def namecoind_fg_scan():
 
     for i in users:
         if(i['name'] == username):
-            return pretty_dump(i)
-    
-    return pretty_dump({})
+            for key in i.keys():
+                if(key == 'value'):
+                    reply[key] = json.loads(i[key])
+                else:
+                    reply[key] = i[key]
+
+    return pretty_dump(reply)
 
 #-----------------------------------
 @app.route('/namecoind/transfer_name',  methods = ['POST'])
