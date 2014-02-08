@@ -9,12 +9,20 @@ from flask import Flask, request, jsonify, Response
 from pymongo import Connection
 from config import * 
 
+"""from OpenSSL import SSL
+context = SSL.Context(SSL.SSLv23_METHOD)
+context.use_privatekey_file('ssl/server.key')
+context.use_certificate_file('ssl/server.pem')
+"""
+
 app = Flask(__name__)
 
 import json
 from json import JSONEncoder
 import bitcoinrpc 
 import namecoinrpc
+import getpass
+from functools import wraps
 
 bitcoind = bitcoinrpc.connect_to_remote(BITCOIND_USER, BITCOIND_PASSWD, host=BITCOIND_SERVER, port=BITCOIND_PORT, use_https=BITCOIND_USE_HTTPS)
 
@@ -25,6 +33,25 @@ con = Connection()
 db = con['namecoin']
 domains = db.domains
 filtered = db.filtered
+entered_passphrase = ''
+
+#---------------------------------
+def check_auth(username, password):
+    return username == APP_USERNAME and password == APP_PASSWORD
+
+#---------------------------------
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth: 
+            return error_reply("invalid username/password")
+
+        elif not check_auth(auth.username, auth.password):
+            return error_reply("invalid auth username/password")
+        return f(*args, **kwargs)
+
+    return decorated
 
 #-------------------------
 def pretty_dump(input):
@@ -66,20 +93,23 @@ def namecoind_name_new():
     reply = {}
     data = request.values
     
-    if not 'name' in data  or not 'value' in data or not 'passphrase' in data:
-        return error_reply("Required: name, value, passphrase", 400)
+    if not 'name' in data  or not 'value' in data:
+        return error_reply("Required: name, value", 400)
         
     name = data['name']
     value = data['value']
-    passphrase = data['passphrase']
-    freegraph = False if data.get('freegraph') is None else True   #pass True for freegraph
+    
+    object_type = data.get('type')
+    if object_type is None:
+        object_type = "domain"      #if 'type' is not passed; we have default type of domain
 
-    #add d/ or u/ based on whether its a domain name or freegraph username
-    if not name.startswith('d/') and not name.startswith('u/'):
-        if freegraph:
-            name = 'u/' + name
-        else:
-            name = 'd/' + name
+    if object_type == "domain":
+        name = 'd/' + name
+    elif object_type == "freegraph_user":
+        name = 'u/' + name
+    else:                       #else advanced: in that case, we don't add anything...
+        pass
+
 
     #check if this name already exists
     status = json.loads(namecoind_is_name_registered(name))
@@ -87,7 +117,7 @@ def namecoind_name_new():
         return error_reply("This name already exists")
         
     #check if passphrase is valid
-    if not unlock_wallet(passphrase):
+    if not unlock_wallet(entered_passphrase):
         return error_reply("Wallet passphrase is incorrect", 403)
 
     #create new name
@@ -131,6 +161,7 @@ def namecoind_name_scan():
 
 #-----------------------------------
 @app.route('/namecoind/fg_scan')
+#@requires_auth
 def namecoind_fg_scan():
     
     reply = {}
@@ -147,7 +178,10 @@ def namecoind_fg_scan():
         if(i['name'] == username):
             for key in i.keys():
                 if(key == 'value'):
-                    reply[key] = json.loads(i[key])
+                    try:
+                        reply[key] = json.loads(i[key])
+                    except:
+                        reply[key] = json.loads('{}')
                 else:
                     reply[key] = i[key]
 
@@ -160,13 +194,12 @@ def transfer_domain():
     reply = {}
     data = request.values
 
-    if not 'name' in data or not 'address' in data or not 'passphrase' in data:    
-        return error_reply("Required: name, address, passphrase", 400)
+    if not 'name' in data or not 'address' in data:    
+        return error_reply("Required: name, address", 400)
     
     name = data['name']
     address = data['address']
-    passphrase = data['passphrase']
-
+    
     if not name.startswith('d/'):
         name = 'd/' + name
         
@@ -181,7 +214,7 @@ def transfer_domain():
     value = data.get('value') if data.get('value') is not None else name_details.get('value')
 
     #now unlock the wallet
-    if not unlock_wallet(passphrase):
+    if not unlock_wallet(entered_passphrase):
         error_reply("Wallet passphrase is incorrect", 403)
         
     #transfer the name
@@ -245,5 +278,8 @@ def unlock_wallet(passphrase, timeout = 10):
 #-----------------------------------
 
 if __name__ == '__main__':
-    app.run(host=DEFAULT_HOST, port=DEFAULT_PORT,debug=DEBUG)
+    
+    entered_passphrase = getpass.getpass('Enter passphrase: ')
 
+    #app.run(host=DEFAULT_HOST, port=DEFAULT_PORT,debug=DEBUG,ssl_context=context)
+    app.run(host=DEFAULT_HOST, port=DEFAULT_PORT,debug=DEBUG)
