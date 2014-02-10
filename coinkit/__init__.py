@@ -7,7 +7,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 from .entropy import random_secret_exponent
 from .passphrase import random_256bit_passphrase, random_160bit_passphrase
