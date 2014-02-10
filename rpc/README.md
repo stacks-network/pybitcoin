@@ -1,6 +1,12 @@
 coinrpc
 =======
 
+For secure deployment:
+```
+  python setup.py build_ext --inplace
+  python secure_run.py
+```
+
 This documentation is currently under progress
 
 Add a new Name:
