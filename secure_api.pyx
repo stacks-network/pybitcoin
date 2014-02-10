@@ -7,7 +7,6 @@
 
 from flask import Flask, request, jsonify, Response
 from pymongo import Connection
-from config import * 
 
 from OpenSSL import SSL
 context = SSL.Context(SSL.SSLv23_METHOD)
@@ -18,21 +17,31 @@ app = Flask(__name__)
 
 import json
 from json import JSONEncoder
-import bitcoinrpc 
 import namecoinrpc
 import getpass
 from functools import wraps
 
-bitcoind = bitcoinrpc.connect_to_remote(BITCOIND_USER, BITCOIND_PASSWD, host=BITCOIND_SERVER, port=BITCOIND_PORT, use_https=BITCOIND_USE_HTTPS)
+APP_USERNAME = getpass.getpass('Enter API username: ')
+APP_PASSWORD = getpass.getpass('Enter API password: ')
+
+NAMECOIND_SERVER = getpass.getpass('Enter server: ')
+NAMECOIND_USER = getpass.getpass('Enter rpcuser: ')
+NAMECOIND_PASSWD = getpass.getpass('Enter rpcpassword: ')
+entered_passphrase = getpass.getpass('Enter passphrase: ')
+
+DEBUG = True
+DEFAULT_PORT = 5000
+DEFAULT_HOST = '127.0.0.1'
+NAMECOIND_USE_HTTPS = True
+NAMECOIND_PORT = 5005
 
 namecoind = namecoinrpc.connect_to_remote(NAMECOIND_USER, NAMECOIND_PASSWD, host=NAMECOIND_SERVER, port=NAMECOIND_PORT, use_https=NAMECOIND_USE_HTTPS)
-
 
 con = Connection()
 db = con['namecoin']
 domains = db.domains
 filtered = db.filtered
-entered_passphrase = ''
+
 
 #---------------------------------
 def check_auth(username, password):
@@ -67,15 +76,7 @@ def error_reply(msg, code = -1):
 #-----------------------------------
 @app.route('/')
 def index():
-    return 'Welcome to the bitcoind/namecoind API server of <a href="http://halfmoonlabs.com">Halfmoon Labs</a>.'	
-
-#-----------------------------------
-@app.route('/bitcoind/blocks')
-def bitcoind_blocks():
-    reply = {}
-    info = bitcoind.getinfo()
-    reply['blocks'] = info.blocks
-    return pretty_dump(reply)
+    return 'Welcome to the namecoind API server of <a href="http://halfmoonlabs.com">Halfmoon Labs</a>.'	
 
 #-----------------------------------
 @app.route('/namecoind/blocks')
@@ -184,40 +185,6 @@ def namecoind_fg_scan():
     return pretty_dump(reply)
 
 #-----------------------------------
-@app.route('/namecoind/transfer_name',  methods = ['POST'])
-def transfer_domain():
-
-    reply = {}
-    data = request.values
-
-    if not 'name' in data or not 'address' in data:    
-        return error_reply("Required: name, address", 400)
-    
-    name = data['name']
-    address = data['address']
-    
-    if not name.startswith('d/'):
-        name = 'd/' + name
-        
-    #check if this name exists and if it does, find the value field
-    #Note that update command needs an arg of <new value>.
-    #In case we're simply transferring, we need to obtain old value first
-
-    name_details = json.loads(namecoind_get_name_details(name))
-    if 'code' in name_details and name_details.get('code') == -4:
-        return error_reply("Name does not exist")
-
-    value = data.get('value') if data.get('value') is not None else name_details.get('value')
-
-    #now unlock the wallet
-    if not unlock_wallet(entered_passphrase):
-        error_reply("Wallet passphrase is incorrect", 403)
-        
-    #transfer the name
-    info = namecoind.name_update(name, value, address)
-    return pretty_dump(info)
-
-#-----------------------------------
 @app.route('/namecoind/is_name_registered/<name>')
 def namecoind_is_name_registered(name):
     reply = {}
@@ -273,8 +240,6 @@ def unlock_wallet(passphrase, timeout = 10):
     return info             #info will be True or False
 #-----------------------------------
 
-if __name__ == '__main__':
+def start():
     
-    entered_passphrase = getpass.getpass('Enter passphrase: ')
-
     app.run(host=DEFAULT_HOST, port=DEFAULT_PORT,debug=DEBUG,ssl_context=context)
