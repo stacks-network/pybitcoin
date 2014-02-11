@@ -9,6 +9,12 @@ For secure deployment:
 
 This documentation is currently under progress
 
+## With SSL Support
+
+After installing OpenSSL on your Linux/OSX system. Create a directory coinrpc/ssl and create the cert files:
+```
+openssl req -new -x509 -days 365 -nodes -out server.pem -keyout server.key
+```
 
 ##Add a new Name:
 
