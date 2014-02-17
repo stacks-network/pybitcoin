@@ -9,10 +9,11 @@ from flask import Flask, request, jsonify, Response
 from pymongo import Connection
 from config import * 
 
-from OpenSSL import SSL
+"""from OpenSSL import SSL
 context = SSL.Context(SSL.SSLv23_METHOD)
 context.use_privatekey_file('ssl/server.key')
 context.use_certificate_file('ssl/server.pem')
+"""
 
 app = Flask(__name__)
 
@@ -97,15 +98,18 @@ def namecoind_name_new():
         
     name = data['name']
     value = data['value']
+    
+    object_type = data.get('type')
+    if object_type is None:
+        object_type = "domain"      #if 'type' is not passed; we have default type of domain
 
-    freegraph = False if data.get('freegraph') is None else True   #pass True for freegraph
+    if object_type == "domain":
+        name = 'd/' + name
+    elif object_type == "freegraph_user":
+        name = 'u/' + name
+    else:                       #else advanced: in that case, we don't add anything...
+        pass
 
-    #add d/ or u/ based on whether its a domain name or freegraph username
-    if not name.startswith('d/') and not name.startswith('u/'):
-        if freegraph:
-            name = 'u/' + name
-        else:
-            name = 'd/' + name
 
     #check if this name already exists
     status = json.loads(namecoind_is_name_registered(name))
@@ -277,4 +281,5 @@ if __name__ == '__main__':
     
     entered_passphrase = getpass.getpass('Enter passphrase: ')
 
-    app.run(host=DEFAULT_HOST, port=DEFAULT_PORT,debug=DEBUG,ssl_context=context)
+    #app.run(host=DEFAULT_HOST, port=DEFAULT_PORT,debug=DEBUG,ssl_context=context)
+    app.run(host=DEFAULT_HOST, port=DEFAULT_PORT,debug=DEBUG)

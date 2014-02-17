@@ -63,8 +63,12 @@ while True:
                     break
                     
                 print "Activating domain: %s to point to %s" % (domain['name'], domain['value'])
-                
-                update_value = json.dumps({"map":{"": domain['value']}})
+
+                if domain.get('type') is not None and domain.get('type') == 'advanced':
+                    update_value = domain['value']      #its already a json value...
+                else:
+                    update_value = json.dumps({"map":{"": domain['value']}})
+                    
                 output = namecoind_firstupdate(domain['name'], domain['rand'], update_value)
                 print "Transaction ID ", output
 
