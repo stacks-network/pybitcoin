@@ -23,6 +23,10 @@ def unlock_wallet(passphrase, timeout=10):
     return info             #info will be True or False
 
 #----------------------------------------------
+def register_name(name):
+    return namecoind.name_new(name)         #returns a list of [longhex, rand]
+    
+#----------------------------------------------
 
 #When this script is run, it will check Mongodb and find domains which aren't
 #registered yet. This will then register domains for which 12 blocks have been
@@ -50,19 +54,55 @@ while True:
     print "Starting running the script"
     
     for domain in domains_collection:
-        if not domain['activated']:
+        if domain.get('registered') is not None and domain.get('registered') == False :
+
+            #register domain here
+
+            reg_type = domain.get('reg_type')
+            if reg_type == 'domain':
+                name = 'd/' + domain.get('name')
+            elif reg_type == 'username':
+                name = 'u/' + domain.get('name')
+            else:
+                name = domain.get('name')           #advanced case
+
+            print "Registering name %s" % name
+            
+            #first unlock the wallet
+            if not unlock_wallet(passphrase):
+                print "passphrase is incorrect\n"
+                break
+                
+            info = register_name(name)
+
+            domain['longhex'] = info[0]
+            domain['rand'] = info[1]                   
+            domain['registered'] = True
+
+            block_info = json.loads(namecoind_blocks())
+            domain['current_block'] = block_info['blocks']
+            domain['wait_till_block'] = block_info['blocks']+ 12
+            domain['activated'] = False
+            
+            domains.save(domain)
+                                 
+                                
+        elif domain.get('activated') is not None and domain.get('activated') == False:   #domain is registered; but not activated
+            
             #compare the current block with 'wait_till_block'
             block_info = json.loads(namecoind_blocks())
 
             if block_info['blocks'] > domain['wait_till_block']:
                 #lets activate the domain
 
+                print "Activating domain: %s to point to %s" % (domain['name'], domain['value'])
+                
                 #first unlock the wallet
                 if not unlock_wallet(passphrase):
                     print "passphrase is incorrect\n"
                     break
                     
-                print "Activating domain: %s to point to %s" % (domain['name'], domain['value'])
+                
 
                 if domain.get('type') is not None and domain.get('type') == 'advanced':
                     update_value = domain['value']      #its already a json value...
