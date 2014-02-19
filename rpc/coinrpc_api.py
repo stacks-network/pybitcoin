@@ -6,6 +6,7 @@
 #-----------------------
 
 from flask import Flask, request, jsonify, Response
+from flask.ext.mail import Message, Mail
 from pymongo import Connection
 from config import * 
 
@@ -16,6 +17,16 @@ context.use_certificate_file('ssl/server.pem')
 """
 
 app = Flask(__name__)
+
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_USE_SSL"] = True
+app.config["MAIL_USERNAME"] = 'ibrahim@redbrick.io'
+app.config["MAIL_PASSWORD"] = 'passwordhere'
+
+mail = Mail()
+mail.init_app(app)
+
 
 import json
 from json import JSONEncoder
@@ -275,6 +286,20 @@ def unlock_wallet(passphrase, timeout = 10):
 
     info = namecoind.walletpassphrase(passphrase, timeout, True)
     return info             #info will be True or False
+#-----------------------------------
+@app.route('/send_email')
+def send_email():
+
+    subject = "Welcome to Coin East"
+    recipient_email = 'ibrahimahmed443@gmail.com'
+    message = "You are register successfully. Now you can login with:"
+
+    msg = Message(subject, sender='ibrahim@redbrick.io', recipients=[recipient_email])
+    msg.body = message 
+    mail.send(msg)
+
+    return "sent!"
+    
 #-----------------------------------
 
 if __name__ == '__main__':
