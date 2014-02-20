@@ -60,11 +60,11 @@ while True:
 
             reg_type = domain.get('reg_type')
             if reg_type == 'domain':
-                name = 'd/' + domain.get('name')
+                name = domain.get('name') if domain.get('name').startswith('d/') else ('d/' + domain.get('name'))
             elif reg_type == 'username':
-                name = 'u/' + domain.get('name')
+                name = domain.get('name') if domain.get('name').startswith('u/') else ('u/' + domain.get('name'))
             else:
-                name = domain.get('name')           #advanced case
+                name = domain.get('name')           #advanced case; dont add anything
 
             print "Registering name %s" % name
             
@@ -78,6 +78,7 @@ while True:
             domain['longhex'] = info[0]
             domain['rand'] = info[1]                   
             domain['registered'] = True
+            domain['name'] = name
 
             block_info = json.loads(namecoind_blocks())
             domain['current_block'] = block_info['blocks']
@@ -95,19 +96,23 @@ while True:
             if block_info['blocks'] > domain['wait_till_block']:
                 #lets activate the domain
 
-                print "Activating domain: %s to point to %s" % (domain['name'], domain['value'])
+                reg_type = domain.get('reg_type')
+                if reg_type == "username" or reg_type == "advanced":
+                    update_value = domain['value']      #its already a json value...
+                else:
+                    #check if 'value' is a json or not
+                    try:
+                        update_value = json.loads(domain['value'])
+                        update_value = json.dumps(update_value)     #no error while parsing; dump into json again
+                    except ValueError:
+                        update_value = json.dumps({"map":{"": domain['value']}})    #error: treat it as a string
+
+                print "Activating domain: %s to point to %s" % (domain['name'], update_value)
                 
                 #first unlock the wallet
                 if not unlock_wallet(passphrase):
                     print "passphrase is incorrect\n"
                     break
-                    
-                
-
-                if domain.get('type') is not None and domain.get('type') == 'advanced':
-                    update_value = domain['value']      #its already a json value...
-                else:
-                    update_value = json.dumps({"map":{"": domain['value']}})
                     
                 output = namecoind_firstupdate(domain['name'], domain['rand'], update_value)
                 print "Transaction ID ", output
