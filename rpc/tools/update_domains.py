@@ -2,7 +2,7 @@
 #----------------------------------------------
 ###Copying some functions from coinsrpc.py as these functions are giving a context error if imported here;
 ###There should probably be a better approach for this. For now, going with copying functions
-    
+
 def namecoind_blocks():
 
     reply = {}
@@ -35,7 +35,7 @@ def register_name(name):
 import json
 from time import sleep
 from pymongo import Connection
-import bitcoinrpc 
+import namecoinrpc 
 #from coinsrpc_api import namecoind_blocks, namecoind_firstupdate, unlock_wallet
 from config import * 
 
