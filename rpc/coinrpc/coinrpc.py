@@ -7,11 +7,7 @@
 
 from flask import Flask, request, jsonify, Response
 from pymongo import Connection
-
-from OpenSSL import SSL
-context = SSL.Context(SSL.SSLv23_METHOD)
-context.use_privatekey_file('ssl/server.key')
-context.use_certificate_file('ssl/server.pem')
+from config import * 
 
 app = Flask(__name__)
 
@@ -21,27 +17,15 @@ import namecoinrpc
 import getpass
 from functools import wraps
 
-APP_USERNAME = getpass.getpass('Enter API username: ')
-APP_PASSWORD = getpass.getpass('Enter API password: ')
-
-NAMECOIND_SERVER = getpass.getpass('Enter server: ')
-NAMECOIND_USER = getpass.getpass('Enter rpcuser: ')
-NAMECOIND_PASSWD = getpass.getpass('Enter rpcpassword: ')
-entered_passphrase = getpass.getpass('Enter passphrase: ')
-
-DEBUG = True
-DEFAULT_PORT = 5000
-DEFAULT_HOST = '127.0.0.1'
-NAMECOIND_USE_HTTPS = True
-NAMECOIND_PORT = 5005
-
-namecoind = namecoinrpc.connect_to_remote(NAMECOIND_USER, NAMECOIND_PASSWD, host=NAMECOIND_SERVER, port=NAMECOIND_PORT, use_https=NAMECOIND_USE_HTTPS)
+namecoind = namecoinrpc.connect_to_remote(NAMECOIND_USER, NAMECOIND_PASSWD, 
+                                        host=NAMECOIND_SERVER, port=NAMECOIND_PORT, 
+                                        use_https=NAMECOIND_USE_HTTPS)
 
 con = Connection()
 db = con['namecoin']
-domains = db.domains
-filtered = db.filtered
+queue = db.queue
 
+entered_passphrase = ''
 
 #---------------------------------
 def check_auth(username, password):
@@ -87,42 +71,44 @@ def namecoind_blocks():
     return pretty_dump(reply)
 
 #-----------------------------------
-@app.route('/namecoind/register_name', methods = ['POST'])
+#step-1 for registrering new names 
+@app.route('/namecoind/name_new', methods = ['POST'])
 def namecoind_name_new():
 
     reply = {}
     data = request.values
     
-    if not 'name' in data  or not 'value' in data:
-        return error_reply("Required: name, value", 400)
+    if not 'key' in data  or not 'value' in data:
+        return error_reply("Required: key, value", 400)
         
-    name = data['name']
+    key = data['key']
     value = data['value']
+    
+    object_type = data.get('type')
 
-    freegraph = False if data.get('freegraph') is None else True   #pass True for freegraph
+    #----------------
+    #if 'type' is not passed; we have default 'key'
+    if object_type == "domain":
+        key = 'd/' + key
+    elif object_type == "onename":
+        key = 'u/' + key
 
-    #add d/ or u/ based on whether its a domain name or freegraph username
-    if not name.startswith('d/') and not name.startswith('u/'):
-        if freegraph:
-            name = 'u/' + name
-        else:
-            name = 'd/' + name
-
-    #check if this name already exists
-    status = json.loads(namecoind_is_name_registered(name))
+    #check if this key already exists
+    status = json.loads(namecoind_is_key_registered(key))
     if status['status'] == True:
-        return error_reply("This name already exists")
+        return error_reply("This key already exists")
         
     #check if passphrase is valid
     if not unlock_wallet(entered_passphrase):
         return error_reply("Wallet passphrase is incorrect", 403)
 
     #create new name
-    info = namecoind.name_new(name)         #returns a list of [longhex, rand]
+    #returns a list of [longhex, rand]
+    info = namecoind.name_new(key)
     
     reply['longhex'] = info[0]
     reply['rand'] = info[1]
-    reply['name'] = name
+    reply['key'] = key
     reply['value'] = value
     
     #get current block...
@@ -132,12 +118,79 @@ def namecoind_name_new():
     reply['activated'] = False
     
     #save this data to Mongodb...
-    domains.insert(reply)
+    queue.insert(reply)
 
-    reply['message'] = 'Your domain will be activated in roughly two hours'
+    reply['message'] = 'Your registration will be completed in roughly two hours'
     del reply['_id']        #reply[_id] is causing a json encode error
     
     return pretty_dump(reply)
+
+#----------------------------------------------
+#step-2 for registering new names
+def namecoind_firstupdate(name, rand, value):
+
+    info = namecoind.name_firstupdate(name, rand, value)
+    return json.dumps(info)
+
+
+#-----------------------------------
+#step-3 for registering new names
+@app.route('/namecoind/name_update', methods = ['POST'])
+def namecoind_name_update():
+
+    reply = {}
+    data = request.values
+
+    if not 'key' in data or not 'new_address' in data:    
+        return error_reply("Required: key, new_address", 400)
+    
+    key = data['key']
+    new_address = data['new_address']
+    
+    #check if this name exists and if it does, find the value field
+    #Note that update command needs an arg of <new value>.
+    #In case we're simply transferring, we need to obtain old value first
+
+    key_details = json.loads(namecoind_get_key_details(key))
+    if 'code' in key_details and key_details.get('code') == -4:
+        return error_reply("Key does not exist")
+
+    value = data.get('value') if data.get('value') is not None else key_details.get('value')
+
+    #now unlock the wallet
+    if not unlock_wallet(entered_passphrase):
+        error_reply("Wallet passphrase is incorrect", 403)
+        
+    #transfer the name
+    info = namecoind.name_update(key, value, new_address)
+    return pretty_dump(info)
+
+#-----------------------------------
+@app.route('/namecoind/check_registration')
+def check_registration():
+
+    reply = {}
+    key = request.args.get('key')
+
+    info = namecoind.name_show(key)
+    
+    if 'code' in info and info.get('code') == -4:
+        reply['message'] = 'The key is not registered'
+        reply['status'] = 404
+    else:
+        reply['message'] = 'The key is registered'
+        reply['status'] = 200
+        
+    return pretty_dump(reply)
+
+#-----------------------------------
+@app.route('/namecoind/name_show')
+def namecoind_name_show():
+
+    key = request.args.get('key')
+
+    info = namecoind.name_show(key)
+    return pretty_dump(info)
 
 #-----------------------------------
 @app.route('/namecoind/name_scan')
@@ -157,15 +210,19 @@ def namecoind_name_scan():
     return pretty_dump(info)
 
 #-----------------------------------
-@app.route('/namecoind/fg_scan')
+@app.route('/namecoind/onename_scan')
 #@requires_auth
-def namecoind_fg_scan():
+def namecoind_onename_scan():
     
     reply = {}
 
-    username = request.args.get('username')     
+    username = request.args.get('username')
+
     if username == None:
-        return error_reply("No name given")
+        return error_reply("No username given")
+
+    if not username.startswith('u/'):
+        username = 'u/' + username
 
     max_returned = 1
     
@@ -185,45 +242,11 @@ def namecoind_fg_scan():
     return pretty_dump(reply)
 
 #-----------------------------------
-@app.route('/namecoind/is_name_registered/<name>')
-def namecoind_is_name_registered(name):
-    reply = {}
+#helper function
+def unlock_wallet(passphrase, timeout = 10):
 
-    if not name.startswith('d/'):
-        name = 'd/' + name
-    
-    info = namecoind.name_show(name)
-    
-    if 'code' in info and info.get('code') == -4:
-        reply['message'] = 'The name is not registered'
-        reply['status'] = 404
-    else:
-        reply['message'] = 'The name is registered'
-        reply['status'] = 200
-        
-    return pretty_dump(reply)
-
-#-----------------------------------
-@app.route('/namecoind/get_name_details/<name>')
-def namecoind_get_name_details(name):
-
-    if not name.startswith('d/'):
-        name = 'd/' + name
-        
-    info = namecoind.name_show(name)
-    return pretty_dump(info)
-
-#-----------------------------------
-@app.route('/namecoind/get_filtered_domains')
-def namecoind_get_filtered_domains():
-    
-    info = []
-    data = filtered.find();
-    for d in data:
-        del d['_id']
-        info.append(d)
-        
-    return pretty_dump(info)
+    info = namecoind.walletpassphrase(passphrase, timeout, True)
+    return info             #info will be True or False
 
 #-----------------------------------
 @app.errorhandler(500)
@@ -231,15 +254,11 @@ def internal_error(error):
 
     reply = {}
     return jsonify(reply)
-
-#-----------------------------------
-#helper function
-def unlock_wallet(passphrase, timeout = 10):
-
-    info = namecoind.walletpassphrase(passphrase, timeout, True)
-    return info             #info will be True or False
-#-----------------------------------
-
-def start():
     
-    app.run(host=DEFAULT_HOST, port=DEFAULT_PORT,debug=DEBUG,ssl_context=context)
+#-----------------------------------
+
+if __name__ == '__main__':
+    
+    entered_passphrase = getpass.getpass('Enter passphrase: ')
+
+    app.run(host=DEFAULT_HOST, port=DEFAULT_PORT,debug=DEBUG)
