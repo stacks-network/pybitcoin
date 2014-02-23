@@ -5,14 +5,13 @@
 # All Rights Reserved
 #-----------------------
 
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request
 from pymongo import Connection
 from config import * 
 
 app = Flask(__name__)
 
 import json
-from json import JSONEncoder
 import namecoinrpc
 import getpass
 from functools import wraps
@@ -73,6 +72,7 @@ def namecoind_blocks():
 #-----------------------------------
 #step-1 for registrering new names 
 @app.route('/namecoind/name_new', methods = ['POST'])
+@requires_auth
 def namecoind_name_new():
 
     reply = {}
@@ -134,9 +134,31 @@ def namecoind_firstupdate(name, rand, value):
 
 
 #-----------------------------------
-#step-3 for registering new names
 @app.route('/namecoind/name_update', methods = ['POST'])
+@requires_auth
 def namecoind_name_update():
+
+    reply = {}
+    data = request.values
+
+    if not 'key' in data or not 'new_value' in data:    
+        return error_reply("Required: key, new_value", 400)
+    
+    key = data['key']
+    new_value = data['new_value']
+    
+    #now unlock the wallet
+    if not unlock_wallet(entered_passphrase):
+        error_reply("Wallet passphrase is incorrect", 403)
+        
+    #update the 'value'
+    info = namecoind.name_update(key, new_value)
+    return pretty_dump(info)
+
+#-----------------------------------
+@app.route('/namecoind/transfer', methods = ['POST'])
+@requires_auth
+def namecoind_transfer():
 
     reply = {}
     data = request.values
@@ -152,9 +174,11 @@ def namecoind_name_update():
     #In case we're simply transferring, we need to obtain old value first
 
     key_details = json.loads(namecoind_get_key_details(key))
+
     if 'code' in key_details and key_details.get('code') == -4:
         return error_reply("Key does not exist")
 
+    #get new 'value' if given, otherwise use the old 'value'
     value = data.get('value') if data.get('value') is not None else key_details.get('value')
 
     #now unlock the wallet
@@ -184,15 +208,6 @@ def check_registration():
     return pretty_dump(reply)
 
 #-----------------------------------
-@app.route('/namecoind/name_show')
-def namecoind_name_show():
-
-    key = request.args.get('key')
-
-    info = namecoind.name_show(key)
-    return pretty_dump(info)
-
-#-----------------------------------
 @app.route('/namecoind/name_scan')
 def namecoind_name_scan():
     
@@ -209,27 +224,20 @@ def namecoind_name_scan():
     info = json.dumps(namecoind.name_scan(start_name, max_returned))
     return pretty_dump(info)
 
+
 #-----------------------------------
-@app.route('/namecoind/onename_scan')
-#@requires_auth
-def namecoind_onename_scan():
-    
+#helper function for name_show
+def get_value(input_key):
+
     reply = {}
 
-    username = request.args.get('username')
-
-    if username == None:
-        return error_reply("No username given")
-
-    if not username.startswith('u/'):
-        username = 'u/' + username
-
     max_returned = 1
-    
-    users = namecoind.name_scan(username, max_returned)
 
-    for i in users:
-        if(i['name'] == username):
+    value = namecoind.name_scan(input_key, max_returned)
+
+    for i in value:
+        if(i['name'] == input_key):
+
             for key in i.keys():
                 if(key == 'value'):
                     try:
@@ -240,6 +248,32 @@ def namecoind_onename_scan():
                     reply[key] = i[key]
 
     return pretty_dump(reply)
+
+#-----------------------------------
+@app.route('/namecoind/name_show')
+def namecoind_name_show():
+    
+    key = request.args.get('key')
+
+    if key == None:
+        return error_reply("No key given")
+
+    return get_value(key)
+
+#-----------------------------------
+@app.route('/namecoind/onename_show')
+#@requires_auth
+def namecoind_onename_show():
+    
+    username = request.args.get('username')
+
+    if username == None:
+        return error_reply("No username given")
+
+    if not username.startswith('u/'):
+        username = 'u/' + username
+
+    return get_value(username)
 
 #-----------------------------------
 #helper function
@@ -253,7 +287,7 @@ def unlock_wallet(passphrase, timeout = 10):
 def internal_error(error):
 
     reply = {}
-    return jsonify(reply)
+    return pretty_dump(reply)
     
 #-----------------------------------
 
