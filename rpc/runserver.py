@@ -9,9 +9,12 @@
 
 import os
 from coinrpc.coinrpc import app
-from config import DEFAULT_PORT, DEFAULT_HOST, DEBUG
+from config import DEFAULT_PORT, DEFAULT_HOST, DEBUG, entered_passphrase
+import getpass
 
 def runserver():
+	#entered_passphrase = getpass.getpass('Enter passphrase: ')
+
 	port = int(os.environ.get('PORT', DEFAULT_PORT))
 	app.run(host=DEFAULT_HOST, port=port, debug=DEBUG)
 
