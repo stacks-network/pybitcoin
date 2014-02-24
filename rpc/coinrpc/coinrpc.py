@@ -55,17 +55,20 @@ def index():
 
 #-----------------------------------
 @app.route('/namecoind/blocks')
+def namecoind_api_blocks():
+    return jsonify(namecoind_blocks())
+
+#-----------------------------------
 def namecoind_blocks():
     reply = {}
     info = namecoind.getinfo()
     reply['blocks'] = info.blocks
-    #return jsonify(reply)
     return reply 
 
 #-----------------------------------
 #step-1 for registrering new names 
 @app.route('/namecoind/name_new', methods = ['POST'])
-#@requires_auth
+@requires_auth
 def namecoind_name_new():
 
     reply = {}
@@ -122,7 +125,7 @@ def namecoind_firstupdate(name, rand, value, tx=None):
 
 #-----------------------------------
 @app.route('/namecoind/name_update', methods = ['POST'])
-#@requires_auth
+@requires_auth
 def namecoind_name_update():
 
     reply = {}
@@ -144,7 +147,7 @@ def namecoind_name_update():
 
 #-----------------------------------
 @app.route('/namecoind/transfer', methods = ['POST'])
-#@requires_auth
+@requires_auth
 def namecoind_transfer():
 
     reply = {}
