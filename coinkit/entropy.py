@@ -22,19 +22,14 @@ def get_entropy(numbytes):
     else:
         return dev_random_entropy(numbytes)
 
-def fit_num_in_range(num, lower_bound, upper_bound):
-    """ Fits the number so that it is greater than or equal to the lower bound
-        and less than the upper bound.
-    """
-    assert(isinstance(upper_bound, (int, long))
-        and isinstance(lower_bound, (int, long)) and upper_bound > lower_bound)
-    value_range = upper_bound - lower_bound
-    offset = num % value_range
-    return offset + lower_bound
-
 def random_secret_exponent(curve_order):
     """ Generates a random secret exponent. """
-    random_256bit_hex_string = binascii.hexlify(get_entropy(32))
-    random_256bit_int = int(random_256bit_hex_string, 16)
-    int_secret_exponent = fit_num_in_range(random_256bit_int, 1, curve_order)
-    return int_secret_exponent
+    # run a rejection sampling algorithm to ensure the random int is less
+    # than the curve order
+    while True:
+        # generate a random 256 bit hex string
+        random_hex = binascii.hexlify(get_entropy(32))
+        random_int = int(random_hex, 16)
+        if random_int >= 1 and random_int < curve_order:
+            break
+    return random_int

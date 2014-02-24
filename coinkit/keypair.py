@@ -59,10 +59,17 @@ class BitcoinKeypair():
     def from_passphrase(cls, passphrase=None):
         """ Create keypair from a passphrase input (a brain wallet keypair)."""
         if not passphrase:
-            passphrase = random_160bit_passphrase()
-
-        # convert the passphrase to a hex private key
-        hex_private_key = hashlib.sha256(passphrase).hexdigest()
+            # run a rejection sampling algorithm to ensure the private key is
+            # less than the curve order
+            while True:
+                passphrase = random_160bit_passphrase()
+                hex_private_key = hashlib.sha256(passphrase).hexdigest()
+                if int(hex_private_key, 16) < cls._curve.order:
+                    break
+        else:
+            hex_private_key = hashlib.sha256(passphrase).hexdigest()
+            if not (int(hex_private_key, 16) < cls._curve.order):
+                raise Exception('Invalid passphrase. The SHA256 hash of this passphrase exceeds the curve order. Please try another passphrase.')
 
         keypair = cls(hex_private_key)
         keypair._passphrase = passphrase
