@@ -9,7 +9,7 @@ Tools for Bitcoin and other cryptocurrencies.
 
 #### Random keypairs
 
-    >>> from coinkit.keypair import BitcoinKeypair
+    >>> from coinkit import BitcoinKeypair
     >>> keypair = BitcoinKeypair()
     >>> keypair.private_key()
     '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
@@ -40,7 +40,7 @@ Tools for Bitcoin and other cryptocurrencies.
 
 #### Altcoin keypairs
 
-    >>> from coinkit.keypair import LitecoinKeypair
+    >>> from coinkit import LitecoinKeypair
     >>> litecoin_keypair = LitecoinKeypair()
     >>> litecoin_keypair.address()
     'LMzqwhUFnqFLyEfMTvJkz7v1AC6v8N9Qcd'
@@ -49,8 +49,7 @@ Tools for Bitcoin and other cryptocurrencies.
 
 #### Sequential Deterministic Wallets
 
-    >>> from coinkit.wallet import SDWallet
-    >>> from coinkit.keypair import BitcoinKeypair
+    >>> from coinkit import SDWallet, BitcoinKeypair
     >>> passphrase = 'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
     >>> wallet = SDWallet(passphrase)
     >>> bitcoin_keypair_1 = wallet.keypair(1, BitcoinKeypair)
@@ -63,7 +62,7 @@ Tools for Bitcoin and other cryptocurrencies.
 
 #### Random passphrases
 
-    >>> from coinkit.passphrase import random_160bit_passphrase
+    >>> from coinkit import random_160bit_passphrase
     >>> random_160bit_passphrase()
     'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
 
