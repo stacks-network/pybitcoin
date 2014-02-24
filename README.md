@@ -1,6 +1,23 @@
 coinrpc
 =======
 
+For quick deployment:
+
+```
+pip install -r requirements.txt
+./runserver 
+```
+
+Example API call: 
+```
+http://localhost:5000/namecoind/name_show?key=d/bitcoin
+```
+
+======
+
+NOTE: The rest of the documentation needs updating
+
+
 For secure deployment:
 ```
   python setup.py build_ext --inplace
