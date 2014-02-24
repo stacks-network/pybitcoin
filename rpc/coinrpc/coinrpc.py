@@ -5,7 +5,7 @@
 # All Rights Reserved
 #-----------------------
 
-from flask import Flask, request
+from flask import Flask, request, jsonify, make_response, abort
 from pymongo import Connection
 from config import * 
 
@@ -13,7 +13,6 @@ app = Flask(__name__)
 
 import json
 import namecoinrpc
-import getpass
 from functools import wraps
 
 namecoind = namecoinrpc.connect_to_remote(NAMECOIND_USER, NAMECOIND_PASSWD, 
@@ -23,8 +22,6 @@ namecoind = namecoinrpc.connect_to_remote(NAMECOIND_USER, NAMECOIND_PASSWD,
 con = Connection()
 db = con['namecoin']
 queue = db.queue
-
-entered_passphrase = ''
 
 #---------------------------------
 def check_auth(username, password):
@@ -44,17 +41,12 @@ def requires_auth(f):
 
     return decorated
 
-#-------------------------
-def pretty_dump(input):
-
-    return json.dumps(input, sort_keys=False, indent=4, separators=(',', ': '), ensure_ascii=False)
-
 #---------------------------------
 def error_reply(msg, code = -1):
     reply = {}
     reply['status'] = code
     reply['message'] = "ERROR: " + msg
-    return pretty_dump(reply)
+    return jsonify(reply)
 
 #-----------------------------------
 @app.route('/')
@@ -67,12 +59,13 @@ def namecoind_blocks():
     reply = {}
     info = namecoind.getinfo()
     reply['blocks'] = info.blocks
-    return pretty_dump(reply)
+    #return jsonify(reply)
+    return reply 
 
 #-----------------------------------
 #step-1 for registrering new names 
 @app.route('/namecoind/name_new', methods = ['POST'])
-@requires_auth
+#@requires_auth
 def namecoind_name_new():
 
     reply = {}
@@ -84,18 +77,8 @@ def namecoind_name_new():
     key = data['key']
     value = data['value']
     
-    object_type = data.get('type')
-
-    #----------------
-    #if 'type' is not passed; we have default 'key'
-    if object_type == "domain":
-        key = 'd/' + key
-    elif object_type == "onename":
-        key = 'u/' + key
-
     #check if this key already exists
-    status = json.loads(namecoind_is_key_registered(key))
-    if status['status'] == True:
+    if check_registration(key):
         return error_reply("This key already exists")
         
     #check if passphrase is valid
@@ -123,19 +106,23 @@ def namecoind_name_new():
     reply['message'] = 'Your registration will be completed in roughly two hours'
     del reply['_id']        #reply[_id] is causing a json encode error
     
-    return pretty_dump(reply)
+    return jsonify(reply)
 
 #----------------------------------------------
 #step-2 for registering new names
-def namecoind_firstupdate(name, rand, value):
+def namecoind_firstupdate(name, rand, value, tx=None):
 
-    info = namecoind.name_firstupdate(name, rand, value)
+    if tx is not None: 
+        info = namecoind.name_firstupdate(name, rand, value, tx)
+    else:
+        info = namecoind.name_firstupdate(name, rand, value)
+
     return json.dumps(info)
 
 
 #-----------------------------------
 @app.route('/namecoind/name_update', methods = ['POST'])
-@requires_auth
+#@requires_auth
 def namecoind_name_update():
 
     reply = {}
@@ -153,11 +140,11 @@ def namecoind_name_update():
         
     #update the 'value'
     info = namecoind.name_update(key, new_value)
-    return pretty_dump(info)
+    return jsonify(info)
 
 #-----------------------------------
 @app.route('/namecoind/transfer', methods = ['POST'])
-@requires_auth
+#@requires_auth
 def namecoind_transfer():
 
     reply = {}
@@ -187,28 +174,20 @@ def namecoind_transfer():
         
     #transfer the name
     info = namecoind.name_update(key, value, new_address)
-    return pretty_dump(info)
+    return jsonify(info)
 
 #-----------------------------------
-@app.route('/namecoind/check_registration')
-def check_registration():
-
-    reply = {}
-    key = request.args.get('key')
+def check_registration(key):
 
     info = namecoind.name_show(key)
     
     if 'code' in info and info.get('code') == -4:
-        reply['message'] = 'The key is not registered'
-        reply['status'] = 404
+        return False
     else:
-        reply['message'] = 'The key is registered'
-        reply['status'] = 200
-        
-    return pretty_dump(reply)
+        return True
 
 #-----------------------------------
-@app.route('/namecoind/name_scan')
+@app.route('/namecoind/name_scan', methods = ['GET'])
 def namecoind_name_scan():
     
     start_name = request.args.get('start_name')     
@@ -222,8 +201,7 @@ def namecoind_name_scan():
         max_returned = int(max_returned)
 
     info = json.dumps(namecoind.name_scan(start_name, max_returned))
-    return pretty_dump(info)
-
+    return jsonify(info)
 
 #-----------------------------------
 #helper function for name_show
@@ -233,21 +211,20 @@ def get_value(input_key):
 
     max_returned = 1
 
-    value = namecoind.name_scan(input_key, max_returned)
+    value = namecoind.name_show(input_key)
 
-    for i in value:
-        if(i['name'] == input_key):
+    if 'code' in value and value.get('code') == -4:
+        abort(404)
 
-            for key in i.keys():
-                if(key == 'value'):
-                    try:
-                        reply[key] = json.loads(i[key])
-                    except:
-                        reply[key] = json.loads('{}')
-                else:
-                    reply[key] = i[key]
+    for key in value.keys():
+        
+        if(key == 'value'):
+            try:
+                reply[key] = json.loads(value[key])
+            except:
+                reply[key] = value[key]
 
-    return pretty_dump(reply)
+    return reply
 
 #-----------------------------------
 @app.route('/namecoind/name_show')
@@ -258,22 +235,8 @@ def namecoind_name_show():
     if key == None:
         return error_reply("No key given")
 
-    return get_value(key)
+    return jsonify(get_value(key))
 
-#-----------------------------------
-@app.route('/namecoind/onename_show')
-#@requires_auth
-def namecoind_onename_show():
-    
-    username = request.args.get('username')
-
-    if username == None:
-        return error_reply("No username given")
-
-    if not username.startswith('u/'):
-        username = 'u/' + username
-
-    return get_value(username)
 
 #-----------------------------------
 #helper function
@@ -287,12 +250,14 @@ def unlock_wallet(passphrase, timeout = 10):
 def internal_error(error):
 
     reply = {}
-    return pretty_dump(reply)
-    
-#-----------------------------------
+    return jsonify(reply)
 
+#-----------------------------------
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify( { 'error': 'Not found' } ), 404)
+
+#-----------------------------------
 if __name__ == '__main__':
     
-    entered_passphrase = getpass.getpass('Enter passphrase: ')
-
     app.run(host=DEFAULT_HOST, port=DEFAULT_PORT,debug=DEBUG)
