@@ -132,7 +132,7 @@ class AltcoinKeypairTest(unittest.TestCase):
 class BitcoinBrainWalletKeypairTest(BitcoinKeypairTest):
 	def setUp(self):
 		BitcoinKeypairTest.setUp(self)
-		self.keypair = BitcoinKeypair.from_passphrase(self.reference['passphrase'], min_words=4)
+		self.keypair = BitcoinKeypair.from_passphrase(self.reference['passphrase'])
 
 	def test_passphrase(self):
 		self.assertTrue(self.keypair.passphrase() == self.reference['passphrase'])

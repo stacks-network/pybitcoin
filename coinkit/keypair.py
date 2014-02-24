@@ -56,12 +56,9 @@ class BitcoinKeypair():
         return cls(private_key)
 
     @classmethod
-    def from_passphrase(cls, passphrase=None, min_words=12):
+    def from_passphrase(cls, passphrase=None):
         """ Create keypair from a passphrase input (a brain wallet keypair)."""
-        if passphrase:
-            if not len(passphrase.split()) >= min_words:
-                raise Exception("Warning! Passphrase must be at least " + str(min_words) + " words.")
-        else:
+        if not passphrase:
             passphrase = random_160bit_passphrase()
 
         # convert the passphrase to a hex private key

@@ -28,12 +28,9 @@ class SDWallet():
     """ A sequential deterministic wallet.
     """
 
-    def __init__(self, passphrase=None, min_length=48):
+    def __init__(self, passphrase=None):
         """ Create wallet from a passphrase input. """
-        if passphrase:
-            if not len(passphrase) >= min_length:
-                raise Exception(_messages["SHORT_PASSPHRASE"] % (min_length))
-        else:
+        if not passphrase:
             passphrase = random_160bit_passphrase()
 
         self._passphrase = passphrase
