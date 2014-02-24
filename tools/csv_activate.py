@@ -11,14 +11,12 @@ con = Connection()
 db = con['namecoin']
 queue = db.queue
 
-collection = queue.find()
-
 #-----------------------------------
 if __name__ == '__main__':
 
     print "Starting script"
     
-    for entry in collection:
+    for entry in queue.find():
 
         if entry.get('activated') is not None and entry.get('activated') == False:   #entry is registered; but not activated
             
@@ -50,8 +48,9 @@ if __name__ == '__main__':
                 entry['tx_id'] = output
                 queue.save(entry)
 
-    '''
-    print "Sleeping for a while"
-    sleep(60 * 10)
-    '''
+        '''
+        print "Sleeping for a while"
+        sleep(60 * 10)
+        '''
+
     print "Finished script"

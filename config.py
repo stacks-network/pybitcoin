@@ -19,8 +19,9 @@ NAMECOIND_USER ='namecoinrpc'
 NAMECOIND_PASSWD ='68kGrjcLdjMGBiBhh6bW53niCGbFBRrGabHn3KMGsuLb'
 entered_passphrase = ''
 
+
 NAMECOIND_USE_HTTPS = True
 
 APP_USERNAME = 'coinrpc'
-APP_PASSWORD = 'testingtesting'
+APP_PASSWORD = 'testingtestingr32fjndfnkgj43rkwbjvfh3jg3jn3'
 
