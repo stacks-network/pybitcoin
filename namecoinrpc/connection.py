@@ -803,7 +803,7 @@ class NamecoinConnection(object):
         except JSONRPCException as e:
             return e.error
 
-    def name_firstupdate(self, name, rand, value):
+    def name_firstupdate(self, name, rand, value, tx=None):
         """namecoind command 'name_firstupdate': updates the name to point to a value
 
           Arguments:
@@ -814,7 +814,11 @@ class NamecoinConnection(object):
         """
 
         try:
-            return self.proxy.name_firstupdate(name, rand, value)
+            if tx is not None: 
+                return self.proxy.name_firstupdate(name, rand, tx, value)
+            else:
+                return self.proxy.name_firstupdate(name, rand, value)
+
         except JSONRPCException as e:
             return e.error
 
