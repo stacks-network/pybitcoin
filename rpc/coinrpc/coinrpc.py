@@ -68,12 +68,12 @@ def namecoind_blocks():
 #-----------------------------------
 #step-1 for registrering new names 
 @app.route('/namecoind/name_new', methods = ['POST'])
-@requires_auth
+#@requires_auth
 def namecoind_name_new():
 
     reply = {}
     data = request.values
-    
+   
     if not 'key' in data  or not 'value' in data:
         return error_reply("Required: key, value", 400)
         
@@ -90,24 +90,28 @@ def namecoind_name_new():
 
     #create new name
     #returns a list of [longhex, rand]
-    info = namecoind.name_new(key)
+    try:
+        info = namecoind.name_new(key)
     
-    reply['longhex'] = info[0]
-    reply['rand'] = info[1]
-    reply['key'] = key
-    reply['value'] = value
+        reply['longhex'] = info[0]
+        reply['rand'] = info[1]
+        reply['key'] = key
+        reply['value'] = value
     
-    #get current block...
-    info = namecoind.getinfo()
-    reply['current_block'] = info.blocks
-    reply['wait_till_block'] = info.blocks + 12
-    reply['activated'] = False
-    
-    #save this data to Mongodb...
-    queue.insert(reply)
+        #get current block...
+        info = namecoind.getinfo()
+        reply['current_block'] = info.blocks
+        reply['wait_till_block'] = info.blocks + 12
+        reply['activated'] = False
+        
+        #save this data to Mongodb...
+        queue.insert(reply)
 
-    reply['message'] = 'Your registration will be completed in roughly two hours'
-    del reply['_id']        #reply[_id] is causing a json encode error
+        reply['message'] = 'Your registration will be completed in roughly two hours'
+        del reply['_id']        #reply[_id] is causing a json encode error
+        
+    except Exception as e:
+        reply['message'] = "ERROR:" + str(e)
     
     return jsonify(reply)
 
@@ -125,7 +129,7 @@ def namecoind_firstupdate(name, rand, value, tx=None):
 
 #-----------------------------------
 @app.route('/namecoind/name_update', methods = ['POST'])
-@requires_auth
+#@requires_auth
 def namecoind_name_update():
 
     reply = {}
@@ -147,7 +151,7 @@ def namecoind_name_update():
 
 #-----------------------------------
 @app.route('/namecoind/transfer', methods = ['POST'])
-@requires_auth
+#@requires_auth
 def namecoind_transfer():
 
     reply = {}
@@ -185,6 +189,8 @@ def check_registration(key):
     info = namecoind.name_show(key)
     
     if 'code' in info and info.get('code') == -4:
+        return False
+    elif 'expired' in info and info.get('expired') == 1:
         return False
     else:
         return True
