@@ -3,10 +3,10 @@
 
 import json
 from time import sleep
-from pymongo import Connection
 from coinrpc.coinrpc import namecoind_blocks, namecoind_firstupdate, unlock_wallet
 from config import entered_passphrase
 
+from pymongo import Connection
 con = Connection()
 db = con['namecoin']
 queue = db.queue
@@ -15,11 +15,15 @@ queue = db.queue
 if __name__ == '__main__':
 
     print "Starting script"
+    print '---'
     
     for entry in queue.find():
 
         if entry.get('activated') is not None and entry.get('activated') == False:   #entry is registered; but not activated
             
+            print entry
+            print "Processing: " + entry['key'] 
+
             #compare the current block with 'wait_till_block'
             #block_info = json.loads(namecoind_blocks())
             block_info = namecoind_blocks()
@@ -48,9 +52,10 @@ if __name__ == '__main__':
                 entry['tx_id'] = output
                 queue.save(entry)
 
-        '''
-        print "Sleeping for a while"
-        sleep(60 * 10)
-        '''
+                sleep(3)
+            else:
+                print "Wait for %s more blocks" % (entry['wait_till_block'] - block_info['blocks'])
+
+            print '----'
 
     print "Finished script"

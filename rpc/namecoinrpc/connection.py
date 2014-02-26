@@ -822,7 +822,7 @@ class NamecoinConnection(object):
         except JSONRPCException as e:
             return e.error
 
-    def name_update(self, name, value, toaddress):
+    def name_update(self, name, value, toaddress=None):
         """namecoind command 'name_update': transfers the name to the address given
 
           Arguments:
@@ -833,7 +833,11 @@ class NamecoinConnection(object):
         """
 
         try:
-            return self.proxy.name_update(name, value, toaddress)
+            if toaddress is None: 
+                return self.proxy.name_update(name, value)
+            else:
+                return self.proxy.name_update(name, value, toaddress)
+
         except JSONRPCException as e:
             return e.error
         
