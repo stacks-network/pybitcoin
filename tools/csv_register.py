@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from time import sleep
 import csv
 import requests
 import urllib
@@ -8,25 +9,89 @@ import json
 
 url = 'http://127.0.0.1:5000/namecoind/name_new'
 
+from pymongo import Connection
+con = Connection()
+db = con['namecoin']
+queue = db.queue
+
+#-----------------------------------
+def check_nameupdate_errors(key):
+
+    reply = queue.find_one({'key':key})
+
+    try:
+        if(reply['activated'] is True):
+        
+            try: 
+                temp = json.loads(reply['tx_id'])
+                print temp['code']
+                print key + " had error"
+                reply['activated'] = False
+                queue.save(reply)
+            except:
+                pass
+    except Exception as e:
+        print key + " not in DB"
+
+#-----------------------------------
+def format_key_value(key, name=None):
+
+    #need u/ for OneName usernames
+    key = 'u/' + key.lower()
+
+    value = {}
+
+    value['status'] = "reserved"
+
+    if name is not None and name != '': 
+
+        value["message"] = "This OneName username is reserved for " + name.lstrip(' ') 
+        value["message"] += ". If this is you, please email reservations@onename.io to claim it for free."
+
+    else:
+
+        value["message"] = "This OneName username was parked to evade name squatting, but can be made available upon reasonable request"
+        value["message"] += " at no charge. If you are interested in this name, please email reservations@onename.io with your twitter"
+        value["message"] += " handle and why you would like this particular name."
+
+    return key, value 
+
 #-----------------------------------
 def register_name(key, value):
 
     payload = {
                 'key' : key,
-                'value' : value,
+                'value' : json.dumps(value),
             }
 
-    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    print key
+    print payload['value']
 
-    resp = requests.post(url, data=payload, headers=headers)
-    
+    resp = requests.post(url, data=payload)
     print resp.text
-    
+    print '---'
+    sleep(3)
+
+#-----------------------------------
+def main_loop(key, name=None):
+
+    key, value = format_key_value(key,name)
+
+    reply = queue.find_one({'key':key})
+
+    try:
+        temp = reply['key']
+    except:
+        #not in DB 
+        print "not registered: " + key
+        register_name(key,value)
+
+    #check_nameupdate_errors(key)
+
 #-----------------------------------
 if __name__ == '__main__':
 
     with open('data.csv') as csvfile:
         spamreader = csv.reader(csvfile)
         for row in spamreader:
-            #register_name(row[0], row[1])
-            print row
+            main_loop(row[0], row[1])
