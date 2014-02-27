@@ -194,5 +194,8 @@ class EarthcoinKeypair(BitcoinKeypair):
 class NetcoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 112
 
+class HuntercoinKeypair(BitcoinKeypair):
+    _pubkeyhash_version_byte = 40
 
-
+class VertcoinKeypair(BitcoinKeypair):
+    _pubkeyhash_version_byte = 71
