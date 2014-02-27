@@ -116,13 +116,33 @@ def namecoind_name_new():
     return jsonify(reply)
 
 #----------------------------------------------
-#step-2 for registering new names
-def namecoind_firstupdate(name, rand, value, tx=None):
+#step-2 for registering 
+@app.route('/namecoind/name_firstupdate', methods = ['POST'])
+#@requires_auth
+def namecoind_firstupdate():
+
+    reply = {}
+    data = request.values
+
+    if not 'key' in data or not 'rand' in data or not 'value' in data:    
+        return error_reply("Required: key, value, rand", 400)
+    
+    key = data['key']
+    rand = data['rand']
+    value = data['value']
+    tx = None
+
+    if 'tx' in data: 
+        tx = data['tx']
+    
+    #now unlock the wallet
+    if not unlock_wallet(entered_passphrase):
+        error_reply("Wallet passphrase is incorrect", 403)
 
     if tx is not None: 
-        info = namecoind.name_firstupdate(name, rand, value, tx)
+        info = namecoind.name_firstupdate(key, rand, value, tx)
     else:
-        info = namecoind.name_firstupdate(name, rand, value)
+        info = namecoind.name_firstupdate(key, rand, value)
 
     return json.dumps(info)
 
