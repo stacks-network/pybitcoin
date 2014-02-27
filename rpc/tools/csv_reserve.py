@@ -15,25 +15,6 @@ db = con['namecoin']
 queue = db.queue
 
 #-----------------------------------
-def check_nameupdate_errors(key):
-
-    reply = queue.find_one({'key':key})
-
-    try:
-        if(reply['activated'] is True):
-        
-            try: 
-                temp = json.loads(reply['tx_id'])
-                print temp['code']
-                print key + " had error"
-                reply['activated'] = False
-                queue.save(reply)
-            except:
-                pass
-    except Exception as e:
-        print key + " not in DB"
-
-#-----------------------------------
 def format_key_value(key, name=None):
 
     #need u/ for OneName usernames
@@ -84,9 +65,7 @@ def main_loop(key, name=None):
     except:
         #not in DB 
         print "not registered: " + key
-        register_name(key,value)
-
-    #check_nameupdate_errors(key)
+        #register_name(key,value)
 
 #-----------------------------------
 if __name__ == '__main__':
@@ -95,3 +74,4 @@ if __name__ == '__main__':
         spamreader = csv.reader(csvfile)
         for row in spamreader:
             main_loop(row[0], row[1])
+
