@@ -491,8 +491,7 @@ class NamecoinConnection(object):
         except JSONRPCException as e:
             raise _wrap_exception(e.error)
 
-    def validateaddress(self, validateaddress):
-        """
+    """def validateaddress(self, validateaddress):
         Validate a namecoin address and return information for it.
 
         The information is represented by a :class:`~namecoinrpc.data.AddressValidation` object.
@@ -501,11 +500,12 @@ class NamecoinConnection(object):
 
 
         - *validateaddress*
-        """
+        
         try:
             return AddressValidation(**self.proxy.validateaddress(validateaddress))
         except JSONRPCException as e:
             raise _wrap_exception(e.error)
+    """
 
     def getbalance(self, account=None, minconf=None):
         """
@@ -855,6 +855,18 @@ class NamecoinConnection(object):
         except JSONRPCException as e:
             return e.error
 
+    def validateaddress(self, address):
+        """namecoind command 'validateaddress': validates if a given address is valid or not
+
+        Arguments:
+
+        - *address* -- the address to validate         
+        """
+        try:
+            return self.proxy.validateaddress(address)
+        except JSONRPCException as e:
+            return e.error
+    
     def name_list(self):
         """namecoind command 'name_list': list my own names"""   
 
