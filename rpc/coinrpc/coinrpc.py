@@ -216,6 +216,20 @@ def check_registration(key):
         return True
 
 #-----------------------------------
+@app.route('/namecoind/validateaddress/<address>')
+def validate_address(address):
+
+    reply = {}
+    info = namecoind.validateaddress(address)
+    if info.get('isvalid'):
+        reply['message'] = 'The address is valid'
+        reply['status'] = 200
+    else:
+        reply['message'] = 'The address is not valid'
+        reply['status'] = 404
+
+    return jsonify(reply)
+#-----------------------------------
 @app.route('/namecoind/name_scan', methods = ['GET'])
 def namecoind_name_scan():
     
