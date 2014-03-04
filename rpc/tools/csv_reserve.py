@@ -4,15 +4,20 @@
 from time import sleep
 import csv
 import requests
-import urllib
 import json
-
-url = 'http://127.0.0.1:5000/namecoind/name_new'
+import os
+import binascii
+from onename_register import register_name
 
 from pymongo import Connection
 con = Connection()
 db = con['namecoin']
 queue = db.queue
+
+#-----------------------------------
+def get_random_hex(size=10):
+    #every byte of data is converted into the corresponding 2-digit hex representation
+    return binascii.b2a_hex(os.urandom(size))
 
 #-----------------------------------
 def format_key_value(key, name=None):
@@ -37,21 +42,26 @@ def format_key_value(key, name=None):
 
     return key, value 
 
+
 #-----------------------------------
-def register_name(key, value):
+#codes are only assigned to 'reserved' names
+def assign_code(key):
+    
+    reply = queue.find_one({'key':key})    
 
-    payload = {
-                'key' : key,
-                'value' : json.dumps(value),
-            }
-
-    print key
-    print payload['value']
-
-    resp = requests.post(url, data=payload)
-    print resp.text
-    print '---'
-    sleep(3)
+    code = get_random_hex()
+        
+    if reply['activated'] is True:
+    
+        if not 'code' in reply:
+            print "Creating code for: " + reply['key']
+            reply['code'] = code 
+            queue.save(reply)
+        else: 
+            pass
+            #print reply['key'] + ',' + reply['code']
+    else:
+        print "Not activated: " + reply['key']
 
 #-----------------------------------
 def main_loop(key, name=None):
@@ -65,12 +75,14 @@ def main_loop(key, name=None):
     except:
         #not in DB 
         print "not registered: " + key
-        #register_name(key,value)
+        register_name(key,value)
+    else:
+        assign_code(reply['key'])
 
 #-----------------------------------
 if __name__ == '__main__':
 
-    with open('data.csv') as csvfile:
+    with open('tools/data.csv') as csvfile:
         spamreader = csv.reader(csvfile)
         for row in spamreader:
             main_loop(row[0], row[1])
