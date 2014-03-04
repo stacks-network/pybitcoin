@@ -5,11 +5,9 @@ import json
 import requests
 
 from time import sleep
+from coinrpc.coinrpc import namecoind_blocks, namecoind_firstupdate
 
-SERVER_URL = 'http://127.0.0.1:5000/namecoind/'
-
-resp = requests.get(SERVER_URL + 'blocks')
-namecoind_blocks = resp.json()
+blocks = namecoind_blocks()
 
 from pymongo import Connection
 con = Connection()
@@ -21,6 +19,7 @@ def check_name_firstupdate_errors(key):
 
     reply = queue.find_one({'key':key})
 
+    #all activated entries should have final tx_id
     try:
         if(reply['activated'] is True):
         
@@ -36,7 +35,7 @@ def check_name_firstupdate_errors(key):
         print key + " not in DB"
 
 #-----------------------------------
-if __name__ == '__main__':
+def do_name_firstupdate():
 
     print "Starting script"
     print '---'
@@ -47,13 +46,14 @@ if __name__ == '__main__':
     
     for entry in queue.find():
 
-        if entry.get('activated') is not None and entry.get('activated') == False:   #entry is registered; but not activated
+        #entry is registered; but not activated
+        if entry.get('activated') is not None and entry.get('activated') == False:
             
             #print entry
             print "Processing: " + entry['key'] 
 
             #compare the current block with 'wait_till_block'
-            current_blocks = namecoind_blocks['blocks']
+            current_blocks = blocks['blocks']
 
             if current_blocks > entry['wait_till_block']:
                 #lets activate the entry
@@ -62,25 +62,21 @@ if __name__ == '__main__':
                 try:
                     update_value = json.loads(entry['value'])
                     update_value = json.dumps(update_value)     #no error while parsing; dump into json again
-                except ValueError:
+                except:
                     update_value = entry['value']    #error: treat it as a string
 
                 print "Activating entry: '%s' to point to '%s'" % (entry['key'], update_value)
             
-                payload = {}
-                payload['key'] = entry['key']
-                payload['rand'] = entry['rand']
-                payload['value'] = update_value
-                payload['tx'] = entry['longhex']
-
-                resp = requests.post(SERVER_URL + 'name_firstupdate', data=payload)
-                output = resp.json()
+                output = namecoind_firstupdate(entry['key'],entry['rand'],update_value,entry['longhex'])
 
                 #output = namecoind_firstupdate(entry['key'], entry['rand'], update_value, entry['longhex'])
                 print "Transaction ID ", output
 
-                if 'code' in output:
+                if 'message' in output and output['message'] == "this name is already active":
+                    entry['activated'] = True
+                elif 'code' in output:
                     entry['activated'] = False
+                    print "Not activated. Try again."
                 else:
                     entry['activated'] = True
 
@@ -94,3 +90,8 @@ if __name__ == '__main__':
             print '----'
 
     print "Finished script"
+
+#-----------------------------------
+if __name__ == '__main__':
+
+    do_name_firstupdate()
