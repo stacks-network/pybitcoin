@@ -112,9 +112,6 @@ def check_registration(key):
         return True
 
 #-----------------------------------
-<<<<<<< HEAD
-=======
-@app.route('/namecoind/validateaddress/<address>')
 def validate_address(address):
 
     reply = {}
@@ -127,25 +124,8 @@ def validate_address(address):
         reply['status'] = 404
 
     return jsonify(reply)
-#-----------------------------------
-@app.route('/namecoind/name_scan', methods = ['GET'])
-def namecoind_name_scan():
-    
-    start_name = request.args.get('start_name')     
-    if start_name == None:
-        start_name = "#"
-
-    max_returned = request.args.get('max_returned')
-    if max_returned == None:
-        max_returned = 500
-    else:
-        max_returned = int(max_returned)
-
-    info = json.dumps(namecoind.name_scan(start_name, max_returned))
-    return jsonify(info)
 
 #-----------------------------------
->>>>>>> 26614122cf1daf2c0653171990cac6f1bc166549
 #helper function for name_show
 def namecoind_name_show(input_key):
 
