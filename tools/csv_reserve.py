@@ -8,6 +8,7 @@ import json
 import os
 import binascii
 from onename_register import register_name
+from coinrpc.coinrpc import check_registration
 
 from pymongo import Connection
 con = Connection()
@@ -29,7 +30,7 @@ def format_key_value(key, name=None):
 
     value['status'] = "reserved"
 
-    if name is not None and name != '': 
+    if name is not None and name != '' and name != ' ': 
 
         value["message"] = "This OneName username is reserved for " + name.lstrip(' ') 
         value["message"] += ". If this is you, please email reservations@onename.io to claim it for free."
@@ -70,15 +71,14 @@ def main_loop(key, name=None):
 
     reply = queue.find_one({'key':key})
 
-    try:
-        temp = reply['key']
-    except:
+    if check_registration(key) or reply is not None:
+        print "already registered: " + key
+        assign_code(key)
+    else:
         #not in DB 
         print "not registered: " + key
         register_name(key,value)
-    else:
-        assign_code(reply['key'])
-
+    
 #-----------------------------------
 if __name__ == '__main__':
 
