@@ -38,7 +38,7 @@ def namecoind_name_new(key,value):
         return error_reply("This key already exists")
         
     #check if passphrase is valid
-    if not unlock_wallet(entered_passphrase):
+    if not unlock_wallet(WALLET_PASSPHRASE):
         return error_reply("Wallet passphrase is incorrect", 403)
 
     #create new name
@@ -52,7 +52,7 @@ def namecoind_name_new(key,value):
 def namecoind_firstupdate(key,rand,value,tx=None):
 
     #unlock the wallet
-    if not unlock_wallet(entered_passphrase):
+    if not unlock_wallet(WALLET_PASSPHRASE):
         error_reply("Wallet passphrase is incorrect", 403)
 
     if tx is not None: 
@@ -66,7 +66,7 @@ def namecoind_firstupdate(key,rand,value,tx=None):
 def namecoind_name_update(key,value):
     
     #now unlock the wallet
-    if not unlock_wallet(entered_passphrase):
+    if not unlock_wallet(WALLET_PASSPHRASE):
         error_reply("Wallet passphrase is incorrect", 403)
         
     #update the 'value'
@@ -91,7 +91,7 @@ def namecoind_transfer(key,new_address,value=None):
         value = json.dumps(key_details['value'])
 
     #now unlock the wallet
-    if not unlock_wallet(entered_passphrase):
+    if not unlock_wallet(WALLET_PASSPHRASE):
         error_reply("Wallet passphrase is incorrect", 403)
     
     #transfer the name (underlying call is still name_update)
@@ -139,6 +139,8 @@ def namecoind_name_show(input_key):
         return error_reply("Not found", 404)
 
     for key in value.keys():
+
+        reply['namecoin_address'] = value['address']
         
         if(key == 'value'):
             try:
