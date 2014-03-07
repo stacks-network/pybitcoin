@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+SLEEP_INTERVAL = 3
+
 from time import sleep
 import csv
 import requests
@@ -55,6 +57,9 @@ def slice_profile(username, profile):
 	key1 = 'u/' + username.lower()
 	key2 = 'i/' + username.lower() + '-1'
 
+	if utf8len(str(profile)) < 520:
+		return key1, profile, None, None 
+
 	value1 = {}
 	value2 = {}
 
@@ -86,16 +91,31 @@ def register_name(key,value):
 	
 	print reply
 	print '---'
-	sleep(3)
+	sleep(SLEEP_INTERVAL)
 
 #-----------------------------------
 def update_name(key,value):
 
+	reply = {}
+
 	info = namecoind_name_update(key,json.dumps(value))
 
+	reply['key'] = key
+	reply['value'] = value
+	reply['activated'] = True 
+
+	#save this data to Mongodb...
+	check = queue.find_one({'key':key})
+
+	if check is None:
+		queue.insert(reply)
+	else:
+		queue.save(reply)
+
+	print reply
 	print info
 	print '---'
-	sleep(3)
+	sleep(SLEEP_INTERVAL)
 
 #-----------------------------------
 def main_loop(username,profile,accesscode=None):
@@ -131,15 +151,17 @@ def main_loop(username,profile,accesscode=None):
 		else: 
 			register_name(key2,value2)
 	'''
-	
+
 #-----------------------------------
 if __name__ == '__main__':
 
 	from pymongo import MongoClient
+	import os 
 
-	MONGODB_URI = 'mongodb://heroku_app22080231:vphfu4445c5f72636n3mmvotpt@ds033699.mongolab.com:33699/heroku_app22080231'
+	MONGODB_URI = os.environ['MONGODB_URI']
+	HEROKU_APP = os.environ['HEROKU_APP'] 
 	remote_client = MongoClient(MONGODB_URI)
-	users = remote_client['heroku_app22080231'].user
+	users = remote_client[HEROKU_APP].user
 
 	print '-' * 5
 	print "Checking for new users"
