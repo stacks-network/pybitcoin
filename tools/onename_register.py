@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-SLEEP_INTERVAL = 3
+SLEEP_INTERVAL = 1
 
 from time import sleep
 import csv
 import requests
 import json
 
-from coinrpc.coinrpc import namecoind_blocks, namecoind_name_new, check_registration, namecoind_name_update
+VALUE_MAX_LIMIT = 512
+
+from coinrpc.coinrpc import namecoind_blocks, namecoind_name_new, check_registration
+from coinrpc.coinrpc import namecoind_name_update, namecoind_name_show
 
 from pymongo import Connection
 conn = Connection()
@@ -17,9 +20,23 @@ queue = db.queue
 codes = db.codes
 remoteusers = db.remoteusers
 
+from pymongo import MongoClient
+import os 
+
+LOAD_BALANCER = os.environ['LOAD_BALANCER']
+
+MONGODB_URI = os.environ['MONGODB_URI']
+HEROKU_APP = os.environ['HEROKU_APP'] 
+remote_client = MongoClient(MONGODB_URI)
+users = remote_client[HEROKU_APP].user
+
 #-----------------------------------
 def utf8len(s):
-	return len(s.encode('utf-8'))
+
+	if type(s) == unicode:
+		return len(s)
+	else:
+		return len(s.encode('utf-8'))
 
 #-----------------------------------
 def save_name_new_info(info,key,value):
@@ -31,7 +48,8 @@ def save_name_new_info(info,key,value):
 		reply['rand'] = info[1]
 		reply['key'] = key
 		reply['value'] = value
-	
+		reply['backend_server'] = int(LOAD_BALANCER)
+
 		#get current block...
 		blocks = namecoind_blocks()
 
@@ -44,43 +62,72 @@ def save_name_new_info(info,key,value):
 
 		reply['message'] = 'Your registration will be completed in roughly two hours'
 		del reply['_id']        #reply[_id] is causing a json encode error
-		
+	
 	except Exception as e:
 		reply['message'] = "ERROR:" + str(e)
 	
 	return reply 
 
 #-----------------------------------
-def slice_profile(username, profile):
+def slice_profile(username, profile, old_keys=None):
 
-	#need u/ for OneName usernames
-	key1 = 'u/' + username.lower()
-	key2 = 'i/' + username.lower() + '-1'
+	keys = []
+	values = [] 
 
-	if utf8len(str(profile)) < 520:
-		return key1, profile, None, None 
+	key = 'u/' + username.lower()
+	keys.append(key)
 
-	value1 = {}
-	value2 = {}
+	def max_size(username):
+		return VALUE_MAX_LIMIT - len('next: i-' + username + '000000')
 
-	first_keys = ['v', 'name', 'bitcoin', 'pgp', 'website', 'location', 'bio']
+	#-----------------------------------
+	def splitter(remaining,username):
 
-	for key in profile.keys():
-		if(key in first_keys):
-			value1[key] = profile[key]
+		split = {} 
+
+		if utf8len(json.dumps(remaining)) < max_size(username):
+			return remaining, None 
 		else:
-			value2[key] = profile[key]
-			
-	#don't allow more than 519 bytes of data in the namecoin blockchain (their bug/limit)
-	if utf8len(str(value1)) > 519 or utf8len(str(value2)) > 519:
-		print "error: more than 519 bytes in value"
-		raise RuntimeError
+			for key in remaining.keys(): 
+				split[key] = remaining[key]
 
-	if value2.keys() == []:
-		return key1, value1, None, None 
-	else:
-		value1['next'] = key2
-		return key1, value1, key2, value2 
+				if utf8len(json.dumps(split)) < max_size(username):
+					del remaining[key]
+				else:
+					del split[key]
+					break 
+			return split, remaining
+
+	#-----------------------------------
+	def get_key(key_counter):
+		return 'i/' + username.lower() + '-' + str(key_counter)
+
+	split, remaining = splitter(profile, username) 
+	values.append(split)
+
+	key_counter = 0
+	counter = 0 
+
+	while(remaining is not None):
+		
+		key_counter += 1
+		key = get_key(key_counter)
+
+		if old_keys is not None and key in old_keys:
+			pass
+		else:
+			while check_registration(key):
+				key_counter += 1 
+				key = get_key(key_counter)
+
+		split, remaining = splitter(remaining, username)
+		keys.append(key) 
+		values.append(split)
+
+		values[counter]['next'] = key
+		counter += 1
+
+	return keys, values 
 
 #-----------------------------------
 def register_name(key,value):
@@ -102,7 +149,8 @@ def update_name(key,value):
 
 	reply['key'] = key
 	reply['value'] = value
-	reply['activated'] = True 
+	reply['activated'] = True
+	reply['backend_server'] = int(LOAD_BALANCER) 
 
 	#save this data to Mongodb...
 	check = queue.find_one({'key':key})
@@ -117,80 +165,190 @@ def update_name(key,value):
 	print '---'
 	sleep(SLEEP_INTERVAL)
 
+#----------------------------------
+def get_old_keys(username):
+
+	#----------------------------------
+	def get_next_key(key): 
+	
+		check_profile = namecoind_name_show(key)
+
+		try:
+			check_profile = check_profile['value']
+
+			if 'next' in check_profile:
+				return check_profile['next']
+		except:
+			pass 
+
+		return None 
+
+
+	old_keys = []
+	key1 = "u/" + username
+
+	old_keys.append(str(key1))
+	next_key = get_next_key(key1)
+
+	while(next_key is not None):
+		old_keys.append(str(next_key))
+		next_key = get_next_key(next_key)
+		
+	return old_keys
+
 #-----------------------------------
-def main_loop(username,profile,accesscode=None):
+def process_user(username,profile,accesscode=None):
 
-	key1, value1, key2, value2 = slice_profile(username,profile)
+	old_keys = get_old_keys(username) 
 
-	reply = queue.find_one({'key':key1})
+	keys, values = slice_profile(username,profile,old_keys)
 
-	if reply is None:
-		#not in DB 
-		print "not registered: " + key1
+	index = 0
+	key1 = keys[index]
+	value1 = values[index]
 
-		if check_registration(key1):
-			print "name reserved"
-			code = codes.find_one({'username':key1})
-			if code['accesscode'] == accesscode:
-				print "code match"
+	print utf8len(json.dumps(value1))
+
+	if check_registration(key1):
+		
+		#if name is registered
+		check_profile = namecoind_name_show(key1)
+
+		try:
+			check_profile = check_profile['value']
+			
+			#if name is reserved, check code
+			if 'status' in check_profile and check_profile['status'] == 'reserved':
+			
+				print "name reserved: " + key1
+				code = codes.find_one({'username':key1})
+				if code['accesscode'] == accesscode:
+					print "code match"
+					update_name(key1,value1)
+			else:
+				#if registered but not reserved
+				print "name update: " + key1
 				update_name(key1,value1)
-				if key2 is not None:
-					register_name(key2,value2)
-		else:
-			print "name new"
-			register_name(key1,value1)
-			if key2 is not None:
-				register_name(key2,value2)
 
+		except Exception as e:
+			#if registered but not reserved
+			print "name update: " + key1
+			update_name(key1,value1)
 
-	#quick hack for key2 registration error
-	'''
-	if key2 is not None:
-		if check_registration(key2):
-			pass
-		else: 
-			register_name(key2,value2)
-	'''
+	else: 
+		#if not registered 
+		print "name new: " + key1 
+		register_name(key1,value1)
+
+	process_additional_keys(keys, values)
 
 #-----------------------------------
-if __name__ == '__main__':
+def process_additional_keys(keys,values):
 
-	from pymongo import MongoClient
-	import os 
+	#register/update remaining keys
+	size = len(keys)
+	index = 1
+	while index < size: 
+		next_key = keys[index]
+		next_value = values[index]
 
-	MONGODB_URI = os.environ['MONGODB_URI']
-	HEROKU_APP = os.environ['HEROKU_APP'] 
-	remote_client = MongoClient(MONGODB_URI)
-	users = remote_client[HEROKU_APP].user
+		if check_registration(next_key):
+			print "name update: " + next_key
+			print utf8len(json.dumps(next_value))
+			update_name(next_key,next_value)
+		else: 
+			print "name new: " + next_key
+			print utf8len(json.dumps(next_value))
+			register_name(next_key,next_value)
+			
+		index += 1
+
+#-----------------------------------
+def set_backend_server(DISTRIBUTE=True):
+
+	DEFAULT_SERVER = 2	
+	BACKEND_SERVER_FOR_RESERVER = 1
+	loadbalancer_counter = 0
+
+	for i in users.find():
+
+		if 'dispatched' in i and i['dispatched'] is False:
+
+			loadbalancer_counter += 1
+
+			if(loadbalancer_counter == 8):
+				loadbalancer_counter = 0
+
+			#hardcoded backend_server for reserved names
+			if 'backend_server' not in i:
+				selected_server = DEFAULT_SERVER
+
+				if 'accesscode' in i:
+					print "found reserved user, " + i['username'] + " using backend_server ", BACKEND_SERVER_FOR_RESERVER
+					selected_server = BACKEND_SERVER_FOR_RESERVER
+				else:
+					if DISTRIBUTE:
+						selected_server = loadbalancer_counter
+
+				i['backend_server'] = selected_server
+				users.save(i)
+
+				print "sending " + i['username'] + " to backend_server " + str(selected_server)
+				
+#-----------------------------------
+def check_new_registrations(IS_LIVE=False):
+
+	registered_counter = 0
+	unregistered_counter = 0
 
 	print '-' * 5
 	print "Checking for new users"
-	for i in users.find():
-		try:
+	for user in users.find():
 
-			if i['dispatched'] is False:
-				accesscode = None
+		if 'dispatched' in user and user['dispatched'] is False:
 
-				try:
-					accesscode = i['accesscode']
-				except:
-					pass
+			if not IS_LIVE:
+				print user['username']
+				print user['email']
+				print '-' * 5
+			unregistered_counter += 1
 
-				print i['username']
-				#print i['accesscode']
-				main_loop(i['username'],json.loads(i['profile']),accesscode)
-
-				username = 'u/' + i['username'].lower()
-				extended = 'i/' + i['username'].lower() + '-1'
+			accesscode = None
+			if 'accesscode' in user:
+				accesscode = user['accesscode']
+		
+			if ('backend_server' in user) and (user['backend_server'] == int(LOAD_BALANCER)):
+				if IS_LIVE:
+					try:
+						process_user(user['username'],json.loads(user['profile']),accesscode)
+						print user['backend_server']
+					except:
+						continue 
+				
+				username = 'u/' + user['username'].lower()
+				extended = 'i/' + user['username'].lower() + '-1'
 
 				local = queue.find_one({'key':username})
 				if local is not None:
 					print "in local DB"
-					i['dispatched'] = True
-					remoteusers.insert(i)
-					users.save(i)
-				
+					if IS_LIVE:
+						user['dispatched'] = True
+						user['accepted'] = True
+						remoteusers.insert(user)
+						users.save(user)
+			
 				print '-' * 5
+		else:
+			registered_counter += 1
 
-		except Exception as e:
-			pass
+
+	print "Registered users: ", registered_counter
+	print "Not registered users: ", unregistered_counter
+
+#-----------------------------------
+if __name__ == '__main__':
+
+	IS_LIVE = True
+	DISTRIBUTE = False
+	set_backend_server(DISTRIBUTE)
+	check_new_registrations(IS_LIVE)

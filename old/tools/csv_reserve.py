@@ -14,7 +14,6 @@ from pymongo import Connection
 con = Connection()
 db = con['namecoin']
 queue = db.queue
-codes = db.codes
 
 #-----------------------------------
 def get_random_hex(size=10):
@@ -49,30 +48,21 @@ def format_key_value(key, name=None):
 #codes are only assigned to 'reserved' names
 def assign_code(key):
     
-    reply = queue.find_one({'key':key})
+    reply = queue.find_one({'key':key})    
 
-    if reply is not None and reply['activated'] is False:     
-        print "Not activated: " + reply['key']
+    code = get_random_hex()
+        
+    if reply['activated'] is True:
+    
+        if not 'code' in reply:
+            print "Creating code for: " + reply['key']
+            reply['code'] = code 
+            queue.save(reply)
+        else: 
+            pass
+            #print reply['key'] + ',' + reply['code']
     else:
-
-        print key
-        check_code = codes.find_one({'username':key})
-        print check_code
-        
-        if check_code is not None: 
-            print check_code['username'] + ',' + check_code['code']
-        else:
-            print "Creating code for: " + key    
-
-            code = get_random_hex()
-        
-        
-        
-        #new_code = {}
-        #new_code["username"] = reply["username"]
-        #new_code['code'] = code
-        #codes.save(new_code)
-        
+        print "Not activated: " + reply['key']
 
 #-----------------------------------
 def main_loop(key, name=None):
@@ -83,11 +73,7 @@ def main_loop(key, name=None):
 
     if check_registration(key) or reply is not None:
         print "already registered: " + key
-        try:
-            assign_code(key)
-        except Exception as e:
-            print "couldn't assign code"
-            #print e
+        assign_code(key)
     else:
         #not in DB 
         print "not registered: " + key
