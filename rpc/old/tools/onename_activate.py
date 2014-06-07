@@ -14,10 +14,6 @@ con = Connection()
 db = con['namecoin']
 queue = db.queue
 
-import os 
-
-LOAD_BALANCER = os.environ['LOAD_BALANCER']
-
 #-----------------------------------
 def check_name_firstupdate_errors(key):
 
@@ -51,14 +47,15 @@ def do_name_firstupdate():
     for entry in queue.find():
 
         #entry is registered; but not activated
-        if entry.get('activated') is not None and entry.get('activated') == False:
+        if entry.get('activated') is not None and entry.get('activated') == False and entry.get('backend_server') is None:
             
+            #print entry
             #print "Processing: " + entry['key'] 
 
             #compare the current block with 'wait_till_block'
             current_blocks = blocks['blocks']
 
-            if current_blocks > entry['wait_till_block'] and entry['backend_server'] == int(LOAD_BALANCER):
+            if current_blocks > entry['wait_till_block']:
                 #lets activate the entry
                 print "Activating: " + entry['key']
                 print '----'
@@ -90,6 +87,7 @@ def do_name_firstupdate():
 
                 #sleep(1)
             else:
+                print "Wait for %s more blocks" % (entry['wait_till_block'] - current_blocks)
                 pass
 
 #-----------------------------------
