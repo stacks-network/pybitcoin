@@ -7,8 +7,13 @@
 
 from flask import Flask, request, jsonify, make_response, abort
 from config import * 
+import json
 
 app = Flask(__name__)
+
+import pylibmc
+from time import time
+mc = pylibmc.Client([DEFAULT_HOST + ':' + MEMCACHED_PORT],binary=True)
 
 from functools import wraps
 
@@ -115,7 +120,15 @@ def namecoind_api_name_show():
     if key == None:
         return error_reply("No key given")
 
-    info = namecoind_name_show(key)
+    cache_reply = mc.get(str(key))
+
+    if cache_reply is None: 
+        info = namecoind_name_show(key)
+        mc.set(str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
+        print "cache miss"
+    else:
+        print "cache hit"
+        info = json.loads(cache_reply)
 
     if 'status' in info:
         if info['status'] == 404:

@@ -9,8 +9,7 @@
 
 import os
 from coinrpc.coinrpc_flask import app
-from config import DEFAULT_PORT, DEFAULT_HOST, DEBUG, entered_passphrase
-import getpass
+from config import *
 
 def runserver():
 

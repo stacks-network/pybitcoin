@@ -7,6 +7,8 @@
 
 from config import * 
 
+VALUE_MAX_LIMIT = 519
+
 import json
 import namecoinrpc
 
@@ -14,6 +16,13 @@ namecoind = namecoinrpc.connect_to_remote(NAMECOIND_USER, NAMECOIND_PASSWD,
                                         host=NAMECOIND_SERVER, port=NAMECOIND_PORT, 
                                         use_https=NAMECOIND_USE_HTTPS)
 
+#-----------------------------------
+def utf8len(s):
+
+    if type(s) == unicode:
+        return len(s)
+    else:
+        return len(s.encode('utf-8'))
 
 #---------------------------------
 def error_reply(msg, code = -1):
@@ -51,6 +60,9 @@ def namecoind_name_new(key,value):
 #step-2 for registering 
 def namecoind_firstupdate(key,rand,value,tx=None):
 
+    if utf8len(value) > VALUE_MAX_LIMIT:
+        return error_reply("value larger than " + str(VALUE_MAX_LIMIT))
+
     #unlock the wallet
     if not unlock_wallet(WALLET_PASSPHRASE):
         error_reply("Wallet passphrase is incorrect", 403)
@@ -64,7 +76,10 @@ def namecoind_firstupdate(key,rand,value,tx=None):
 
 #-----------------------------------
 def namecoind_name_update(key,value):
-    
+
+    if utf8len(value) > VALUE_MAX_LIMIT:
+        return error_reply("value larger than " + str(VALUE_MAX_LIMIT))
+
     #now unlock the wallet
     if not unlock_wallet(WALLET_PASSPHRASE):
         error_reply("Wallet passphrase is incorrect", 403)
@@ -94,6 +109,9 @@ def namecoind_transfer(key,new_address,value=None):
     if not unlock_wallet(WALLET_PASSPHRASE):
         error_reply("Wallet passphrase is incorrect", 403)
     
+    if utf8len(value) > VALUE_MAX_LIMIT:
+        return error_reply("value larger than " + str(VALUE_MAX_LIMIT))
+
     #transfer the name (underlying call is still name_update)
     info = namecoind.name_update(key, value, new_address)
 
@@ -135,6 +153,10 @@ def namecoind_name_show(input_key):
 
     value = namecoind.name_show(input_key)
 
+ #   if utf8len(json.dumps(value)) > VALUE_MAX_LIMIT:
+ #       new_key = 'i/' + input_key.lstrip('u/') + "-1"
+ #       value = namecoind.name_show(new_key)
+
     if 'code' in value and value.get('code') == -4:
         return error_reply("Not found", 404)
 
@@ -152,7 +174,7 @@ def namecoind_name_show(input_key):
 
 #-----------------------------------
 #helper function
-def unlock_wallet(passphrase, timeout = 10):
+def unlock_wallet(passphrase, timeout = 100):
 
     info = namecoind.walletpassphrase(passphrase, timeout, True)
     return info             #info will be True or False
