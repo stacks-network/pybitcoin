@@ -5,11 +5,12 @@
 # All Rights Reserved
 #-----------------------
 
-from flask import Flask, request, jsonify, make_response, abort
+from flask import Flask, request, jsonify, make_response, abort, Blueprint
 from config import * 
+
 import json
 
-app = Flask(__name__)
+namecoind_api = Blueprint('namecoind_api', __name__)
 
 import pylibmc
 from time import time
@@ -45,74 +46,12 @@ def error_reply(msg, code = -1):
     return jsonify(reply)
 
 #-----------------------------------
-@app.route('/')
-def index():
-    return 'Welcome to the namecoind API server of <a href="http://halfmoonlabs.com">Halfmoon Labs</a>.'	
-
-#-----------------------------------
-@app.route('/namecoind/blocks')
+@namecoind_api.route('/namecoind/blocks')
 def namecoind_api_blocks():
     return jsonify(namecoind_blocks())
 
 #-----------------------------------
-@app.route('/namecoind/name_new', methods = ['POST'])
-#@requires_auth
-def namecoind_api_name_new():
-
-    reply = {}
-    data = request.values
-   
-    if not 'key' in data  or not 'value' in data:
-        return error_reply("Required: key, value", 400)
-        
-    key = data['key']
-    value = data['value']
-    
-    return jsonify(namecoind_name_new(key,value))
-
-#----------------------------------------------
-@app.route('/namecoind/name_firstupdate', methods = ['POST'])
-#@requires_auth
-def namecoind_api_firstupdate():
-
-    data = request.values
-
-    if not 'key' in data or not 'rand' in data or not 'value' in data:    
-        return error_reply("Required: key, value, rand", 400)
-    
-    tx = None
-
-    if 'tx' in data: 
-        tx = data['tx']
-    
-    return jsonify(namecoind_firstupdate(data['key'],data['rand'],data['value'],tx))
-
-#-----------------------------------
-@app.route('/namecoind/name_update', methods = ['POST'])
-#@requires_auth
-def namecoind_api_name_update():
-
-    data = request.values
-
-    if not 'key' in data or not 'new_value' in data:    
-        return error_reply("Required: key, new_value", 400)
-    
-    return jsonify(namecoind_name_update(data['key'],data['value']))
-
-#-----------------------------------
-@app.route('/namecoind/transfer', methods = ['POST'])
-#@requires_auth
-def namecoind_api_transfer():
-
-    data = request.values
-
-    if not 'key' in data or not 'new_address' in data:    
-        return error_reply("Required: key, new_address", 400)
-    
-    return jsonify(namecoind_transfer(data['key'],data['new_address']))
-
-#-----------------------------------
-@app.route('/namecoind/name_show')
+@namecoind_api.route('/namecoind/name_show')
 def namecoind_api_name_show():
     
     key = request.args.get('key')
@@ -120,7 +59,11 @@ def namecoind_api_name_show():
     if key == None:
         return error_reply("No key given")
 
-    cache_reply = mc.get(str(key))
+    if MEMCACHED_ENABLED: 
+        cache_reply = mc.get(str(key))
+    else:
+        cache_reply = None
+        print "cache off"
 
     if cache_reply is None: 
         info = namecoind_name_show(key)
@@ -137,18 +80,59 @@ def namecoind_api_name_show():
     return jsonify(info)
 
 #-----------------------------------
-@app.errorhandler(500)
-def internal_error(error):
+@namecoind_api.route('/namecoind/name_new', methods = ['POST'])
+#@requires_auth
+def namecoind_api_name_new():
 
     reply = {}
-    return jsonify(reply)
-
-#-----------------------------------
-@app.errorhandler(404)
-def not_found(error):
-    return make_response(jsonify( { 'error': 'Not found' } ), 404)
-
-#-----------------------------------
-if __name__ == '__main__':
+    data = request.values
+   
+    if not 'key' in data  or not 'value' in data:
+        return error_reply("Required: key, value", 400)
+        
+    key = data['key']
+    value = data['value']
     
-    app.run(host=DEFAULT_HOST, port=DEFAULT_PORT,debug=DEBUG)
+    return jsonify(namecoind_name_new(key,value))
+
+#----------------------------------------------
+@namecoind_api.route('/namecoind/name_firstupdate', methods = ['POST'])
+#@requires_auth
+def namecoind_api_firstupdate():
+
+    data = request.values
+
+    if not 'key' in data or not 'rand' in data or not 'value' in data:    
+        return error_reply("Required: key, value, rand", 400)
+    
+    tx = None
+
+    if 'tx' in data: 
+        tx = data['tx']
+    
+    return jsonify(namecoind_firstupdate(data['key'],data['rand'],data['value'],tx))
+
+#-----------------------------------
+@namecoind_api.route('/namecoind/name_update', methods = ['POST'])
+#@requires_auth
+def namecoind_api_name_update():
+
+    data = request.values
+
+    if not 'key' in data or not 'new_value' in data:    
+        return error_reply("Required: key, new_value", 400)
+    
+    return jsonify(namecoind_name_update(data['key'],data['value']))
+
+#-----------------------------------
+@namecoind_api.route('/namecoind/transfer', methods = ['POST'])
+#@requires_auth
+def namecoind_api_transfer():
+
+    data = request.values
+
+    if not 'key' in data or not 'new_address' in data:    
+        return error_reply("Required: key, new_address", 400)
+    
+    return jsonify(namecoind_transfer(data['key'],data['new_address']))
+
