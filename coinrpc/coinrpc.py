@@ -7,7 +7,7 @@
 
 from config import * 
 
-VALUE_MAX_LIMIT = 519
+VALUE_MAX_LIMIT = 520
 
 import json
 import namecoinrpc
@@ -144,6 +144,27 @@ def validate_address(address):
     return jsonify(reply)
 
 #-----------------------------------
+def get_full_profile(key):
+
+    check_profile = namecoind_name_show(key)
+    
+    try:
+        check_profile = check_profile['value']
+    except:
+        return check_profile
+                
+    if 'next' in check_profile:
+        child_data = get_full_profile(check_profile['next'])
+
+        del check_profile['next']
+
+        merged_data = {key: value for (key, value) in (check_profile.items() + child_data.items())}
+        return merged_data
+
+    else:
+        return check_profile
+
+#-----------------------------------
 #helper function for name_show
 def namecoind_name_show(input_key):
 
@@ -152,10 +173,11 @@ def namecoind_name_show(input_key):
     max_returned = 1
 
     value = namecoind.name_show(input_key)
+    profile = value.get('value')
 
- #   if utf8len(json.dumps(value)) > VALUE_MAX_LIMIT:
- #       new_key = 'i/' + input_key.lstrip('u/') + "-1"
- #       value = namecoind.name_show(new_key)
+    if utf8len(json.dumps(profile)) > VALUE_MAX_LIMIT:
+        new_key = 'i/' + input_key.lstrip('u/') + "-1"
+        value = namecoind.name_show(new_key)
 
     if 'code' in value and value.get('code') == -4:
         return error_reply("Not found", 404)
