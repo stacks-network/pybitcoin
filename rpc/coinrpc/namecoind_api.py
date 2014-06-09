@@ -60,14 +60,14 @@ def namecoind_api_name_show():
         return error_reply("No key given")
 
     if MEMCACHED_ENABLED: 
-        cache_reply = mc.get(str(key))
+        cache_reply = mc.get("name_" + str(key))
     else:
         cache_reply = None
         print "cache off"
 
     if cache_reply is None: 
         info = namecoind_name_show(key)
-        mc.set(str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
+        mc.set("name_" + str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
         print "cache miss"
     else:
         print "cache hit"

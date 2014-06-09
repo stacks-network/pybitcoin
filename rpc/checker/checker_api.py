@@ -5,6 +5,12 @@ from flask import jsonify, Blueprint, request
 from coinrpc.namecoind_api import error_reply
 from coinrpc.coinrpc import get_full_profile
 
+from config import *
+
+import pylibmc
+from time import time
+mc = pylibmc.Client([DEFAULT_HOST + ':' + MEMCACHED_PORT],binary=True)
+
 checker_api = Blueprint('checker_api', __name__)
 
 #-----------------------------------------
@@ -49,19 +55,31 @@ def get_proof_url(proof, username):
 def get_verifications():
 
     verifications = {}
+    proof_sites = ["twitter", "github", "facebook"]
 
     username = request.args.get('username')
 
     if username is None:
         return error_reply("username not given")
 
-    profile = get_full_profile('u/' + username)
+    if MEMCACHED_ENABLED: 
+        cache_reply = mc.get("proof_" + str(username))
+    else:
+        cache_reply = None
+        print "cache off"
 
-    proof_sites = ["twitter", "github", "facebook"]
+    if cache_reply is None: 
+        profile = get_full_profile('u/' + username)
 
-    for key, value in profile.items():
-        if key in proof_sites and type(value) is dict and "proof" in value:
-            if is_valid_proof(key, value, username):
-                verifications[key] = True
+        for key, value in profile.items():
+            if key in proof_sites and type(value) is dict and "proof" in value:
+                if is_valid_proof(key, value, username):
+                    verifications[key] = True
     
+        mc.set("proof_" + str(username),json.dumps(verifications),int(time() + MEMCACHED_TIMEOUT))
+        print "cache miss"
+    else:
+        print "cache hit"
+        verifications = json.loads(cache_reply)
+
     return jsonify(verifications)
