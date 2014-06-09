@@ -5,7 +5,11 @@ from flask import jsonify, Blueprint, request
 from coinrpc.namecoind_api import error_reply
 from coinrpc.coinrpc import get_full_profile
 
-from config import MEMCACHED_ENABLED, MEMCACHED_TIMEOUT
+from config import *
+
+import pylibmc
+from time import time
+mc = pylibmc.Client([DEFAULT_HOST + ':' + MEMCACHED_PORT],binary=True)
 
 checker_api = Blueprint('checker_api', __name__)
 
@@ -72,7 +76,7 @@ def get_verifications():
                 if is_valid_proof(key, value, username):
                     verifications[key] = True
     
-        mc.set("name_" + str(key),json.dumps(verifications),int(time() + MEMCACHED_TIMEOUT))
+        mc.set("proof_" + str(username),json.dumps(verifications),int(time() + MEMCACHED_TIMEOUT))
         print "cache miss"
     else:
         print "cache hit"
