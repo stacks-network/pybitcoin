@@ -1,6 +1,14 @@
 coinrpc
 =======
 
+Requires memcached:
+
+```
+sudo apt-get install memcached libmemcached-dev
+sudo apt-get install python2.7-dev
+
+```
+
 For quick deployment:
 
 ```
