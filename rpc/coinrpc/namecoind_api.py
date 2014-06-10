@@ -18,7 +18,7 @@ mc = pylibmc.Client([DEFAULT_HOST + ':' + MEMCACHED_PORT],binary=True)
 
 from functools import wraps
 
-from coinrpc import namecoind_blocks, namecoind_name_new, namecoind_firstupdate, namecoind_name_show
+from coinrpc import namecoind_blocks, namecoind_name_new, namecoind_firstupdate, namecoind_name_show, get_full_profile
 
 #---------------------------------
 def check_auth(username, password):
@@ -69,6 +69,36 @@ def namecoind_api_name_show():
         info = namecoind_name_show(key)
         if MEMCACHED_ENABLED:
             mc.set("name_" + str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
+            print "cache miss"
+    else:
+        print "cache hit"
+        info = json.loads(cache_reply)
+
+    if 'status' in info:
+        if info['status'] == 404:
+            abort(404)
+            
+    return jsonify(info)
+
+#-----------------------------------
+@namecoind_api.route('/namecoind/full_profile')
+def namecoind_api_full_profile():
+    
+    key = request.args.get('key')
+
+    if key == None:
+        return error_reply("No key given")
+
+    if MEMCACHED_ENABLED: 
+        cache_reply = mc.get("profile_" + str(key))
+    else:
+        cache_reply = None
+        print "cache off"
+
+    if cache_reply is None: 
+        info = get_full_profile(key)
+        if MEMCACHED_ENABLED:
+            mc.set("profile_" + str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
             print "cache miss"
     else:
         print "cache hit"
