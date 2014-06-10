@@ -67,8 +67,9 @@ def namecoind_api_name_show():
 
     if cache_reply is None: 
         info = namecoind_name_show(key)
-        mc.set("name_" + str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
-        print "cache miss"
+        if MEMCACHED_ENABLED:
+            mc.set("name_" + str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
+            print "cache miss"
     else:
         print "cache hit"
         info = json.loads(cache_reply)
