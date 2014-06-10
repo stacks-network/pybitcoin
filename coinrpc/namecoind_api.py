@@ -84,6 +84,9 @@ def namecoind_api_name_show():
 #@requires_auth
 def namecoind_api_name_new():
 
+    if NAMECOIND_READONLY:
+        return error_reply("this is a read-only namecoind server")
+
     reply = {}
     data = request.values
    
@@ -99,6 +102,9 @@ def namecoind_api_name_new():
 @namecoind_api.route('/namecoind/name_firstupdate', methods = ['POST'])
 #@requires_auth
 def namecoind_api_firstupdate():
+
+    if NAMECOIND_READONLY:
+        return error_reply("this is a read-only namecoind server")
 
     data = request.values
 
@@ -117,6 +123,9 @@ def namecoind_api_firstupdate():
 #@requires_auth
 def namecoind_api_name_update():
 
+    if NAMECOIND_READONLY:
+        return error_reply("this is a read-only namecoind server")
+
     data = request.values
 
     if not 'key' in data or not 'new_value' in data:    
@@ -128,6 +137,9 @@ def namecoind_api_name_update():
 @namecoind_api.route('/namecoind/transfer', methods = ['POST'])
 #@requires_auth
 def namecoind_api_transfer():
+
+    if NAMECOIND_READONLY:
+        return error_reply("this is a read-only namecoind server")
 
     data = request.values
 
