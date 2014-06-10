@@ -21,6 +21,12 @@ Example API call:
 http://localhost:5000/namecoind/name_show?key=d/bitcoin
 ```
 
+Set python-path:
+
+```
+ln -s /home/muneeb/.envs/coinrpc/lib/python2.7/site-packages/ python-path
+```
+
 ======
 
 NOTE: The rest of the documentation needs updating

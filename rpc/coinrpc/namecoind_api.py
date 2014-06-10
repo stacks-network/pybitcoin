@@ -67,8 +67,9 @@ def namecoind_api_name_show():
 
     if cache_reply is None: 
         info = namecoind_name_show(key)
-        mc.set("name_" + str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
-        print "cache miss"
+        if MEMCACHED_ENABLED:
+            mc.set("name_" + str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
+            print "cache miss"
     else:
         print "cache hit"
         info = json.loads(cache_reply)
@@ -83,6 +84,9 @@ def namecoind_api_name_show():
 @namecoind_api.route('/namecoind/name_new', methods = ['POST'])
 #@requires_auth
 def namecoind_api_name_new():
+
+    if NAMECOIND_READONLY:
+        return error_reply("this is a read-only namecoind server")
 
     reply = {}
     data = request.values
@@ -99,6 +103,9 @@ def namecoind_api_name_new():
 @namecoind_api.route('/namecoind/name_firstupdate', methods = ['POST'])
 #@requires_auth
 def namecoind_api_firstupdate():
+
+    if NAMECOIND_READONLY:
+        return error_reply("this is a read-only namecoind server")
 
     data = request.values
 
@@ -117,6 +124,9 @@ def namecoind_api_firstupdate():
 #@requires_auth
 def namecoind_api_name_update():
 
+    if NAMECOIND_READONLY:
+        return error_reply("this is a read-only namecoind server")
+
     data = request.values
 
     if not 'key' in data or not 'new_value' in data:    
@@ -128,6 +138,9 @@ def namecoind_api_name_update():
 @namecoind_api.route('/namecoind/transfer', methods = ['POST'])
 #@requires_auth
 def namecoind_api_transfer():
+
+    if NAMECOIND_READONLY:
+        return error_reply("this is a read-only namecoind server")
 
     data = request.values
 

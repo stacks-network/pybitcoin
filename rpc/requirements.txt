@@ -3,8 +3,11 @@ Jinja2==2.7.1
 MarkupSafe==0.18
 Werkzeug==0.9.4
 bitcoin-python==0.3
+characters==0.1.0
+coinkit==0.4.1
+ecdsa==0.10
+html2text==2014.4.5
 itsdangerous==0.23
+pylibmc==1.2.3
 pymongo==2.6.3
 requests==2.2.1
-wsgiref==0.1.2
-pylibmc==1.2.3
