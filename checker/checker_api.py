@@ -76,8 +76,9 @@ def get_verifications():
                 if is_valid_proof(key, value, username):
                     verifications[key] = True
     
-        mc.set("proof_" + str(username),json.dumps(verifications),int(time() + MEMCACHED_TIMEOUT))
-        print "cache miss"
+        if MEMCACHED_ENABLED:
+            mc.set("proof_" + str(username),json.dumps(verifications),int(time() + MEMCACHED_TIMEOUT))
+            print "cache miss"
     else:
         print "cache hit"
         verifications = json.loads(cache_reply)
