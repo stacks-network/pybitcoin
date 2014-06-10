@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #-----------------------
-# Copyright 2013 Halfmoon Labs, Inc.
+# Copyright 2014 Halfmoon Labs, Inc.
 # All Rights Reserved
 #-----------------------
 
