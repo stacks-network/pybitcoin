@@ -83,7 +83,7 @@ def process_profile_updates():
 	for user in users.find(): 
 
 		if 'name_transferred' in user and user['name_transferred'] is True:
-			print "name already transferred: " + user['username']
+			#print "name already transferred: " + user['username']
 			continue 
 
 		if 'profile_update_pending' in user and user['profile_update_pending']:
@@ -103,9 +103,9 @@ def process_profile_updates():
 #-----------------------------------
 if __name__ == '__main__':
 
-	#username = 'lessin'
+	#username = 'akwanalytics'
 	#user = users.find_one({"username":username})
-	#print user 
+	#print user['backend_server'] 
 	#update_profile_from_DB(username)
 	#update_profile_from_file(username)
 	process_profile_updates()
