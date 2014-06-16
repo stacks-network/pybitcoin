@@ -1,7 +1,7 @@
 Coinkit
 =====
 
-Tools for Bitcoin and other cryptocurrencies.
+Python library with tools for Bitcoin and other cryptocurrencies.
 
 ## Sample Usage
 
@@ -100,3 +100,11 @@ Tools for Bitcoin and other cryptocurrencies.
 **A:** That's up to you! For a quick project, consider adding support for a new cryptocurrency (should only require two lines of code, not including the unit tests).
 
 Meanwhile, for something a bit more ambitious, check the issues section for outstanding feature requests.
+
+## Notice
+
+Coinkit is still in Alpha. It's developers will not be held responsible for loss of bitcoins resulting from the use of this software.
+
+Developers using Coinkit are encouraged to inspect the code for themselves and perform their own tests.
+
+That said, we are committed to ensuring that this library behaves exactly as it is supposed to under all conditions, and have plans to ramp up our testing efforts going forward.
