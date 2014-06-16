@@ -1,7 +1,7 @@
 Coinkit
 =====
 
-Python library for Bitcoin and other cryptocurrencies.
+Python library with tools for Bitcoin and other cryptocurrencies.
 
 ## Sample Usage
 
