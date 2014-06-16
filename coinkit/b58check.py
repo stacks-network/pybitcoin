@@ -45,6 +45,9 @@ def b58check_unpack(b58_s):
     num_leading_zeros = len(re.match(r'^1*', b58_s).group(0))
     # convert from b58 to b16
     hex_s = change_charset(b58_s, B58_KEYSPACE, HEX_KEYSPACE)
+    # if an odd number of hex characters are present, add a zero to the front
+    if len(hex_s) % 2 == 1:
+        hex_s = "0" + hex_s
     # convert from b16 to b2
     bin_s = binascii.unhexlify(hex_s)
     # add in the leading zeros
