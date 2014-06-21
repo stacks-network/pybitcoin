@@ -322,7 +322,8 @@ def check_new_registrations(IS_LIVE=False):
 					try:
 						process_user(user['username'],json.loads(user['profile']),accesscode)
 						print user['backend_server']
-					except:
+					except Exception as e:
+						print e
 						continue 
 				
 				username = 'u/' + user['username'].lower()
