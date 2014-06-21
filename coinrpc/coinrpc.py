@@ -172,7 +172,10 @@ def namecoind_name_show(input_key):
 
     value = namecoind.name_show(input_key)
     
-    profile = json.loads(value.get('value'))
+    try:
+        profile = json.loads(value.get('value'))
+    except:
+        profile = value.get('value')
 
     if utf8len(json.dumps(profile)) > VALUE_MAX_LIMIT:
         new_key = 'i/' + input_key.lstrip('u/') + "-1"
