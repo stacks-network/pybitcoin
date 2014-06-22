@@ -66,7 +66,7 @@ def get_verifications():
         cache_reply = mc.get("proof_" + str(username))
     else:
         cache_reply = None
-        print "cache off"
+        #print "cache off"
 
     if cache_reply is None: 
         profile = get_full_profile('u/' + username)
@@ -78,9 +78,9 @@ def get_verifications():
     
         if MEMCACHED_ENABLED:
             mc.set("proof_" + str(username),json.dumps(verifications),int(time() + MEMCACHED_TIMEOUT))
-            print "cache miss"
+            #print "cache miss"
     else:
-        print "cache hit"
+        #print "cache hit"
         verifications = json.loads(cache_reply)
 
     return jsonify(verifications)
