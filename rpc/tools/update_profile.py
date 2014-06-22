@@ -28,6 +28,7 @@ def update_profile(username,profile):
 def update_profile_from_DB(username):
 
 	entry = users.find_one({'username':username})
+
 	profile = json.loads(entry['profile'])
 
 	#print profile
@@ -37,7 +38,12 @@ def update_profile_from_DB(username):
 def update_profile_from_file(username,file_name='tools/json_profile.json'):
 
 	json_data=open(file_name)
-	profile = json.load(json_data)
+
+	try:
+		profile = json.load(json_data)
+	except Exception as e:
+		print e
+		return 
 
 	update_profile(username,profile)
 
