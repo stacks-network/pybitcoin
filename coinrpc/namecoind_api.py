@@ -42,7 +42,7 @@ def requires_auth(f):
 def error_reply(msg, code = -1):
     reply = {}
     reply['status'] = code
-    reply['message'] = "ERROR: " + msg
+    reply['error'] = msg
     return jsonify(reply)
 
 #-----------------------------------
@@ -97,6 +97,12 @@ def namecoind_api_full_profile():
 
     if cache_reply is None: 
         info = get_full_profile(key)
+
+        try:
+            jsonify(info)
+        except:
+            return error_reply("Malformed profile")
+
         if MEMCACHED_ENABLED:
             mc.set("profile_" + str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
             print "cache miss"
