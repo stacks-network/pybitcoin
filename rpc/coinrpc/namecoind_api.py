@@ -63,15 +63,15 @@ def namecoind_api_name_show():
         cache_reply = mc.get("name_" + str(key))
     else:
         cache_reply = None
-        print "cache off"
+        #print "cache off"
 
     if cache_reply is None: 
         info = namecoind_name_show(key)
         if MEMCACHED_ENABLED:
             mc.set("name_" + str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
-            print "cache miss"
+            #print "cache miss"
     else:
-        print "cache hit"
+        #print "cache hit"
         info = json.loads(cache_reply)
 
     if 'status' in info:
@@ -93,7 +93,7 @@ def namecoind_api_full_profile():
         cache_reply = mc.get("profile_" + str(key))
     else:
         cache_reply = None
-        print "cache off"
+        #print "cache off"
 
     if cache_reply is None: 
         info = get_full_profile(key)
@@ -107,7 +107,7 @@ def namecoind_api_full_profile():
             mc.set("profile_" + str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
             print "cache miss"
     else:
-        print "cache hit"
+        #print "cache hit"
         info = json.loads(cache_reply)
 
     if 'status' in info:
