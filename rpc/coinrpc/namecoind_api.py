@@ -96,16 +96,16 @@ def namecoind_api_full_profile():
         #print "cache off"
 
     if cache_reply is None: 
-        info = get_full_profile(key)
 
         try:
+            info = get_full_profile(key)
             jsonify(info)
         except:
             return error_reply("Malformed profile")
 
         if MEMCACHED_ENABLED:
             mc.set("profile_" + str(key),json.dumps(info),int(time() + MEMCACHED_TIMEOUT))
-            print "cache miss"
+            #print "cache miss"
     else:
         #print "cache hit"
         info = json.loads(cache_reply)

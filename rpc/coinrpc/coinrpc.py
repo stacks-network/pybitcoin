@@ -172,7 +172,6 @@ def namecoind_name_show(input_key):
 
     value = namecoind.name_show(input_key)
     
-    '''
     try:
         profile = json.loads(value.get('value'))
     except:
@@ -180,9 +179,8 @@ def namecoind_name_show(input_key):
 
     if utf8len(json.dumps(profile)) > VALUE_MAX_LIMIT:
         new_key = 'i/' + input_key.lstrip('u/') + "-1"
-        value = namecoind.name_show(new_key)   
-    '''
-    
+        value = namecoind.name_show(new_key)  
+       
     if 'code' in value and value.get('code') == -4:
         return error_reply("Not found", 404)
 
