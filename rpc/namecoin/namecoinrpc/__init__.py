@@ -39,8 +39,8 @@ def connect_to_local(filename=None):
 
         - `filename`: Path to a configuration file in a non-standard location (optional)
     """
-    from namecoinrpc.connection import NamecoinConnection
-    from namecoinrpc.config import read_default_config
+    from .connection import NamecoinConnection
+    from .config import read_default_config
 
     cfg = read_default_config(filename)
     port = int(cfg.get('rpcport', '18332' if cfg.get('testnet') else '8332'))
@@ -56,6 +56,6 @@ def connect_to_remote(user, password, host='localhost', port=8332,
 
     Returns a :class:`~namecoinrpc.connection.NamecoinConnection` object.
     """
-    from namecoinrpc.connection import NamecoinConnection
+    from .connection import NamecoinConnection
 
     return NamecoinConnection(user, password, host, port, use_https)

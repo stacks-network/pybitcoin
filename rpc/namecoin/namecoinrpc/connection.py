@@ -20,9 +20,9 @@
 """
 Connect to Namecoin server via JSON-RPC.
 """
-from namecoinrpc.proxy import JSONRPCException, AuthServiceProxy
-from namecoinrpc.exceptions import _wrap_exception, WalletPassphraseIncorrect, WalletAlreadyUnlocked
-from namecoinrpc.data import (ServerInfo, AccountInfo, AddressInfo, TransactionInfo,
+from .proxy import JSONRPCException, AuthServiceProxy
+from .exceptions import _wrap_exception, WalletPassphraseIncorrect, WalletAlreadyUnlocked
+from .data import (ServerInfo, AccountInfo, AddressInfo, TransactionInfo,
                              AddressValidation, WorkItem, MiningInfo)
 
 

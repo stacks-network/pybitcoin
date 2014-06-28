@@ -5,7 +5,8 @@
 # All Rights Reserved
 #-----------------------
 
-from config import * 
+from config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER, NAMECOIND_PASSWD, NAMECOIND_USE_HTTPS
+from config import WALLET_PASSPHRASE
 
 VALUE_MAX_LIMIT = 520
 
