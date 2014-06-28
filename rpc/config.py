@@ -24,7 +24,7 @@ except:
 	MEMCACHED_ENABLED = False
 
 	#--------------------------------------------------
-	NAMECOIND_READONLY = True
+	NAMECOIND_READONLY = False
 
 	NAMECOIND_USE_HTTPS = True
 
