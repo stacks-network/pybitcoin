@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#-----------------------
+# Copyright 2014 Halfmoon Labs, Inc.
+# All Rights Reserved
+#-----------------------
 
 SLEEP_INTERVAL = 1
 
@@ -10,8 +14,8 @@ import json
 
 VALUE_MAX_LIMIT = 512
 
-from coinrpc.coinrpc import namecoind_blocks, namecoind_name_new, check_registration
-from coinrpc.coinrpc import namecoind_name_update, namecoind_name_show
+from namecoin.namecoind_wrapper import namecoind_blocks, namecoind_name_new, check_registration
+from namecoin.namecoind_wrapper import namecoind_name_update, namecoind_name_show
 
 from pymongo import Connection
 conn = Connection()

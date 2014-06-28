@@ -5,7 +5,7 @@ import json
 import requests
 
 from time import sleep
-from coinrpc.coinrpc import namecoind_blocks, namecoind_firstupdate
+from namecoin.namecoind_wrapper import namecoind_blocks, namecoind_firstupdate
 
 blocks = namecoind_blocks()
 
