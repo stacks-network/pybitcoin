@@ -26,7 +26,7 @@
 """
 Namecoin RPC service, data objects.
 """
-from namecoinrpc.util import DStruct
+from .util import DStruct
 
 
 class ServerInfo(DStruct):

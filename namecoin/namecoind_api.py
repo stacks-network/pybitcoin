@@ -18,7 +18,7 @@ mc = pylibmc.Client([DEFAULT_HOST + ':' + MEMCACHED_PORT],binary=True)
 
 from functools import wraps
 
-from coinrpc import namecoind_blocks, namecoind_name_new, namecoind_firstupdate, namecoind_name_show, get_full_profile
+from namecoind_wrapper import namecoind_blocks, namecoind_name_new, namecoind_firstupdate, namecoind_name_show, get_full_profile
 
 #---------------------------------
 def check_auth(username, password):

@@ -8,7 +8,7 @@ from flask import Flask, make_response, jsonify
 from config import DEFAULT_PORT, DEFAULT_HOST, DEBUG 
 import json 
 
-from coinrpc.namecoind_api import namecoind_api
+from namecoin.namecoind_api import namecoind_api
 from checker.checker_api import checker_api 
 
 app = Flask(__name__)
