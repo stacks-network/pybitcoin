@@ -2,8 +2,8 @@ from html2text import html2text
 import requests
 import json
 from flask import jsonify, Blueprint, request
-from coinrpc.namecoind_api import error_reply
-from coinrpc.coinrpc import get_full_profile
+from namecoin.namecoind_api import error_reply
+from namecoin.namecoind_wrapper import get_full_profile
 
 from config import *
 
@@ -32,7 +32,9 @@ def is_valid_proof(key, value, username):
     search_text = search_text.lower()
     if "verifymyonename" in search_text and ("+" + username) in search_text:
         return True
-
+    elif "verifying myself" in search_text and "bitcoin username" in search_text and ("+" + username) in search_text:
+        return True 
+        
     return False
 
 #-----------------------------------------
