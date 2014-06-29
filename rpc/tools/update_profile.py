@@ -4,7 +4,7 @@
 import json
 from pymongo import MongoClient
 from onename_register import process_user, utf8len
-from coinrpc.coinrpc import check_registration
+from namecoin.namecoind_wrapper import check_registration
 
 import os 
 
