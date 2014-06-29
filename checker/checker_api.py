@@ -19,8 +19,9 @@ def is_valid_proof(key, value, username):
     proof_url = get_proof_url(value["proof"], username)
     if "username" in value:
         site_username = value["username"]
-        if site_username not in proof_url:
+        if site_username not in proof_url.lower():
             return False
+
     r = requests.get(proof_url)
     search_text = html2text(r.text)
     if key == "twitter":
@@ -30,11 +31,14 @@ def is_valid_proof(key, value, username):
     elif key == "facebook":
         pass
     search_text = search_text.lower()
+
     if "verifymyonename" in search_text and ("+" + username) in search_text:
+        return True
+    elif "verifying myself" in search_text and "bitcoin username" in search_text and ("+" + username) in search_text:
         return True
     elif "verifying myself" in search_text and "bitcoin username" in search_text and username in search_text:
         return True
-        
+
     return False
 
 #-----------------------------------------
@@ -73,8 +77,17 @@ def get_verifications():
     if cache_reply is None: 
         profile = get_full_profile('u/' + username)
 
+        if 'status' in profile and profile['status'] == 404:
+            headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+            url = 'http://onename.io/' + username + '.json'
+            r = requests.get(url, headers=headers)
+            profile = r.json()
+
+        #print profile
+
         for key, value in profile.items():
             if key in proof_sites and type(value) is dict and "proof" in value:
+
                 if is_valid_proof(key, value, username):
                     verifications[key] = True
     
