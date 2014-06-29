@@ -32,8 +32,8 @@ def is_valid_proof(key, value, username):
     search_text = search_text.lower()
     if "verifymyonename" in search_text and ("+" + username) in search_text:
         return True
-    elif "verifying myself" in search_text and "bitcoin username" in search_text and ("+" + username) in search_text:
-        return True 
+    elif "verifying myself" in search_text and "bitcoin username" in search_text and username in search_text:
+        return True
         
     return False
 
