@@ -5,7 +5,7 @@
 #-----------------------
 
 '''
-    configuration file for coinrpc
+    configuration file
 '''
 
 try: 
@@ -21,7 +21,7 @@ except:
 
 	MEMCACHED_PORT = '11211'
 	MEMCACHED_TIMEOUT = 15 * 60
-	MEMCACHED_ENABLED = False
+	MEMCACHED_ENABLED = True
 
 	#--------------------------------------------------
 	NAMECOIND_READONLY = False
@@ -36,7 +36,5 @@ except:
 
 	#--------------------------------------------------
 
-	#APP_USERNAME = 'coinrpc'
-	#APP_PASSWORD = 'testingtestingr32fjndfnkgj43rkwbjvfh3jg3jn3'
 
 

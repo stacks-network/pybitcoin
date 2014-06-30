@@ -109,7 +109,7 @@ def process_profile_updates():
 #-----------------------------------
 if __name__ == '__main__':
 
-	#username = 'muneebali'
+	#username = 'alihamed'
 	#user = users.find_one({"username":username})
 	#print user['backend_server'] 
 	#update_profile_from_DB(username)
