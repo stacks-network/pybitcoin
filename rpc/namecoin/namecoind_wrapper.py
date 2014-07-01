@@ -42,7 +42,7 @@ def namecoind_blocks():
 #-----------------------------------
 #step-1 for registrering new names 
 def namecoind_name_new(key,value):
-  
+    
     #check if this key already exists
     if check_registration(key):
         return error_reply("This key already exists")
