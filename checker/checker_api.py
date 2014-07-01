@@ -18,9 +18,10 @@ import hashlib
 #-----------------------------------------
 def is_valid_proof(key, value, username, proof_url):
 
+    #check if username is actually on that service (and not some other user)
     if "username" in value:
-        site_username = value["username"]
-        if site_username not in proof_url:
+        site_username = value["username"].lower()
+        if site_username not in proof_url.lower():
             return False
     try:
         r = requests.get(proof_url)
@@ -42,7 +43,7 @@ def is_valid_proof(key, value, username, proof_url):
         return True
     elif "verifying myself" in search_text and "bitcoin username" in search_text and username in search_text:
         return True
-
+ 
     return False
 
 #-----------------------------------------
@@ -58,7 +59,7 @@ def get_proof_url(proof, username):
             proof_url = "https://gist.github.com/" + username + "/" + proof["id"]
         elif key == "facebook":
             proof_url = "https://www.facebook.com/" + username + "/posts/" + proof["id"]
-    return proof_url.lower()
+    return proof_url
 
 #-----------------------------------------
 @checker_api.route('/checker/get_verifications')
@@ -98,12 +99,8 @@ def get_verifications():
                 proof_url = get_proof_url(value["proof"], proof_username)
                 proof_url_hash = hashlib.md5(proof_url).hexdigest()
 
-            except:
+            except Exception as e:
                 continue 
-
-            #if user is trying to put some other link
-            if proof_username not in proof_url:
-                continue
 
             if USE_CACHE: 
                 cache_reply = mc.get("proof_" + proof_url_hash)
@@ -112,8 +109,9 @@ def get_verifications():
                 #print "cache off"
 
             if cache_reply is None: 
-
+              
                 if is_valid_proof(key, value, username, proof_url):
+
                     verifications[key] = True
     
                     if USE_CACHE:
