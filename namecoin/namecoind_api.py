@@ -53,8 +53,10 @@ def namecoind_api_blocks():
 #-----------------------------------
 @namecoind_api.route('/namecoind/name_show')
 def namecoind_api_name_show():
-    
+
     key = request.args.get('key').lower()
+
+    print key 
 
     if key == None:
         return error_reply("No key given")
@@ -63,8 +65,7 @@ def namecoind_api_name_show():
         cache_reply = mc.get("name_" + str(key))
     else:
         cache_reply = None
-        #print "cache off"
-
+  
     if cache_reply is None: 
         info = namecoind_name_show(key)
         if MEMCACHED_ENABLED:
