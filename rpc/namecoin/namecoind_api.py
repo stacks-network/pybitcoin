@@ -54,7 +54,7 @@ def namecoind_api_blocks():
 @namecoind_api.route('/namecoind/name_show')
 def namecoind_api_name_show():
     
-    key = request.args.get('key')
+    key = request.args.get('key').lower()
 
     if key == None:
         return error_reply("No key given")
@@ -84,7 +84,7 @@ def namecoind_api_name_show():
 @namecoind_api.route('/namecoind/full_profile')
 def namecoind_api_full_profile():
     
-    key = request.args.get('key')
+    key = request.args.get('key').lower()
 
     if key == None:
         return error_reply("No key given")
