@@ -42,7 +42,9 @@ def namecoind_blocks():
 #-----------------------------------
 #step-1 for registrering new names 
 def namecoind_name_new(key,value):
-  
+    
+    key = key.lower()
+
     #check if this key already exists
     if check_registration(key):
         return error_reply("This key already exists")
@@ -61,6 +63,8 @@ def namecoind_name_new(key,value):
 #step-2 for registering 
 def namecoind_firstupdate(key,rand,value,tx=None):
 
+    key = key.lower()
+ 
     if utf8len(value) > VALUE_MAX_LIMIT:
         return error_reply("value larger than " + str(VALUE_MAX_LIMIT))
 
@@ -78,6 +82,8 @@ def namecoind_firstupdate(key,rand,value,tx=None):
 #-----------------------------------
 def namecoind_name_update(key,value):
 
+    key = key.lower()
+    
     if utf8len(value) > VALUE_MAX_LIMIT:
         return error_reply("value larger than " + str(VALUE_MAX_LIMIT))
 
@@ -96,6 +102,8 @@ def namecoind_transfer(key,new_address,value=None):
     #check if this name exists and if it does, find the value field
     #note that update command needs an arg of <new value>.
     #in case we're simply transferring, we need to obtain old value first
+
+    key = key.lower()
 
     key_details = namecoind_name_show(key)
 
@@ -169,6 +177,8 @@ def get_full_profile(key):
 #helper function for name_show
 def namecoind_name_show(input_key):
 
+    key = key.lower()
+ 
     reply = {}
 
     value = namecoind.name_show(input_key)
