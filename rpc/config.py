@@ -21,7 +21,7 @@ except:
 
 	MEMCACHED_PORT = '11211'
 	MEMCACHED_TIMEOUT = 15 * 60
-	MEMCACHED_ENABLED = True
+	MEMCACHED_ENABLED = False
 
 	#--------------------------------------------------
 	NAMECOIND_READONLY = False
