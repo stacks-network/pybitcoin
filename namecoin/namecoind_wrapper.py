@@ -155,7 +155,10 @@ def get_full_profile(key):
         return check_profile
                 
     if 'next' in check_profile:
-        child_data = get_full_profile(check_profile['next'])
+        try:
+            child_data = get_full_profile(check_profile['next'])
+        except:
+            return check_profile
 
         del check_profile['next']
 
