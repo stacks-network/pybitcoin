@@ -76,7 +76,7 @@ def get_verifications():
     verifications = {}
     proof_sites = ["twitter", "github", "facebook"]
 
-    username = request.args.get('username').lower()
+    username = request.args.get('username')
 
     try:
         refresh = int(request.args.get('refresh'))
@@ -91,11 +91,13 @@ def get_verifications():
     if username is None:
         return error_reply("username not given")
 
-    try:
-        user = users.find_one({"username":username})
-        profile = json.loads(user['profile'])
-    except:
-        get_full_profile('u/' + username)
+    #profile = get_full_profile('u/' + username)
+
+    #if 'status' in profile and profile['status'] == 404:
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    url = 'http://onename.io/' + username + '.json'
+    r = requests.get(url, headers=headers)
+    profile = r.json()
 
     for key, value in profile.items():
         if key in proof_sites and type(value) is dict and "proof" in value:
