@@ -37,7 +37,7 @@ def is_valid_proof(key, value, username, proof_url):
         return False
 
     search_text = html2text(r.text)
-    if key == "twitter":
+    if key == "twitter":    
         search_text = search_text.replace("<s>", "").replace("</s>", "").replace("**", "")
     elif key == "github":
         pass
@@ -76,7 +76,7 @@ def get_verifications():
     verifications = {}
     proof_sites = ["twitter", "github", "facebook"]
 
-    username = request.args.get('username').lower()
+    username = request.args.get('username')
 
     try:
         refresh = int(request.args.get('refresh'))
@@ -93,12 +93,10 @@ def get_verifications():
 
     try: 
         user = users.find_one({"username":username})
-        profile = json.loads(user["profile"])
-        print "hitting DB"
-    except:
-        print "hitting except"
+        profile = user["profile"]
+    except Exception as e:
         profile = get_full_profile('u/' + username)
-
+ 
     for key, value in profile.items():
         if key in proof_sites and type(value) is dict and "proof" in value:
         
