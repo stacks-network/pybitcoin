@@ -6,6 +6,7 @@ from namecoin.namecoind_api import error_reply
 from namecoin.namecoind_wrapper import get_full_profile
 
 from config import MEMCACHED_ENABLED, MEMCACHED_PORT, MEMCACHED_TIMEOUT, DEFAULT_HOST
+from config import MONGODB_URI
 
 import pylibmc
 from time import time
@@ -15,6 +16,12 @@ checker_api = Blueprint('checker_api', __name__)
 
 import hashlib 
 
+#-----------------------------------
+from pymongo import MongoClient
+
+remote_client = MongoClient(MONGODB_URI)
+remote_db = remote_client.get_default_database()
+users = remote_db.user
 
 #-----------------------------------------
 def is_valid_proof(key, value, username, proof_url):
@@ -84,13 +91,8 @@ def get_verifications():
     if username is None:
         return error_reply("username not given")
 
-    #profile = get_full_profile('u/' + username)
-
-    #if 'status' in profile and profile['status'] == 404:
-    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-    url = 'http://onename.io/' + username + '.json'
-    r = requests.get(url, headers=headers)
-    profile = r.json()
+    user = users.find_one({"username":username})
+    profile = json.loads(user['profile'])
 
     for key, value in profile.items():
         if key in proof_sites and type(value) is dict and "proof" in value:
