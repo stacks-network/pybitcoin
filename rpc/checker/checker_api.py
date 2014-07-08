@@ -6,6 +6,7 @@ from namecoin.namecoind_api import error_reply
 from namecoin.namecoind_wrapper import get_full_profile
 
 from config import MEMCACHED_ENABLED, MEMCACHED_PORT, MEMCACHED_TIMEOUT, DEFAULT_HOST
+from config import MONGODB_URI
 
 import pylibmc
 from time import time
@@ -14,6 +15,13 @@ mc = pylibmc.Client([DEFAULT_HOST + ':' + MEMCACHED_PORT],binary=True)
 checker_api = Blueprint('checker_api', __name__)
 
 import hashlib 
+
+#-----------------------------------
+from pymongo import MongoClient
+
+remote_client = MongoClient(MONGODB_URI)
+remote_db = remote_client.get_default_database()
+users = remote_db.user
 
 #-----------------------------------------
 def is_valid_proof(key, value, username, proof_url):
