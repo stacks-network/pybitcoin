@@ -132,8 +132,6 @@ def get_verifications():
 
             if cache_reply is None: 
               
-                proof_url = "http://onename.io/ryaneshea"
-
                 if is_valid_proof(key, value, username, proof_url):
 
                     verifications[key] = True
