@@ -114,8 +114,9 @@ def get_verifications():
         profile = get_full_profile('u/' + username)
 
     for key, value in profile.items():
+
         if key in proof_sites and type(value) is dict and "proof" in value:
-        
+            
             try:
                 proof_username = value['username'].lower()
                 proof_url = get_proof_url(value["proof"], proof_username)
