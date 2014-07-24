@@ -18,6 +18,12 @@ import hashlib
 
 from BeautifulSoup import BeautifulSoup
 
+GITHUB_GIST_TAG = 'gist-description'
+GITHUB_TEXT_TAG = 'blob-wrapper data type-text js-blob-data'
+GITHUB_MARDOWN_TAG = 'blob-wrapper data type-markdown js-blob-data' 
+
+TWITTER_TWEET_TAG = 'permalink-inner permalink-tweet-container'
+
 #-----------------------------------
 from pymongo import MongoClient
 
@@ -34,6 +40,44 @@ def get_json(data):
         data = json.loads(data)
         
     return data
+
+#-----------------------------------------
+def get_github_text(html):
+
+    gist_description = html.body.find('div', attrs={'class': GITHUB_GIST_TAG})
+
+    if gist_description is not None:
+        gist_description = gist_description.text
+    else:
+        gist_description = ''
+
+    file_text = html.body.find('div', attrs={'class': GITHUB_TEXT_TAG})
+    
+    if file_text is not None:
+        file_text = file_text.text 
+    else:
+        file_text = html.body.find('div', attrs={'class': GITHUB_MARDOWN_TAG})
+
+        if file_text is not None:
+            file_text = file_text.text
+        else:
+            file_text = ''
+
+    search_text = gist_description + ' ' + file_text
+
+    return search_text
+
+#-----------------------------------------
+def get_twitter_text(html):
+
+    search_text = html.body.find('div', attrs={'class':TWITTER_TWEET_TAG})
+
+    if search_text is not None:
+        search_text = search_text.text
+    else:
+        search_text = ''
+
+    return search_text
 
 #-----------------------------------------
 def is_valid_proof(key, value, username, proof_url):
@@ -54,12 +98,14 @@ def is_valid_proof(key, value, username, proof_url):
     except:
         return False
 
-    search_text = BeautifulSoup(r.text)
-    
-    if key == "twitter":    
-        search_text = search_text.body.find('div', attrs={'class':'permalink-inner permalink-tweet-container'}).text
+    html = BeautifulSoup(r.text)
+
+    if key == "twitter":  
+        search_text = get_twitter_text(html)
     elif key == "github":
-        search_text = search_text.body.find('div', attrs={'class':'readme context-loader-container context-loader-overlay'}).text
+        search_text = get_github_text(html)
+    else:
+        search_text = ''
     
     search_text = search_text.lower()
 
