@@ -16,6 +16,8 @@ checker_api = Blueprint('checker_api', __name__)
 
 import hashlib 
 
+from BeautifulSoup import BeautifulSoup
+
 #-----------------------------------
 from pymongo import MongoClient
 
@@ -52,11 +54,12 @@ def is_valid_proof(key, value, username, proof_url):
     except:
         return False
 
-    search_text = html2text(r.text)
+    search_text = BeautifulSoup(r.text)
+    
     if key == "twitter":    
-        search_text = search_text.replace("<s>", "").replace("</s>", "").replace("**", "")
+        search_text = search_text.body.find('div', attrs={'class':'permalink-inner permalink-tweet-container'}).text
     elif key == "github":
-        pass
+        search_text = search_text.body.find('div', attrs={'class':'readme context-loader-container context-loader-overlay'}).text
     
     search_text = search_text.lower()
 
