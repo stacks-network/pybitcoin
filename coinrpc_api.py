@@ -19,7 +19,7 @@ app.register_blueprint(checker_api)
 #-----------------------------------
 @app.route('/')
 def index():
-    return 'Welcome to the namecoind API server of <a href="http://halfmoonlabs.com">Halfmoon Labs</a>.'
+    return '<hmtl><body>Welcome to the namecoind API server of <a href="http://halfmoonlabs.com">Halfmoon Labs</a>.</body></html>'
 
 #-----------------------------------
 @app.errorhandler(500)
