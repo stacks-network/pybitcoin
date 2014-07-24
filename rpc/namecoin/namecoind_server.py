@@ -30,7 +30,7 @@ def error_reply(msg, code = -1):
 class NamecoindServer(object):
 
 	#-----------------------------------
-	def __init__(self, server, port, user, passwd, use_https, passphrase):
+	def __init__(self, server, port, user, passwd, use_https=True, passphrase=None):
 		
 		self.passphrase = passphrase
 		self.server = server 
@@ -56,7 +56,7 @@ class NamecoindServer(object):
 			return error_reply("This key already exists")
 			
 		#check if passphrase is valid
-		if not unlock_wallet(self.passphrase):
+		if not self.unlock_wallet(self.passphrase):
 			return error_reply("Wallet passphrase is incorrect", 403)
 
 		#create new name
