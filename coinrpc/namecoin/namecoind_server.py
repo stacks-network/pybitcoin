@@ -9,22 +9,7 @@ VALUE_MAX_LIMIT = 520
 
 import json
 import namecoinrpc
-
-#-----------------------------------
-def utf8len(s):
-
-	if type(s) == unicode:
-		return len(s)
-	else:
-		return len(s.encode('utf-8'))
-
-#---------------------------------
-def error_reply(msg, code = -1):
-	reply = {}
-	reply['status'] = code
-	reply['message'] = "ERROR: " + msg
-	return reply 
-
+from commontools import utf8len, error_reply
 
 #---------------------------------------
 class NamecoindServer(object):
