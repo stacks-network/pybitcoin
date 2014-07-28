@@ -10,10 +10,12 @@ from flask import Flask, make_response, jsonify
 import json 
 
 from namecoin.namecoind_api import namecoind_api
+from bitcoin.bitcoind_api import bitcoind_api
 
 app = Flask(__name__)
 
 app.register_blueprint(namecoind_api)
+app.register_blueprint(bitcoind_api)
 
 #-----------------------------------
 @app.route('/')
