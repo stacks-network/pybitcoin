@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    flask api
+    flask API
     ~~~~~
 
     :copyright: (c) 2014 by Halfmoon Labs
@@ -31,4 +31,3 @@ def internal_error(error):
 @app.errorhandler(404)
 def not_found(error):
 	return make_response(jsonify( { 'error': 'Not found' } ), 404)
-
