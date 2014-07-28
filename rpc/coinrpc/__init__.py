@@ -15,8 +15,6 @@
 	c) get access to a bitcoind server (read/write)
 """
 
-from .flask_api import app
 from .namecoin import namecoind
-from .bitcoin import bitcoind
-
-from .config import *
+#from .bitcoin import bitcoind
+from .namecoin.namecoind_server import NamecoindServer
