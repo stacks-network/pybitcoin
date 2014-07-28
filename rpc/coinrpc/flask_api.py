@@ -9,8 +9,8 @@
 from flask import Flask, make_response, jsonify
 import json 
 
-from namecoin.namecoind_api import namecoind_api
-from bitcoin.bitcoind_api import bitcoind_api
+from .namecoin.namecoind_api import namecoind_api
+from .bitcoin.bitcoind_api import bitcoind_api
 
 app = Flask(__name__)
 
