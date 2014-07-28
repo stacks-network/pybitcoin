@@ -1,27 +1,35 @@
 # -*- coding: utf-8 -*-
 """
-    coinrpc
-    ~~~~~
+	coinrpc
+	~~~~~
 
-    :copyright: (c) 2014 by Halfmoon Labs
+	:copyright: (c) 2014 by Halfmoon Labs
 """
 
 from functools import wraps
+from flask import request, Response
 
-#---------------------------------
+#-------------------------------------
 def check_auth(username, password):
-    return username == APP_USERNAME and password == APP_PASSWORD
+	"""This function is called to check if a username /
+	password combination is valid.
+	"""
+	return username == 'admin' and password == 'secret'
 
-#---------------------------------
+#-------------------------------------
+def authenticate():
+	"""Sends a 401 response that enables basic auth"""
+	return Response(
+	'Could not verify your access level for that URL.\n'
+	'You have to login with proper credentials', 401,
+	{'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+#-------------------------------------
 def requires_auth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth: 
-            return error_reply("invalid username/password")
-
-        elif not check_auth(auth.username, auth.password):
-            return error_reply("invalid auth username/password")
-        return f(*args, **kwargs)
-
-    return decorated
+	@wraps(f)
+	def decorated(*args, **kwargs):
+		auth = request.authorization
+		if not auth or not check_auth(auth.username, auth.password):
+			return authenticate()
+		return f(*args, **kwargs)
+	return decorated
