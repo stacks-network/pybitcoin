@@ -18,6 +18,7 @@ setup(
 	author_email='hello@halfmoonlabs.com',
 	description="Bitcoind and Namecoind python-rpc and Flask API",
 	packages=['coinrpc'],
+	include_package_data=True,
 	install_requires=['Flask==0.10.1','Jinja2==2.7.3','MarkupSafe==0.23','Werkzeug==0.9.6',
 				'bitcoin-python==0.3','commontools==0.1.0','itsdangerous==0.24',
 				'pylibmc==1.3.0','requests==2.3.0'],
