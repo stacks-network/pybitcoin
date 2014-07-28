@@ -4,45 +4,43 @@
 # All Rights Reserved
 #-----------------------
 
-from flask import Flask, request, jsonify, Response
-from pymongo import Connection
-from config import * 
+from flask import request, jsonify, abort, Blueprint
+bitcoind_api = Blueprint('bitcoind_api', __name__)
 
-app = Flask(__name__)
+from ..config import BITCOIND_SERVER, BITCOIND_PORT, BITCOIND_USER, BITCOIND_PASSWD, BITCOIND_USE_HTTPS, WALLET_PASSPHRASE
 
 import json
+from commontools import pretty_dump, error_reply
+
+from coinrpc.helper import requires_auth
+
 import bitcoinrpc 
 from bitcoinrpc.exceptions import *
 
 bitcoind = bitcoinrpc.connect_to_remote(BITCOIND_USER, BITCOIND_PASSWD, host=BITCOIND_SERVER, port=BITCOIND_PORT, use_https=BITCOIND_USE_HTTPS)
 
-#-----------------------------------
-def pretty_dump(input):
-
-    return json.dumps(input, sort_keys=False, indent=4, separators=(',', ': '))
-
-#---------------------------------
-def error_reply(msg, code = -1):
-    reply = {}
-    reply['status'] = code
-    reply['message'] = "ERROR: " + msg
-    return pretty_dump(reply)
+import decimal 
 
 #-----------------------------------
-@app.route('/')
-def index():
-    return 'Welcome to the bitcoind API server of <a href="http://halfmoonlabs.com">Halfmoon Labs</a>.'	
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return float(o)
+        return super(DecimalEncoder, self).default(o)
 
 #-----------------------------------
-@app.route('/blocks')
+@bitcoind_api.route('/bitcoind/blocks')
+@requires_auth
 def blocks():
-    reply = {}
-    info = bitcoind.getinfo()
-    reply['blocks'] = info.blocks
-    return pretty_dump(reply)
+	reply = {}
+	info = bitcoind.getinfo()
+	reply['blocks'] = info.blocks
+	return pretty_dump(reply)
 
 #-----------------------------------
-@app.route('/getblock/<hash>')
+@bitcoind_api.route('/bitcoind/getblock/<hash>')
+@requires_auth
 def getblock(hash):
 	try:
 		info = bitcoind.getblock(hash)
@@ -53,13 +51,15 @@ def getblock(hash):
 	return jsonify(info)
 
 #-----------------------------------
-@app.route('/getblockcount')
+@bitcoind_api.route('/bitcoind/getblockcount')
+@requires_auth
 def getblockcount():
 	info = bitcoind.getblockcount()
 	return pretty_dump(info)
 
 #-----------------------------------
-@app.route('/getblockhash/<index>')
+@bitcoind_api.route('/bitcoind/getblockhash/<index>')
+@requires_auth
 def getblockhash(index):
 
 	try:
@@ -70,37 +70,42 @@ def getblockhash(index):
 	return pretty_dump(info)
 
 #-----------------------------------
-@app.route('/getblocknumber')
+@bitcoind_api.route('/bitcoind/getblocknumber')
+@requires_auth
 def getblocknumber():
 	info = bitcoind.getblocknumber()
 	return pretty_dump(info)
 
 #-----------------------------------
-@app.route('/getconnectioncount')
+@bitcoind_api.route('/bitcoind/getconnectioncount')
+@requires_auth
 def getconnectioncount():
 	info = bitcoind.getconnectioncount()
 	return pretty_dump(info)
 
 #-----------------------------------
-@app.route('/getdifficulty')
+@bitcoind_api.route('/bitcoind/getdifficulty')
+@requires_auth
 def getdifficulty():
 	info = bitcoind.getdifficulty()
 	return str(info)
 
 #-----------------------------------
-@app.route('/getgenerate')
+@bitcoind_api.route('/bitcoind/getgenerate')
 def getgenerate():
 	info = bitcoind.getgenerate()
 	return str(info)
 
 #-----------------------------------
-@app.route('/gethashespersec')
+@bitcoind_api.route('/bitcoind/gethashespersec')
+@requires_auth
 def gethashespersec():
 	info = bitcoind.gethashespersec()
 	return str(info)
 
 #-----------------------------------
-@app.route('/getinfo')
+@bitcoind_api.route('/bitcoind/getinfo')
+@requires_auth
 def getinfo():
 	reply = {}
 	info = bitcoind.getinfo()
@@ -119,11 +124,12 @@ def getinfo():
 	reply['keypoololdest'] = info.keypoololdest
 	reply['paytxfee'] = info.paytxfee
 	reply['errors'] = info.errors
-	
-	return jsonify(reply)
-#-----------------------------------
 
-@app.route('/getmininginfo')
+	return json.dumps(reply, cls=DecimalEncoder)
+
+#-----------------------------------
+@bitcoind_api.route('/bitcoind/getmininginfo')
+@requires_auth
 def getmininginfo():
 	reply = {}
 	info = bitcoind.getmininginfo()
@@ -139,16 +145,11 @@ def getmininginfo():
 	reply['pooledtx'] = info.pooledtx
 	reply['testnet'] = info.testnet
 
-	return jsonify(reply)
+	return json.dumps(reply, cls=DecimalEncoder)
 
 #-----------------------------------
-@app.route('/getnewaddress')
+@bitcoind_api.route('/bitcoind/getnewaddress')
+@requires_auth
 def getnewaddress():
 	info = bitcoind.getnewaddress()
 	return info
-
-#-----------------------------------
-
-if __name__ == '__main__':
-    app.run(host=DEFAULT_HOST, port=DEFAULT_PORT,debug=DEBUG)
-
