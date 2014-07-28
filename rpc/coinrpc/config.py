@@ -24,8 +24,6 @@ except:
 	MEMCACHED_ENABLED = False
 
 	#--------------------------------------------------
-	NAMECOIND_READONLY = False
-
 	NAMECOIND_USE_HTTPS = True
 
 	NAMECOIND_PORT = os.environ['NAMECOIND_PORT']
@@ -35,6 +33,4 @@ except:
 	WALLET_PASSPHRASE = os.environ['WALLET_PASSPHRASE']
 
 	#--------------------------------------------------
-
-	MONGODB_URI = os.environ['MONGODB_URI']
 

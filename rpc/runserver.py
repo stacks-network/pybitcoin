@@ -8,8 +8,8 @@
 """
 
 import os
-from coinrpc_api import app
-from config import *
+from coinrpc import app
+from coinrpc import DEFAULT_HOST, DEFAULT_PORT, DEBUG
 
 #------------------------------
 def runserver():
