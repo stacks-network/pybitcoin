@@ -34,3 +34,5 @@ except:
 
 	#--------------------------------------------------
 
+	API_USERNAME = os.environ['API_USERNAME']
+	API_PASSWORD = os.environ['API_PASSWORD']
