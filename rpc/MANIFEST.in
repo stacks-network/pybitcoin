@@ -1,2 +1,3 @@
-include coinrpc/namecoin/*
 include coinrpc/bitcoin/*
+include coinrpc/namecoin/*
+include coinrpc/namecoin/namecoinrpc/*
