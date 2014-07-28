@@ -17,6 +17,6 @@
 
 from .flask_api import app
 from .namecoin import namecoind
-#from .bitcoin import bitcoind
+from .bitcoin import bitcoind
 
 from .config import *

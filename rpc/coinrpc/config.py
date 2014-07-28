@@ -36,3 +36,11 @@ except:
 
 	API_USERNAME = os.environ['API_USERNAME']
 	API_PASSWORD = os.environ['API_PASSWORD']
+
+	BITCOIND_PORT = os.environ['BITCOIND_PORT']
+	BITCOIND_SERVER = os.environ['BITCOIND_SERVER']
+	BITCOIND_USER = os.environ['BITCOIND_USER'] 
+	BITCOIND_PASSWD = os.environ['BITCOIND_PASSWD']
+	
+	BITCOIND_USE_HTTPS = False 
+
