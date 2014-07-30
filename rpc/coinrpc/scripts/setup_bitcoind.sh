@@ -20,4 +20,8 @@ echo "Enter BITCOIND_PASSWD:"
 read input
 export BITCOIND_PASSWD=$input
 
+echo "Enter BITCOIND_WALLET_PASSPHRASE:"
+read input
+export BITCOIND_WALLET_PASSPHRASE=$input
+
 echo "Done"
