@@ -20,16 +20,8 @@ echo "Enter NAMECOIND_PASSWD:"
 read input
 export NAMECOIND_PASSWD=$input
 
-echo "Enter WALLET_PASSPHRASE:"
+echo "Enter NAMECOIND_WALLET_PASSPHRASE:"
 read input
-export WALLET_PASSPHRASE=$input
-
-echo "Enter LOAD_BALANCER:"
-read input
-export LOAD_BALANCER=$input
-
-echo "Enter MONGODB_URI:"
-read input
-export MONGODB_URI=$input
+export NAMECOIND_WALLET_PASSPHRASE=$input
 
 echo "Done"
