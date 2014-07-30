@@ -7,7 +7,7 @@
 
 import bitcoinrpc
 
-from commontools import log
+from commontools import log, error_reply
 
 #---------------------------------------
 class BitcoindServer(object):
@@ -39,10 +39,37 @@ class BitcoindServer(object):
 
 
 	#-----------------------------------
-	def blocks(self, bitcoin_address, bitcoin_amount):
+	def sendtoaddress(self, bicoinaddress, amount):
 	
 		try:
-			status = bitcoind.sendtoaddress(bitcoin_address, float(bitcoin_amount))
+			status = self.bitcoind.sendtoaddress(bitcoinaddress, float(amount))
 			log.debug(status)
+			return status 
 		except Exception as e:
 			log.debug(str(e))
+			return error_reply(str(e))
+
+	#-----------------------------------
+	def validateaddress(self, bitcoinaddress):
+	
+		try:
+			status = self.bitcoind.validateaddress(bitcoinaddress)
+			log.debug(status)
+			return status
+		except Exception as e:
+			log.debug(str(e))
+			return error_reply(str(e))
+
+	#-----------------------------------
+	def importprivkey(self, bitcoinprivkey, label='', rescan=False):
+	
+		try:
+			if rescan is True: 
+				status = self.bitcoind.importprivkey(bitcoinprivkey, label, True)
+			else:
+				status = self.bitcoind.importprivkey(bitcoinprivkey, label, False) 
+			log.debug(status)
+			return status
+		except Exception as e:
+			log.debug(str(e))
+			return error_reply(str(e))
