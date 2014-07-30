@@ -16,5 +16,5 @@
 """
 
 from .namecoin import namecoind
-#from .bitcoin import bitcoind
+from .bitcoin import bitcoind
 from .namecoin.namecoind_server import NamecoindServer
