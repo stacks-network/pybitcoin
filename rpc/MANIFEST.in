@@ -1,3 +1,4 @@
 include coinrpc/bitcoin/*
 include coinrpc/namecoin/*
 include coinrpc/namecoin/namecoinrpc/*
+include coinrpc/scripts/*
