@@ -32,14 +32,14 @@ class BitcoindServer(object):
 
 	#-----------------------------------
 	#helper function
-	def unlock_wallet(self, passphrase, timeout = 100):
+	def unlock_wallet(self, timeout = 120):
 
-		info = self.bitcoind.walletpassphrase(passphrase, timeout, True)
+		info = self.bitcoind.walletpassphrase(self.passphrase, timeout, True)
 		return info             #info will be True or False
 
 
 	#-----------------------------------
-	def sendtoaddress(self, bicoinaddress, amount):
+	def sendtoaddress(self, bitcoinaddress, amount):
 	
 		try:
 			status = self.bitcoind.sendtoaddress(bitcoinaddress, float(amount))
