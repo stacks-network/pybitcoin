@@ -39,7 +39,7 @@ class BitcoindServer(object):
 
 
 	#-----------------------------------
-	def sendtoaddress(self, bicoinaddress, amount):
+	def sendtoaddress(self, bitcoinaddress, amount):
 	
 		try:
 			status = self.bitcoind.sendtoaddress(bitcoinaddress, float(amount))
