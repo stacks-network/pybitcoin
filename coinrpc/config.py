@@ -52,5 +52,10 @@ except:
 		BITCOIND_PORT = BITCOIND_SERVER = BITCOIND_USER = BITCOIND_PASSWD = BITCOIND_WALLET_PASSPHRASE = None 
 
 	#--------------------------------------------------
-	API_USERNAME = os.environ['API_USERNAME']
-	API_PASSWORD = os.environ['API_PASSWORD']
+	
+	try:
+		API_USERNAME = os.environ['API_USERNAME']
+		API_PASSWORD = os.environ['API_PASSWORD']
+	except: 
+		API_USERNAME = 'admin'
+		API_PASSWORD = 'secret'
