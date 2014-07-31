@@ -13,6 +13,7 @@ try:
 except:
 
 	import os
+	from commontools import log
 
 	DEBUG = True
 
@@ -26,22 +27,35 @@ except:
 	#--------------------------------------------------
 	NAMECOIND_USE_HTTPS = True
 
-	NAMECOIND_PORT = os.environ['NAMECOIND_PORT']
-	NAMECOIND_SERVER = os.environ['NAMECOIND_SERVER']
-	NAMECOIND_USER = os.environ['NAMECOIND_USER']
-	NAMECOIND_PASSWD = os.environ['NAMECOIND_PASSWD']
-	NAMECOIND_WALLET_PASSPHRASE = os.environ['NAMECOIND_WALLET_PASSPHRASE']
+	try:
+		NAMECOIND_PORT = os.environ['NAMECOIND_PORT']
+		NAMECOIND_SERVER = os.environ['NAMECOIND_SERVER']
+		NAMECOIND_USER = os.environ['NAMECOIND_USER']
+		NAMECOIND_PASSWD = os.environ['NAMECOIND_PASSWD']
+		NAMECOIND_WALLET_PASSPHRASE = os.environ['NAMECOIND_WALLET_PASSPHRASE']
+	except:
+		log.debug("ERROR: in namecoind config")
+		NAMECOIND_PORT = NAMECOIND_SERVER = NAMECOIND_USER = NAMECOIND_PASSWD = NAMECOIND_WALLET_PASSPHRASE = None
 
 	#--------------------------------------------------
-
-	API_USERNAME = os.environ['API_USERNAME']
-	API_PASSWORD = os.environ['API_PASSWORD']
-
-	BITCOIND_PORT = os.environ['BITCOIND_PORT']
-	BITCOIND_SERVER = os.environ['BITCOIND_SERVER']
-	BITCOIND_USER = os.environ['BITCOIND_USER'] 
-	BITCOIND_PASSWD = os.environ['BITCOIND_PASSWD']
-	BITCOIND_WALLET_PASSPHRASE = os.environ['BITCOIND_WALLET_PASSPHRASE']
-
 	BITCOIND_USE_HTTPS = True
 
+	try:
+		BITCOIND_PORT = os.environ['BITCOIND_PORT']
+		BITCOIND_SERVER = os.environ['BITCOIND_SERVER']
+		BITCOIND_USER = os.environ['BITCOIND_USER'] 
+		BITCOIND_PASSWD = os.environ['BITCOIND_PASSWD']
+		BITCOIND_WALLET_PASSPHRASE = os.environ['BITCOIND_WALLET_PASSPHRASE']
+
+	except:
+		log.debug("ERROR: in bitcoind config")
+		BITCOIND_PORT = BITCOIND_SERVER = BITCOIND_USER = BITCOIND_PASSWD = BITCOIND_WALLET_PASSPHRASE = None 
+
+	#--------------------------------------------------
+	
+	try:
+		API_USERNAME = os.environ['API_USERNAME']
+		API_PASSWORD = os.environ['API_PASSWORD']
+	except: 
+		API_USERNAME = 'admin'
+		API_PASSWORD = 'secret'
