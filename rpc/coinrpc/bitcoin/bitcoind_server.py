@@ -5,7 +5,7 @@
 # All Rights Reserved
 #-----------------------
 
-import bitcoinrpc
+from bitcoinrpc.authproxy import AuthServiceProxy
 
 from commontools import log, error_reply
 
@@ -18,15 +18,17 @@ class BitcoindServer(object):
 		self.passphrase = passphrase
 		self.server = server 
 
-		self.bitcoind = bitcoinrpc.connect_to_remote(user, passwd, 
-										host=server, port=port, 
-										use_https=use_https)
+		#self.bitcoind = bitcoinrpc.connect_to_remote(user, passwd, 
+		#								host=server, port=port, 
+		#								use_https=use_https)
+
+		self.bitcoind = AuthServiceProxy("https://" + user + ':' + passwd + '@' + server + ':' + port)
 
 	#-----------------------------------
 	def blocks(self):
 		reply = {}
 		info = self.bitcoind.getinfo()
-		reply['blocks'] = info.blocks
+		reply['blocks'] = info['blocks']
 		return reply
 
 
@@ -34,7 +36,7 @@ class BitcoindServer(object):
 	#helper function
 	def unlock_wallet(self, timeout = 120):
 
-		info = self.bitcoind.walletpassphrase(self.passphrase, timeout, True)
+		info = self.bitcoind.walletpassphrase(self.passphrase, timeout)
 		return info             #info will be True or False
 
 
@@ -65,9 +67,9 @@ class BitcoindServer(object):
 	
 		try:
 			if rescan is True: 
-				status = self.bitcoind.importprivkey(bitcoinprivkey, label, True)
+				status = self.bitcoind.importprivkey(bitcoinprivkey, label, 'true')
 			else:
-				status = self.bitcoind.importprivkey(bitcoinprivkey, label, False) 
+				status = self.bitcoind.importprivkey(bitcoinprivkey, label, 'false') 
 			log.debug(status)
 			return status
 		except Exception as e:
