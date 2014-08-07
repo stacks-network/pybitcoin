@@ -10,6 +10,7 @@ VALUE_MAX_LIMIT = 520
 import json
 import namecoinrpc
 from commontools import utf8len, error_reply
+import requests
 
 #---------------------------------------
 class NamecoindServer(object):
