@@ -8,6 +8,7 @@
 from bitcoinrpc.authproxy import AuthServiceProxy
 
 from commontools import log, error_reply
+import requests
 
 #---------------------------------------
 class BitcoindServer(object):
@@ -69,3 +70,31 @@ class BitcoindServer(object):
 			return status
 		except Exception as e:
 			return error_reply(str(e))
+
+	#-----------------------------------
+	def sendtousername(self, username, bitcoin_amount):
+
+		#Step 1:get the bitcoin address using onename.io API call
+		url = "http://onename.io/" + username + ".json"
+		r = requests.get(url)
+		data = r.json()
+		
+		try:
+			bitcoin_address = data['bitcoin']['address']
+		except:
+			bitcoin_address = ""
+
+		reply = {} 
+
+		#Step 2: send bitcoins, using bitcoind to that address  
+		if bitcoin_address != "":
+		
+			if self.unlock_wallet():
+
+				#send the bitcoins...
+				tx = self.sendtoaddress(bitcoin_address, float(bitcoin_amount))
+				reply['status']=200
+				reply['tx'] = tx
+				return reply
+
+		return error_reply("couldn't send BTC")
