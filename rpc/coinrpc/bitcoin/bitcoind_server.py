@@ -19,10 +19,6 @@ class BitcoindServer(object):
 		self.passphrase = passphrase
 		self.server = server 
 
-		#self.bitcoind = bitcoinrpc.connect_to_remote(user, passwd, 
-		#								host=server, port=port, 
-		#								use_https=use_https)
-
 		self.bitcoind = AuthServiceProxy("https://" + user + ':' + passwd + '@' + server + ':' + port)
 
 	#-----------------------------------
@@ -37,9 +33,15 @@ class BitcoindServer(object):
 	#helper function
 	def unlock_wallet(self, timeout = 120):
 
-		info = self.bitcoind.walletpassphrase(self.passphrase, timeout)
-		return info             #info will be True or False
+		try:
+			info = self.bitcoind.walletpassphrase(self.passphrase, timeout)
+		
+			if info is None:
+				return True 
+		except:
+			pass 
 
+		return False
 
 	#-----------------------------------
 	def sendtoaddress(self, bitcoinaddress, amount):
