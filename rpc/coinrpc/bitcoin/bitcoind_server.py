@@ -71,7 +71,7 @@ class BitcoindServer(object):
 			return error_reply(str(e))
 
 	#-----------------------------------
-	def sendtousername(username, bitcoin_amount):
+	def sendtousername(self, username, bitcoin_amount):
 
 		#Step 1:get the bitcoin address using onename.io API call
 		url = "http://onename.io/" + username + ".json"
