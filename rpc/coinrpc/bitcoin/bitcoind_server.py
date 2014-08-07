@@ -45,10 +45,8 @@ class BitcoindServer(object):
 	
 		try:
 			status = self.bitcoind.sendtoaddress(bitcoinaddress, float(amount))
-			log.debug(status)
 			return status 
 		except Exception as e:
-			log.debug(str(e))
 			return error_reply(str(e))
 
 	#-----------------------------------
@@ -56,10 +54,8 @@ class BitcoindServer(object):
 	
 		try:
 			status = self.bitcoind.validateaddress(bitcoinaddress)
-			log.debug(status)
 			return status
 		except Exception as e:
-			log.debug(str(e))
 			return error_reply(str(e))
 
 	#-----------------------------------
@@ -70,8 +66,6 @@ class BitcoindServer(object):
 				status = self.bitcoind.importprivkey(bitcoinprivkey, label, 'true')
 			else:
 				status = self.bitcoind.importprivkey(bitcoinprivkey, label, 'false') 
-			log.debug(status)
 			return status
 		except Exception as e:
-			log.debug(str(e))
 			return error_reply(str(e))
