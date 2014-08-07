@@ -8,6 +8,7 @@
 from bitcoinrpc.authproxy import AuthServiceProxy
 
 from commontools import log, error_reply
+import requests
 
 #---------------------------------------
 class BitcoindServer(object):
