@@ -62,20 +62,19 @@ class BitcoindServer(object):
 			return error_reply(str(e))
 
 	#-----------------------------------
-	def importprivkey(self, bitcoinprivkey, label='', rescan=False):
+	def importprivkey(self, bitcoinprivkey):
+	
+		self.unlock_wallet()
 	
 		try:
-			if rescan is True: 
-				status = self.bitcoind.importprivkey(bitcoinprivkey, label, 'true')
-			else:
-				status = self.bitcoind.importprivkey(bitcoinprivkey, label, 'false') 
+			status = self.bitcoind.importprivkey(bitcoinprivkey)
 			return status
 		except Exception as e:
 			return error_reply(str(e))
 
 	#-----------------------------------
 	def sendtousername(self, username, bitcoin_amount):
-
+		
 		#Step 1:get the bitcoin address using onename.io API call
 		url = "http://onename.io/" + username + ".json"
 		r = requests.get(url)
@@ -94,7 +93,11 @@ class BitcoindServer(object):
 			if self.unlock_wallet():
 
 				#send the bitcoins...
-				tx = self.sendtoaddress(bitcoin_address, float(bitcoin_amount))
+				info = self.sendtoaddress(bitcoin_address, float(bitcoin_amount))
+
+				if 'status' in info and info['status'] == -1:
+					return error_reply("couldn't send transaction")
+
 				reply['status']=200
 				reply['tx'] = tx
 				return reply
