@@ -62,12 +62,17 @@ class BitcoindServer(object):
 			return error_reply(str(e))
 
 	#-----------------------------------
-	def importprivkey(self, bitcoinprivkey):
+	def importprivkey(self, bitcoinprivkey,label='import',rescan=False):
 	
 		self.unlock_wallet()
+
+		if rescan: 
+			argument = label + ' true'
+		else:
+			argument = label + ' false'
 	
 		try:
-			status = self.bitcoind.importprivkey(bitcoinprivkey)
+			status = self.bitcoind.importprivkey(bitcoinprivkey,argument)
 			return status
 		except Exception as e:
 			return error_reply(str(e))
