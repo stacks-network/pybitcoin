@@ -66,13 +66,8 @@ class BitcoindServer(object):
 	
 		self.unlock_wallet()
 
-		if rescan: 
-			argument = label + ' true'
-		else:
-			argument = label + ' false'
-	
 		try:
-			status = self.bitcoind.importprivkey(bitcoinprivkey,argument)
+			status = self.bitcoind.importprivkey(bitcoinprivkey,label,rescan)
 			return status
 		except Exception as e:
 			return error_reply(str(e))
