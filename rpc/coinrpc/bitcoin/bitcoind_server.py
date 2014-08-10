@@ -46,6 +46,8 @@ class BitcoindServer(object):
 	#-----------------------------------
 	def sendtoaddress(self, bitcoinaddress, amount):
 	
+		self.unlock_wallet()
+
 		try:
 			status = self.bitcoind.sendtoaddress(bitcoinaddress, float(amount))
 			return status 
