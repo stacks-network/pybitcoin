@@ -875,3 +875,12 @@ class NamecoinConnection(object):
         except JSONRPCException as e:
             return e.error
               
+
+    def importprivkey(self,namecoinprivkey,label='import',rescan=False):
+        """namecoind command 'importprivkey': """   
+
+        try:
+            return self.proxy.importprivkey(namecoinprivkey,label,rescan)
+        except JSONRPCException as e:
+            return e.error
+              

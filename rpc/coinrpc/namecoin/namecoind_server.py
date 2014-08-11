@@ -201,3 +201,13 @@ class NamecoindServer(object):
 
 		info = self.namecoind.walletpassphrase(passphrase, timeout, True)
 		return info             #info will be True or False
+
+	#-----------------------------------
+	def importprivkey(self, namecoinprivkey,label='import',rescan=False):
+	
+		self.unlock_wallet(self.passphrase)
+
+		info = self.namecoind.importprivkey(namecoinprivkey,label,rescan)
+
+		return info
+	
