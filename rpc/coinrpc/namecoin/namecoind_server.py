@@ -108,7 +108,7 @@ class NamecoindServer(object):
 			return error_reply("value larger than " + str(VALUE_MAX_LIMIT))
 
 		#transfer the name (underlying call is still name_update)
-		info = namecoind.name_update(key, value, new_address)
+		info = self.namecoind.name_update(key, value, new_address)
 
 		return info
 
