@@ -77,6 +77,8 @@ class BitcoindServer(object):
 	#-----------------------------------
 	def sendtousername(self, username, bitcoin_amount):
 		
+		self.unlock_wallet()
+
 		#Step 1:get the bitcoin address using onename.io API call
 		url = "http://onename.io/" + username + ".json"
 		r = requests.get(url)
@@ -101,7 +103,7 @@ class BitcoindServer(object):
 					return error_reply("couldn't send transaction")
 
 				reply['status']=200
-				reply['tx'] = tx
+				reply['tx'] = info
 				return reply
 
 		return error_reply("couldn't send BTC")
