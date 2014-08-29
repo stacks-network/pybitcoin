@@ -104,8 +104,4 @@ Meanwhile, for something a bit more ambitious, check the issues section for outs
 
 ## Notice
 
-Coinkit is still in Alpha. It's developers will not be held responsible for loss of bitcoins resulting from the use of this software.
-
-Developers using Coinkit are encouraged to inspect the code for themselves and perform their own tests.
-
-That said, we are committed to ensuring that this library behaves exactly as it is supposed to under all conditions, and have plans to ramp up our testing efforts going forward.
+Coinkit is still in beta. Developers using Coinkit are encouraged to inspect the code for themselves and perform their own tests. We are committed to ensuring that this library behaves exactly as it is supposed to under all conditions, and have plans to ramp up our testing efforts going forward.
