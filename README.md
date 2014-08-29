@@ -88,6 +88,7 @@ Python library with tools for Bitcoin and other cryptocurrencies.
 - Quarkcoin
 - Netcoin
 - Earthcoin
+- Reddcoin
 
 ## Developers
 
