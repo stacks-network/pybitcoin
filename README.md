@@ -1,6 +1,10 @@
 Coinkit
 =====
 
+[![Latest Version](https://pypip.in/version/coinkit/badge.svg)](https://pypi.python.org/pypi/coinkit/)
+[![Downloads](https://pypip.in/download/coinkit/badge.svg)](https://pypi.python.org/pypi/coinkit/)
+[![License](https://pypip.in/license/coinkit/badge.svg)](https://pypi.python.org/pypi/coinkit>/)
+
 Python library with tools for Bitcoin and other cryptocurrencies.
 
 ## Sample Usage
