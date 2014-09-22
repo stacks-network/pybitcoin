@@ -18,6 +18,10 @@ from .hash160 import bin_hash160
 from .formatcheck import *
     
 class BitcoinKeypair():
+    """ NOTE: This object has been replaced by the BitcoinPrivateKey and 
+        BitcoinPublicKey objects and is set to be deprecated at a future date.
+    """
+
     _curve = ecdsa.curves.SECP256k1
     _hash_function = hashlib.sha256
     _pubkeyhash_version_byte = 0

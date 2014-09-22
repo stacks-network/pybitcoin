@@ -9,66 +9,63 @@ Python library with tools for Bitcoin and other cryptocurrencies.
 
 ## Sample Usage
 
-### Keypairs
+### Private Keys
 
-#### Random keypairs
+```python
+>>> from coinkit import BitcoinPrivateKey
+>>> priv = BitcoinPrivateKey()
+>>> priv.to_hex()
+'91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
+>>> priv.to_wif()
+'5JvBUBPzU42Y7BHD7thTnySXQXMk8XEJGGQGcyBw7CCkw8RAH7m'
 
-    >>> from coinkit import BitcoinKeypair
-    >>> keypair = BitcoinKeypair()
-    >>> keypair.private_key()
-    '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
-    >>> keypair.public_key()
-    '042c6b7e6da7633c8f226891cc7fa8e5ec84f8eacc792a46786efc869a408d29539a5e6f8de3f71c0014e8ea71691c7b41f45c083a074fef7ab5c321753ba2b3fe'
-    >>> keypair.wif_pk()
-    '5JvBUBPzU42Y7BHD7thTnySXQXMk8XEJGGQGcyBw7CCkw8RAH7m'
-    >>> keypair.address()
-    '13mtgVARiB1HiRyCHnKTi6rEwyje5TYKBW'
+### Public Keys
 
-#### Custom keypairs
+```python
+>>> pub = priv.public_key()
+>>> pub.to_hex()
+'2c6b7e6da7633c8f226891cc7fa8e5ec84f8eacc792a46786efc869a408d29539a5e6f8de3f71c0014e8ea71691c7b41f45c083a074fef7ab5c321753ba2b3fe'
+```
 
-    >>> hex_private_key = '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
-    >>> keypair = BitcoinKeypair(hex_private_key)
+### Addresses
 
-#### Random brain wallet keypairs
+```python
+>>> pub.address()
+'13mtgVARiB1HiRyCHnKTi6rEwyje5TYKBW'
+>>> pub.hash160()
+'1e6db1e09b5e307847e5734864a79ea0113d0083'
+```
 
-    >>> keypair = BitcoinKeypair.from_passphrase()
-    >>> keypair.passphrase()
-    'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
-    >>> keypair.address()
-    '13mtgVARiB1HiRyCHnKTi6rEwyje5TYKBW'
+### Custom Private Keys
 
-#### Custom brain wallet keypairs
+```python
+>>> priv = BitcoinPrivateKey('91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d')
+```
 
-    >>> passphrase = 'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
-    >>> keypair = BitcoinKeypair.from_passphrase(passphrase)
+### Brainwallet-based Private Keys
 
-#### Altcoin keypairs
+```python
+>>> priv = BitcoinPrivateKey.from_passphrase()
+>>> priv.passphrase()
+'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
+>>> priv.to_hex()
+'91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
+>>> priv2 = BitcoinPrivateKey.from_passphrase(priv2.passphrase())
+>>> assert priv2.to_hex() == priv.to_hex()
+```
 
-    >>> from coinkit import LitecoinKeypair
-    >>> litecoin_keypair = LitecoinKeypair()
-    >>> litecoin_keypair.address()
-    'LMzqwhUFnqFLyEfMTvJkz7v1AC6v8N9Qcd'
+### Altcoins
 
-### Wallets
-
-#### Sequential Deterministic Wallets
-
-    >>> from coinkit import SDWallet, BitcoinKeypair
-    >>> passphrase = 'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
-    >>> wallet = SDWallet(passphrase)
-    >>> bitcoin_keypair_1 = wallet.keypair(1, BitcoinKeypair)
-    >>> bitcoin_keypair_1.passphrase()
-    'shepherd mais pack rate enamel horace diva filesize maximum really roar mall bitcoin1'
-    >>> bitcoin_keypair_1.address()
-    '1DS2vmsqTwtXp1DfmDHi55Aqc6w4LBUC9k'
-
-### Utilities
-
-#### Random passphrases
-
-    >>> from coinkit import random_160bit_passphrase
-    >>> random_160bit_passphrase()
-    'shepherd mais pack rate enamel horace diva filesize maximum really roar mall'
+```python
+>>> class NamecoinPrivateKey(BitcoinPrivateKey):
+>>>     _pubkeyhash_version_byte = 52
+>>> namecoin_priv = NamecoinPrivateKey(priv.to_hex())
+>>> namecoin_priv.to_wif()
+'73zteEjenBCK7qVtG2yRPeco2TP5w93qBW5sJkxYoGYvbWwAbXv'
+>>> namecoin_pub = namecoin_priv.public_key()
+>>> namecoin_pub.address()
+'MyMFt8fQdZ6rEyDhZbe2vd19gD8gzagr7Z'
+```
 
 ## Supported currencies
 

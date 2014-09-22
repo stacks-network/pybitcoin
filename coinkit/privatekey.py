@@ -16,6 +16,7 @@ from .errors import _errors
 from .formatcheck import *
 from .b58check import b58check_encode
 from .publickey import BitcoinPublicKey
+from .passphrase import random_256bit_passphrase, random_160bit_passphrase
 
 class BitcoinPrivateKey():
     _curve = ecdsa.curves.SECP256k1

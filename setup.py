@@ -8,10 +8,10 @@ from setuptools import setup
 
 setup(
     name='coinkit',
-    version='0.5.0',
-    url='https://github.com/halfmoonlabs/coinkit',
+    version='0.5.1',
+    url='https://github.com/onenameio/coinkit',
     license='MIT',
-    author='Halfmoon Labs',
+    author='Onename (Halfmoon Labs)',
     author_email='hello@halfmoon.io',
     description='Tools for Bitcoin & other cryptocurrencies (incl. Litecoin, Namecoin, Peercoin, Primecoin, Dogecoin, Worldcoin, Megacoin, Anoncoin, Feathercoin, Terracoin, and Novacoin).',
     keywords='bitcoin btc litecoin namecoin peercoin primecoin cryptocurrency',
