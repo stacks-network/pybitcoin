@@ -7,8 +7,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import os
-import binascii
+import os, binascii
 
 def dev_random_entropy(numbytes):
     return open("/dev/random", "rb").read(numbytes)

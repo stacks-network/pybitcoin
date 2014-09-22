@@ -8,6 +8,7 @@
 """
 
 from inspect import isclass
+
 from .keypair import *
 from .passphrase import random_256bit_passphrase, random_160bit_passphrase
 

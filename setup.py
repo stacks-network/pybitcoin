@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='coinkit',
-    version='0.4.2',
+    version='0.5.0',
     url='https://github.com/halfmoonlabs/coinkit',
     license='MIT',
     author='Halfmoon Labs',
@@ -21,7 +21,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'ecdsa>=0.10',
-        'characters>=0.1'
+        'utilitybelt>=0.1.4'
     ],
     classifiers=[
         'Intended Audience :: Developers',

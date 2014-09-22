@@ -7,34 +7,16 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import os
-import json
-import ecdsa
-import hashlib
-import binascii
+import os, json, binascii, ecdsa, hashlib
 
 from .entropy import random_secret_exponent
 from .passphrase import random_256bit_passphrase, random_160bit_passphrase
 from .b58check import b58check_encode, b58check_decode, b58check_unpack, \
     b58check_version_byte
-from .utils import is_secret_exponent, is_256bit_hex_string, \
-    is_wif_pk, is_b58check_address, extract_pk_as_int
-from characters.hex import is_hex
-
-def bin_hash160(s):
-    return hashlib.new('ripemd160', hashlib.sha256(s).digest()).digest()
-
-_error_messages = {
-    "CURVE_ORDER_EXCEEDED": ("Invalid passphrase. The SHA256 hash of this "
-        "passphrase exceeds the curve order. Please try another passphrase."),
-    "MUST_BE_VALID_PRIVKEY_FORMAT": ("Format must be bin, hex, wif, or "
-        "b58check."),
-    "MUST_BE_VALID_PUBKEY_FORMAT": ("Format must be bin or hex"),
-    "MUST_BE_VALID_HASH160_FORMAT": ("format must be bin, hex or "
-        "b58check."),
-    "NOT_A_BRAIN_WALLET": ("No passphrase! This isn't a brain wallet address!")
-}
-
+from .errors import _errors
+from .hash160 import bin_hash160
+from .formatcheck import *
+    
 class BitcoinKeypair():
     _curve = ecdsa.curves.SECP256k1
     _hash_function = hashlib.sha256
@@ -52,10 +34,18 @@ class BitcoinKeypair():
     def __init__(self, private_key=None):
         """ Takes in a private key/secret exponent.
         """
-        if private_key:
-            secret_exponent = extract_pk_as_int(private_key, self._curve.order)
-        else:
+        if not private_key:
             secret_exponent = random_secret_exponent(self._curve.order)
+        elif is_int(private_key):
+            secret_exponent = private_key
+        elif is_256bit_hex_string(private_key):
+            secret_exponent = int(private_key, 16)
+        elif is_wif_pk(private_key):
+            secret_exponent = int(binascii.hexlify(b58check_decode(private_key)), 16)
+
+        # make sure that: 1 <= secret_exponent < curve_order
+        if not is_secret_exponent(secret_exponent, self._curve.order):
+            raise IndexError(_errors["EXPONENT_OUTSIDE_CURVE_ORDER"])
         
         self._ecdsa_private_key = ecdsa.keys.SigningKey.from_secret_exponent(
             secret_exponent, self._curve, self._hash_function
@@ -80,7 +70,7 @@ class BitcoinKeypair():
         else:
             hex_private_key = hashlib.sha256(passphrase).hexdigest()
             if not (int(hex_private_key, 16) < cls._curve.order):
-                raise Exception(_error_messages["CURVE_ORDER_EXCEEDED"])
+                raise ValueError(_errors["PHRASE_YIELDS_INVALID_EXPONENT"])
 
         keypair = cls(hex_private_key)
         keypair._passphrase = passphrase
@@ -90,10 +80,10 @@ class BitcoinKeypair():
         return self._ecdsa_private_key.to_string()
 
     def _bin_public_key(self):
-        return '\x04' + self._ecdsa_public_key.to_string()
+        return self._ecdsa_public_key.to_string()
 
     def _bin_hash160(self):
-        return bin_hash160(self._bin_public_key())
+        return bin_hash160('\x04' + self._bin_public_key())
 
     def private_key(self, format='hex'):
         if format == 'bin':
@@ -104,7 +94,7 @@ class BitcoinKeypair():
             return b58check_encode(self._bin_private_key(),
                 version_byte=self.version_byte('private_key'))
         else:
-            raise Exception(_error_messages["MUST_BE_VALID_PRIVKEY_FORMAT"])
+            raise ValueError(_errors["MUST_BE_VALID_PRIVKEY_FORMAT"])
 
     def public_key(self, format='hex'):
         if format == 'bin':
@@ -112,7 +102,7 @@ class BitcoinKeypair():
         elif format == 'hex':
             return binascii.hexlify(self._bin_public_key())
         else:
-            raise Exception(_error_messages["MUST_BE_VALID_PUBKEY_FORMAT"])
+            raise ValueError(_errors["MUST_BE_VALID_PUBKEY_FORMAT"])
 
     def hash160(self, format='hex'):
         if format == 'bin':
@@ -123,7 +113,7 @@ class BitcoinKeypair():
             return b58check_encode(self._bin_hash160(),
                 version_byte=self.version_byte('pubkey_hash'))
         else:
-            raise Exception(_error_messages["MUST_BE_VALID_HASH160_FORMAT"])
+            raise ValueError(_errors["MUST_BE_VALID_HASH160_FORMAT"])
 
     def secret_exponent(self):
         """ The secret exponent is the private key in int or hex format. """
@@ -143,7 +133,7 @@ class BitcoinKeypair():
         if hasattr(self, '_passphrase'):
             return self._passphrase
         else:
-            raise Exception(_error_messages["NOT_A_BRAIN_WALLET"])
+            raise Exception(_errors["NOT_A_BRAIN_WALLET"])
 
 class LitecoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 48

@@ -10,11 +10,7 @@
 import unittest
 from test import test_support
 
-from characters.hex import is_hex
-from coinkit.keypair import *
-from coinkit import SDWallet
-from coinkit import is_secret_exponent, is_256bit_hex_string, \
-    is_wif_pk, is_b58check_address, extract_pk_as_int
+from coinkit import *
 
 get_class = lambda x: globals()[x]
 
@@ -39,15 +35,52 @@ def altcoin_test_generator(coin_name):
 
 	return test
 
+_reference_info = {
+	'passphrase': 'correct horse battery staple',
+	'bin_private_key': '\xc4\xbb\xcb\x1f\xbe\xc9\x9de\xbfY\xd8\\\x8c\xb6.\xe2\xdb\x96?\x0f\xe1\x06\xf4\x83\xd9\xaf\xa7;\xd4\xe3\x9a\x8a',
+	'hex_private_key': 'c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a',
+	'hex_public_key': '78d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455',
+	'hex_hash160': 'c4c5d791fcb4654a1ef5e03fe0ad3d9c598f9827',
+	'wif_private_key':'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
+	'address': '1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T',
+	'wif_version_byte': 128
+}
+
+class BitcoinPublicKeyTest(unittest.TestCase):
+	reference = _reference_info
+
+	def setUp(self):
+		self.public_key = BitcoinPublicKey(self.reference['hex_public_key'])
+
+	def tearDown(self):
+		pass
+
+	def test_address(self):
+		self.assertTrue(self.public_key.address() == self.reference['address'])
+
+	def test_hex_hash160(self):
+		self.assertTrue(self.public_key.hash160() == self.reference['hex_hash160'])
+
+	def test_hex_public_key(self):
+		self.assertTrue(self.public_key.to_hex() == self.reference['hex_public_key'])
+
+class BitcoinPrivateKeyTest(unittest.TestCase):
+	reference = _reference_info
+
+	def setUp(self):
+		self.private_key = BitcoinPrivateKey(self.reference['hex_private_key'])
+
+	def tearDown(self):
+		pass
+
+	def test_hex_private_key(self):
+		self.assertTrue(self.private_key.to_hex() == self.reference['hex_private_key'])
+
+	def test_wif_private_key(self):
+		self.assertTrue(self.private_key.to_wif() == self.reference['wif_private_key'])
+
 class BitcoinKeypairTest(unittest.TestCase):
-	reference = {
-		'passphrase': 'correct horse battery staple',
-		'hex_private_key': 'c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a',
-		'hex_public_key': '0478d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455',
-		'hex_hash160': 'c4c5d791fcb4654a1ef5e03fe0ad3d9c598f9827',
-		'wif_private_key':'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
-		'address': '1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T',
-	}
+	reference = _reference_info
 
 	def setUp(self):
 		self.keypair = BitcoinKeypair(self.reference['hex_private_key'])
@@ -81,7 +114,7 @@ class AltcoinKeypairTest(unittest.TestCase):
 	reference = {
 		'passphrase': 'correct horse battery staple',
 		'hex_private_key': 'c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a',
-		'hex_public_key': '0478d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455',
+		'hex_public_key': '78d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455',
 		'hex_hash160': 'c4c5d791fcb4654a1ef5e03fe0ad3d9c598f9827',
 		('bitcoin', 'wif'):'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
 		('bitcoin', 'address'): '1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T',
@@ -162,33 +195,42 @@ class RandomBitcoinKeypairsTest(unittest.TestCase):
 	def test_brainwallet_keypair(self):
 		self.assertTrue(len(self.brainwallet_keypair.passphrase().split()) >= 12)
 
-class BitcoinUtilsTest(unittest.TestCase):
+class BitcoinB58CheckTest(unittest.TestCase):
+	reference = _reference_info
+
 	def setUp(self):
-		self.hex_private_key = 'c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a'
-		self.wif_private_key = '5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS'
-		self.version_byte = 128
+		pass
 
 	def tearDown(self):
 		pass
 
 	def test_b58check_encode_then_decode(self):
-		bin_private_key = self.hex_private_key.decode('hex')
-		wif_private_key = b58check_encode(bin_private_key, version_byte=self.version_byte)
-		self.assertTrue(self.wif_private_key == wif_private_key)
+		bin_private_key = self.reference['hex_private_key'].decode('hex')
+		wif_private_key = b58check_encode(bin_private_key, version_byte=self.reference['wif_version_byte'])
+		self.assertTrue(self.reference['wif_private_key'] == wif_private_key)
 		bin_private_key_verification = b58check_decode(wif_private_key)
 		self.assertTrue(bin_private_key_verification == bin_private_key)
 
 	def test_b58check_unpack_then_encode(self):
-		version_byte, bin_private_key, checksum = b58check_unpack(self.wif_private_key)
-		self.assertTrue(ord(version_byte) == self.version_byte)
+		version_byte, bin_private_key, checksum = b58check_unpack(self.reference['wif_private_key'])
+		self.assertTrue(ord(version_byte) == self.reference['wif_version_byte'])
 		wif_private_key = b58check_encode(bin_private_key, version_byte=ord(version_byte))
-		self.assertTrue(self.wif_private_key == wif_private_key)
+		self.assertTrue(self.reference['wif_private_key'] == wif_private_key)
+
+class BitcoinFormatCheckTest(unittest.TestCase):
+	reference = _reference_info
+
+	def setUp(self):
+		pass
+
+	def tearDown(self):
+		pass
 
 	def test_is_wif_private_key(self):
-		self.assertTrue(is_wif_pk(self.wif_private_key))
+		self.assertTrue(is_wif_pk(self.reference['wif_private_key']))
 
 	def test_is_hex_private_key(self):
-		self.assertTrue(is_256bit_hex_string(self.hex_private_key))
+		self.assertTrue(is_256bit_hex_string(self.reference['hex_private_key']))
 
 class SequentialWalletTest(unittest.TestCase):
 	reference = {
@@ -218,12 +260,15 @@ def test_main():
 		setattr(AltcoinKeypairTest, test_name, test)
 
 	test_support.run_unittest(
+		BitcoinPublicKeyTest,
+		BitcoinPrivateKeyTest,
 		BitcoinKeypairTest,
 		AltcoinKeypairTest,
 		BitcoinBrainWalletKeypairTest,
 		BitcoinKeypairFromWIFTest,
 		RandomBitcoinKeypairsTest,
-		BitcoinUtilsTest,
+		BitcoinB58CheckTest,
+		BitcoinFormatCheckTest,
 		SequentialWalletTest,
 	)
 
