@@ -1,6 +1,10 @@
 Coinkit
 =====
 
+[![Latest Version](https://pypip.in/version/coinkit/badge.svg)](https://pypi.python.org/pypi/coinkit/)
+[![Downloads](https://pypip.in/download/coinkit/badge.svg)](https://pypi.python.org/pypi/coinkit/)
+[![License](https://pypip.in/license/coinkit/badge.svg)](https://pypi.python.org/pypi/coinkit>/)
+
 Python library with tools for Bitcoin and other cryptocurrencies.
 
 ## Sample Usage
@@ -88,6 +92,7 @@ Python library with tools for Bitcoin and other cryptocurrencies.
 - Quarkcoin
 - Netcoin
 - Earthcoin
+- Reddcoin
 
 ## Developers
 
@@ -103,8 +108,4 @@ Meanwhile, for something a bit more ambitious, check the issues section for outs
 
 ## Notice
 
-Coinkit is still in Alpha. It's developers will not be held responsible for loss of bitcoins resulting from the use of this software.
-
-Developers using Coinkit are encouraged to inspect the code for themselves and perform their own tests.
-
-That said, we are committed to ensuring that this library behaves exactly as it is supposed to under all conditions, and have plans to ramp up our testing efforts going forward.
+Coinkit is still in beta. Developers using Coinkit are encouraged to inspect the code for themselves and perform their own tests. We are committed to ensuring that this library behaves exactly as it is supposed to under all conditions, and have plans to ramp up our testing efforts going forward.

@@ -200,6 +200,9 @@ class HuntercoinKeypair(BitcoinKeypair):
 
 class VertcoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 71
+    
+class ReddcoinKeypair(BitcoinKeypair):
+    _pubkeyhash_version_byte = 61
 
 # TO DO:
 # auroracoin
@@ -218,7 +221,6 @@ class VertcoinKeypair(BitcoinKeypair):
 # unobtanium
 # fedoracoin
 # cachecoin
-# reddcoin
 # mincoin
 # ultracoin
 # colossuscoin
