@@ -18,6 +18,10 @@ Python library with tools for Bitcoin and other cryptocurrencies.
 '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
 >>> priv.to_wif()
 '5JvBUBPzU42Y7BHD7thTnySXQXMk8XEJGGQGcyBw7CCkw8RAH7m'
+>>> priv2 = BitcoinPrivateKey('91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d')
+>>> priv2.to_wif()
+'5JvBUBPzU42Y7BHD7thTnySXQXMk8XEJGGQGcyBw7CCkw8RAH7m'
+```
 
 ### Public Keys
 
@@ -34,12 +38,6 @@ Python library with tools for Bitcoin and other cryptocurrencies.
 '13mtgVARiB1HiRyCHnKTi6rEwyje5TYKBW'
 >>> pub.hash160()
 '1e6db1e09b5e307847e5734864a79ea0113d0083'
-```
-
-### Custom Private Keys
-
-```python
->>> priv = BitcoinPrivateKey('91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d')
 ```
 
 ### Brainwallet-based Private Keys
