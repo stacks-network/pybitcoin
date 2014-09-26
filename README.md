@@ -19,7 +19,8 @@ Python library with tools for Bitcoin and other cryptocurrencies.
 >>> priv.to_wif()
 '5JvBUBPzU42Y7BHD7thTnySXQXMk8XEJGGQGcyBw7CCkw8RAH7m'
 >>> priv2 = BitcoinPrivateKey('91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d')
->>> assert priv.to_wif() == priv2.to_wif()
+>>> print priv.to_wif() == priv2.to_wif()
+True
 ```
 
 ### Public Keys
@@ -28,6 +29,9 @@ Python library with tools for Bitcoin and other cryptocurrencies.
 >>> pub = priv.public_key()
 >>> pub.to_hex()
 '2c6b7e6da7633c8f226891cc7fa8e5ec84f8eacc792a46786efc869a408d29539a5e6f8de3f71c0014e8ea71691c7b41f45c083a074fef7ab5c321753ba2b3fe'
+>>> pub2 = BitcoinPublicKey(pub.to_hex())
+>>> print pub.to_hex() == pub2.to_hex()
+True
 ```
 
 ### Addresses
