@@ -11,7 +11,7 @@ import re
 import binascii
 from hashlib import sha256
 
-from characters.charset import change_charset
+from utilitybelt import change_charset
 
 HEX_KEYSPACE = "0123456789abcdef"
 B58_KEYSPACE = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
