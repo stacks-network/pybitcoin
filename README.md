@@ -52,7 +52,8 @@ True
 >>> priv.to_hex()
 '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
 >>> priv2 = BitcoinPrivateKey.from_passphrase(priv2.passphrase())
->>> assert priv2.to_hex() == priv.to_hex()
+>>> print priv2.to_hex() == priv.to_hex()
+True
 ```
 
 ### Altcoins
