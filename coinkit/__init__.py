@@ -7,7 +7,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-__version__ = '0.5.3'
+__version__ = '0.5.4'
 
 from .b58check import b58check_encode, b58check_decode, b58check_unpack, \
 	b58check_version_byte, is_b58check

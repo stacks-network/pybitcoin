@@ -46,13 +46,16 @@ class BitcoinPublicKey():
         except AssertionError as e:
             raise ValueError(_errors['IMPROPER_PUBLIC_KEY_FORMAT'])
         
-        self._hash160 = Hash160('\x04' + self.to_bin(), self._version_byte)
+        self._hash160 = Hash160(self.to_bin(prefix=True), self._version_byte)
 
-    def to_bin(self):
-        return self._ecdsa_public_key.to_string()
+    def to_bin(self, prefix=True):
+        ecdsa_public_key = self._ecdsa_public_key.to_string()
+        if prefix:
+            return '\x04' + ecdsa_public_key
+        return ecdsa_public_key
 
-    def to_hex(self):
-        return binascii.hexlify(self.to_bin())
+    def to_hex(self, prefix=True):
+        return binascii.hexlify(self.to_bin(prefix=prefix))
 
     def hash160(self):
         return self._hash160.to_hex()

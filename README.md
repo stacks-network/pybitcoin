@@ -28,7 +28,7 @@ True
 ```python
 >>> pub = priv.public_key()
 >>> pub.to_hex()
-'2c6b7e6da7633c8f226891cc7fa8e5ec84f8eacc792a46786efc869a408d29539a5e6f8de3f71c0014e8ea71691c7b41f45c083a074fef7ab5c321753ba2b3fe'
+'042c6b7e6da7633c8f226891cc7fa8e5ec84f8eacc792a46786efc869a408d29539a5e6f8de3f71c0014e8ea71691c7b41f45c083a074fef7ab5c321753ba2b3fe'
 >>> pub2 = BitcoinPublicKey(pub.to_hex())
 >>> print pub.to_hex() == pub2.to_hex()
 True

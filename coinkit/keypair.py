@@ -83,11 +83,14 @@ class BitcoinKeypair():
     def _bin_private_key(self):
         return self._ecdsa_private_key.to_string()
 
-    def _bin_public_key(self):
-        return self._ecdsa_public_key.to_string()
+    def _bin_public_key(self, prefix=True):
+        ecdsa_public_key = self._ecdsa_public_key.to_string()
+        if prefix:
+            return '\x04' + ecdsa_public_key
+        return ecdsa_public_key
 
     def _bin_hash160(self):
-        return bin_hash160('\x04' + self._bin_public_key())
+        return bin_hash160(self._bin_public_key())
 
     def private_key(self, format='hex'):
         if format == 'bin':
