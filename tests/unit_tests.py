@@ -73,6 +73,10 @@ class BitcoinPrivateKeyTest(unittest.TestCase):
 	def tearDown(self):
 		pass
 
+	def test_private_key_from_wif(self):
+		self.private_key_from_wif = BitcoinPrivateKey(self.reference['wif_private_key'])
+		self.assertTrue(self.private_key.to_hex() == self.private_key_from_wif.to_hex())
+
 	def test_hex_private_key(self):
 		self.assertTrue(self.private_key.to_hex() == self.reference['hex_private_key'])
 

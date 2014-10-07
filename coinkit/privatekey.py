@@ -14,7 +14,7 @@ from utilitybelt import is_int
 from .entropy import random_secret_exponent
 from .errors import _errors
 from .formatcheck import *
-from .b58check import b58check_encode
+from .b58check import b58check_encode, b58check_decode
 from .publickey import BitcoinPublicKey
 from .passphrase import random_256bit_passphrase, random_160bit_passphrase
 
