@@ -22,7 +22,7 @@ except:
 
 	MEMCACHED_PORT = '11211'
 	MEMCACHED_TIMEOUT = 15 * 60
-	MEMCACHED_ENABLED = False
+	MEMCACHED_ENABLED = True
 
 	#--------------------------------------------------
 	NAMECOIND_USE_HTTPS = True
@@ -34,7 +34,7 @@ except:
 		NAMECOIND_PASSWD = os.environ['NAMECOIND_PASSWD']
 		NAMECOIND_WALLET_PASSPHRASE = os.environ['NAMECOIND_WALLET_PASSPHRASE']
 	except:
-		log.debug("ERROR: in namecoind config")
+		#log.debug("Namecoind not configured")
 		NAMECOIND_PORT = 5005
 		NAMECOIND_SERVER = NAMECOIND_USER = NAMECOIND_PASSWD = NAMECOIND_WALLET_PASSPHRASE = ''
 
@@ -49,7 +49,7 @@ except:
 		BITCOIND_WALLET_PASSPHRASE = os.environ['BITCOIND_WALLET_PASSPHRASE']
 
 	except:
-		log.debug("ERROR: in bitcoind config")
+		#log.debug("Bitcoind not configured")
 		BITCOIND_PORT = 5005 
 		BITCOIND_SERVER = BITCOIND_USER = BITCOIND_PASSWD = BITCOIND_WALLET_PASSPHRASE = ''
 

@@ -10,11 +10,15 @@
 
 """
 	three use cases of coinrpc:
-	a) use HTTP API for namecoind cluster (read-only)
+	a) use HTTP API for namecoin key:values (read-only from memcached)
 	b) get access to a namecoind server (read/write)
 	c) get access to a bitcoind server (read/write)
 """
 
-from .namecoin import namecoind
-from .bitcoin import bitcoind
-from .namecoin.namecoind_server import NamecoindServer
+from .config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER, NAMECOIND_PASSWD, NAMECOIND_USE_HTTPS, NAMECOIND_WALLET_PASSPHRASE
+from .namecoind_server import NamecoindServer
+namecoind = NamecoindServer(NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER, NAMECOIND_PASSWD, NAMECOIND_USE_HTTPS, NAMECOIND_WALLET_PASSPHRASE)
+
+from .config import BITCOIND_SERVER, BITCOIND_PORT, BITCOIND_USER, BITCOIND_PASSWD, BITCOIND_USE_HTTPS, BITCOIND_WALLET_PASSPHRASE
+from .bitcoind_server import BitcoindServer 
+bitcoind = BitcoindServer(BITCOIND_SERVER, BITCOIND_PORT, BITCOIND_USER, BITCOIND_PASSWD, BITCOIND_USE_HTTPS, BITCOIND_WALLET_PASSPHRASE)
