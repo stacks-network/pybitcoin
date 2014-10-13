@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-#-----------------------
-# Copyright 2014 Halfmoon Labs, Inc.
-# All Rights Reserved
-#-----------------------
+# -*- coding: utf-8 -*-
+"""
+	coinrpc
+	~~~~~
 
-'''
-    configuration file
-'''
+	:copyright: (c) 2014 by Halfmoon Labs
+	:license: MIT, see LICENSE for more details.
+"""
 
 try: 
 	from config_local import *
@@ -16,13 +16,6 @@ except:
 	from commontools import log
 
 	DEBUG = True
-
-	DEFAULT_PORT =5000
-	DEFAULT_HOST = '127.0.0.1'
-
-	MEMCACHED_PORT = '11211'
-	MEMCACHED_TIMEOUT = 15 * 60
-	MEMCACHED_ENABLED = True
 
 	#--------------------------------------------------
 	NAMECOIND_USE_HTTPS = True
@@ -54,10 +47,3 @@ except:
 		BITCOIND_SERVER = BITCOIND_USER = BITCOIND_PASSWD = BITCOIND_WALLET_PASSPHRASE = ''
 
 	#--------------------------------------------------
-	
-	try:
-		API_USERNAME = os.environ['API_USERNAME']
-		API_PASSWORD = os.environ['API_PASSWORD']
-	except: 
-		API_USERNAME = 'admin'
-		API_PASSWORD = 'secret'

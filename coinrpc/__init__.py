@@ -6,13 +6,10 @@
 
     :copyright: (c) 2014 by Halfmoon Labs
     :license: MIT, see LICENSE for more details.
-"""
 
-"""
-	three use cases of coinrpc:
-	a) use HTTP API for namecoin key:values (read-only from memcached)
-	b) get access to a namecoind server (read/write)
-	c) get access to a bitcoind server (read/write)
+	two use cases of coinrpc:
+	a) get access to a namecoind server (read/write)
+	b) get access to a bitcoind server (read/write)
 """
 
 from .config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER, NAMECOIND_PASSWD, NAMECOIND_USE_HTTPS, NAMECOIND_WALLET_PASSPHRASE

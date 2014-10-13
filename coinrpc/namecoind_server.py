@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#-----------------------
-# Copyright 2014 Halfmoon Labs, Inc.
-# All Rights Reserved
-#-----------------------
+"""
+	coinrpc
+	~~~~~
+
+	:copyright: (c) 2014 by Halfmoon Labs
+	:license: MIT, see LICENSE for more details.
+"""
 
 VALUE_MAX_LIMIT = 520
 
@@ -19,9 +22,14 @@ class NamecoindServer(object):
 	def __init__(self, server, port, user, passwd, use_https=True, passphrase=None):
 		
 		self.passphrase = passphrase
-		self.server = server 
+		self.server = server
 
-		self.namecoind = AuthServiceProxy("https://" + user + ':' + passwd + '@' + server + ':' + str(port))
+		if use_https:
+			http_string = 'https://'
+		else:
+			http_string = 'http://'
+
+		self.namecoind = AuthServiceProxy(http_string + user + ':' + passwd + '@' + server + ':' + str(port))
 
 	#-----------------------------------
 	def blocks(self):
