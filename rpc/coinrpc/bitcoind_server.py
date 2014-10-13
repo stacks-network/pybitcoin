@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#-----------------------
-# Copyright 2014 Halfmoon Labs, Inc.
-# All Rights Reserved
-#-----------------------
+"""
+	coinrpc
+	~~~~~
+
+	:copyright: (c) 2014 by Halfmoon Labs
+	:license: MIT, see LICENSE for more details.
+"""
 
 from bitcoinrpc.authproxy import AuthServiceProxy
 
 from commontools import log, error_reply
-import requests
 
 #---------------------------------------
 class BitcoindServer(object):
@@ -19,7 +21,12 @@ class BitcoindServer(object):
 		self.passphrase = passphrase
 		self.server = server 
 
-		self.bitcoind = AuthServiceProxy("https://" + user + ':' + passwd + '@' + server + ':' + str(port))
+		if use_https:
+			http_string = 'https://'
+		else:
+			http_string = 'http://'
+
+		self.bitcoind = AuthServiceProxy(http_string + user + ':' + passwd + '@' + server + ':' + str(port))
 
 	#-----------------------------------
 	def blocks(self):
@@ -76,13 +83,10 @@ class BitcoindServer(object):
 
 	#-----------------------------------
 	def sendtousername(self, username, bitcoin_amount):
-		
-		self.unlock_wallet()
 
-		#Step 1:get the bitcoin address using onename.io API call
-		url = "http://onename.io/" + username + ".json"
-		r = requests.get(url)
-		data = r.json()
+		#Step 1: get the bitcoin address
+		from coinrpc import namecoind
+		data = namecoind.get_full_profile('u/' + username)
 		
 		try:
 			bitcoin_address = data['bitcoin']['address']
@@ -91,12 +95,12 @@ class BitcoindServer(object):
 
 		reply = {} 
 
-		#Step 2: send bitcoins, using bitcoind to that address  
+		#Step 2: send bitcoins to that address  
 		if bitcoin_address != "":
 		
 			if self.unlock_wallet():
 
-				#send the bitcoins...
+				#send the bitcoins
 				info = self.sendtoaddress(bitcoin_address, float(bitcoin_amount))
 
 				if 'status' in info and info['status'] == -1:
