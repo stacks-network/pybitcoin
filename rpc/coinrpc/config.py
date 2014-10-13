@@ -25,11 +25,15 @@ except:
 		NAMECOIND_SERVER = os.environ['NAMECOIND_SERVER']
 		NAMECOIND_USER = os.environ['NAMECOIND_USER']
 		NAMECOIND_PASSWD = os.environ['NAMECOIND_PASSWD']
-		NAMECOIND_WALLET_PASSPHRASE = os.environ['NAMECOIND_WALLET_PASSPHRASE']
 	except:
 		#log.debug("Namecoind not configured")
 		NAMECOIND_PORT = 5005
-		NAMECOIND_SERVER = NAMECOIND_USER = NAMECOIND_PASSWD = NAMECOIND_WALLET_PASSPHRASE = ''
+		NAMECOIND_SERVER = NAMECOIND_USER = NAMECOIND_PASSWD = ''
+
+	try:
+		NAMECOIND_WALLET_PASSPHRASE = os.environ['NAMECOIND_WALLET_PASSPHRASE']
+	except:
+		NAMECOIND_WALLET_PASSPHRASE = ''
 
 	#--------------------------------------------------
 	BITCOIND_USE_HTTPS = True
@@ -44,6 +48,11 @@ except:
 	except:
 		#log.debug("Bitcoind not configured")
 		BITCOIND_PORT = 5005 
-		BITCOIND_SERVER = BITCOIND_USER = BITCOIND_PASSWD = BITCOIND_WALLET_PASSPHRASE = ''
+		BITCOIND_SERVER = BITCOIND_USER = BITCOIND_PASSWD = ''
+
+	try:
+		BITCOIND_WALLET_PASSPHRASE = os.environ['BITCOIND_WALLET_PASSPHRASE']
+	except:
+		BITCOIND_WALLET_PASSPHRASE = ''
 
 	#--------------------------------------------------
