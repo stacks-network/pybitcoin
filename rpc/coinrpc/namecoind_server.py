@@ -13,7 +13,7 @@ VALUE_MAX_LIMIT = 520
 import json
 from commontools import utf8len, error_reply
 
-from bitcoinrpc.authproxy import AuthServiceProxy
+from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
 #---------------------------------------
 class NamecoindServer(object):
@@ -46,10 +46,10 @@ class NamecoindServer(object):
 
 	#-----------------------------------
 	#step-1 for registrering new names 
-	def name_new(self, key,value):
+	def name_new(self, key,value,force_registration=False):
 		
 		#check if this key already exists
-		if self.check_registration(key):
+		if self.check_registration(key) and not force_registration:
 			return error_reply("This key already exists")
 			
 		#check if passphrase is valid
@@ -209,7 +209,14 @@ class NamecoindServer(object):
 	#helper function
 	def unlock_wallet(self, passphrase, timeout = 100):
 
-		info = self.namecoind.walletpassphrase(passphrase, timeout, True)
+		try:
+			info = self.namecoind.walletpassphrase(passphrase, timeout)
+		except JSONRPCException as e:
+			if e.error['code'] == -17:
+				return True
+			else:
+				return False
+
 		return info             #info will be True or False
 
 	#-----------------------------------
