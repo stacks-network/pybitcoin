@@ -11,7 +11,7 @@
 VALUE_MAX_LIMIT = 520
 
 import json
-from commontools import utf8len, error_reply
+from commontools import utf8len, error_reply, log
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
@@ -54,12 +54,15 @@ class NamecoindServer(object):
 			
 		#check if passphrase is valid
 		if not self.unlock_wallet(self.passphrase):
-			return error_reply("Wallet passphrase is incorrect", 403)
+			return error_reply("Error unlocking wallet", 403)
 
 		#create new name
 		#returns a list of [longhex, rand]
-		info = self.namecoind.name_new(key)
-		
+		try:
+			info = self.namecoind.name_new(key)
+		except JSONRPCException as e:
+			return e.error
+			
 		return info
 
 	#----------------------------------------------
@@ -71,7 +74,7 @@ class NamecoindServer(object):
 
 		#unlock the wallet
 		if not self.unlock_wallet(self.passphrase):
-			error_reply("Wallet passphrase is incorrect", 403)
+			error_reply("Error unlocking wallet", 403)
 
 		if tx is not None: 
 			info = self.namecoind.name_firstupdate(key, rand, value, tx)
@@ -88,10 +91,13 @@ class NamecoindServer(object):
 
 		#now unlock the wallet
 		if not self.unlock_wallet(self.passphrase):
-			error_reply("Wallet passphrase is incorrect", 403)
+			error_reply("Error unlocking wallet", 403)
 			
 		#update the 'value'
-		info = self.namecoind.name_update(key, value)
+		try:
+			info = self.namecoind.name_update(key, value)
+		except JSONRPCException as e:
+			return e.error
 
 		return info
 
@@ -113,7 +119,7 @@ class NamecoindServer(object):
 
 		#now unlock the wallet
 		if not self.unlock_wallet(self.passphrase):
-			error_reply("Wallet passphrase is incorrect", 403)
+			error_reply("Error unlocking wallet", 403)
 		
 		if utf8len(value) > VALUE_MAX_LIMIT:
 			return error_reply("value larger than " + str(VALUE_MAX_LIMIT))
@@ -180,16 +186,7 @@ class NamecoindServer(object):
 			profile = json.loads(value.get('value'))
 		except:
 			profile = value.get('value')
-
-		if utf8len(json.dumps(profile)) > VALUE_MAX_LIMIT:
-			new_key = 'i/' + input_key.lstrip('u/') + "-1"
-			value2 = self.namecoind.name_show(new_key)  
-
-			if 'code' in value2 and value2.get('code') == -4:
-				pass
-			else:
-				value = value2
-		  
+  
 		if 'code' in value and value.get('code') == -4:
 			return error_reply("Not found", 404)
 
@@ -215,6 +212,7 @@ class NamecoindServer(object):
 			if e.error['code'] == -17:
 				return True
 			else:
+				log.debug(e.error)
 				return False
 
 		return info             #info will be True or False
