@@ -58,8 +58,11 @@ class NamecoindServer(object):
 
 		#create new name
 		#returns a list of [longhex, rand]
-		info = self.namecoind.name_new(key)
-		
+		try:
+			info = self.namecoind.name_new(key)
+		except JSONRPCException as e:
+			return e.error
+			
 		return info
 
 	#----------------------------------------------
@@ -209,7 +212,7 @@ class NamecoindServer(object):
 			if e.error['code'] == -17:
 				return True
 			else:
-				log.debug(e)
+				log.debug(e.error)
 				return False
 
 		return info             #info will be True or False
