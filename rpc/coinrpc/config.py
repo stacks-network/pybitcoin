@@ -8,16 +8,17 @@
 	:license: MIT, see LICENSE for more details.
 """
 
-try: 
-	from config_local import *
-except:
+import os
+from commontools import log
 
-	import os
-	from commontools import log
+NAMECOIND_ENABLED = True
+BITCOIND_ENABLED = False 
 
-	DEBUG = True
+DEBUG = True
 
-	#--------------------------------------------------
+#--------------------------------------------------
+if NAMECOIND_ENABLED:
+
 	NAMECOIND_USE_HTTPS = True
 
 	try:
@@ -35,7 +36,9 @@ except:
 	except:
 		NAMECOIND_WALLET_PASSPHRASE = ''
 
-	#--------------------------------------------------
+#--------------------------------------------------
+if BITCOIND_ENABLED:
+
 	BITCOIND_USE_HTTPS = True
 
 	try:
@@ -54,5 +57,3 @@ except:
 		BITCOIND_WALLET_PASSPHRASE = os.environ['BITCOIND_WALLET_PASSPHRASE']
 	except:
 		BITCOIND_WALLET_PASSPHRASE = ''
-
-	#--------------------------------------------------
