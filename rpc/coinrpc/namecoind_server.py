@@ -76,11 +76,14 @@ class NamecoindServer(object):
 		if not self.unlock_wallet(self.passphrase):
 			error_reply("Error unlocking wallet", 403)
 
-		if tx is not None: 
-			info = self.namecoind.name_firstupdate(key, rand, value, tx)
-		else:
-			info = self.namecoind.name_firstupdate(key, rand, value)
-
+		try:
+			if tx is not None: 
+				info = self.namecoind.name_firstupdate(key, rand, tx, value)
+			else:
+				info = self.namecoind.name_firstupdate(key, rand, value)
+		except JSONRPCException as e:
+			return e.error
+				
 		return info
 
 	#-----------------------------------
@@ -132,7 +135,10 @@ class NamecoindServer(object):
 	#-----------------------------------
 	def check_registration(self, key):
 
-		info = self.namecoind.name_show(key)
+		try:
+			info = self.namecoind.name_show(key)
+		except JSONRPCException as e:
+			return e.error
 		
 		if 'code' in info and info.get('code') == -4:
 			return False
@@ -180,7 +186,10 @@ class NamecoindServer(object):
 
 		reply = {}
 
-		value = self.namecoind.name_show(input_key)
+		try:
+			value = self.namecoind.name_show(input_key)
+		except JSONRPCException as e:
+			return e.error
 		
 		try:
 			profile = json.loads(value.get('value'))
