@@ -28,8 +28,11 @@ if NAMECOIND_ENABLED:
 		NAMECOIND_PASSWD = os.environ['NAMECOIND_PASSWD']
 	except:
 		#log.debug("Namecoind not configured")
-		NAMECOIND_PORT = 5005
-		NAMECOIND_SERVER = NAMECOIND_USER = NAMECOIND_PASSWD = ''
+		#default settings with a public server
+		NAMECOIND_PORT = 8332
+		NAMECOIND_SERVER = '107.170.167.141'
+		NAMECOIND_USER = 'opennamesystem' 
+		NAMECOIND_PASSWD = 'opennamesystem'
 
 	try:
 		NAMECOIND_WALLET_PASSPHRASE = os.environ['NAMECOIND_WALLET_PASSPHRASE']
