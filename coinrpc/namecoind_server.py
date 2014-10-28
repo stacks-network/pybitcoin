@@ -138,8 +138,8 @@ class NamecoindServer(object):
 		try:
 			info = self.namecoind.name_show(key)
 		except JSONRPCException as e:
-			return e.error
-		
+			info = e.error
+			
 		if 'code' in info and info.get('code') == -4:
 			return False
 		elif 'expired' in info and info.get('expired') == 1:
@@ -224,7 +224,7 @@ class NamecoindServer(object):
 				log.debug(e.error)
 				return False
 
-		return info             #info will be True or False
+		return True
 
 	#-----------------------------------
 	def importprivkey(self, namecoinprivkey,label='import',rescan=False):
