@@ -9,6 +9,6 @@
 
 __version__ = '0.6.0'
 
-from .blockchain_info import *
-from .chain_com import *
-from .blockcypher_com import *
+import blockchain_info
+import chain_com
+import blockcypher_com
