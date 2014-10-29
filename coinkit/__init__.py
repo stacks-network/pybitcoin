@@ -7,7 +7,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-__version__ = '0.5.4'
+__version__ = '0.6.0'
 
 from .b58check import b58check_encode, b58check_decode, b58check_unpack, \
 	b58check_version_byte, is_b58check
@@ -19,7 +19,4 @@ from .passphrase import random_256bit_passphrase, random_160bit_passphrase
 from .privatekey import *
 from .publickey import *
 from .wallet import SDWallet
-
-
-
-
+from .services import *

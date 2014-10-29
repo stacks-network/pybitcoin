@@ -7,6 +7,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
+import json
 import unittest
 from test import test_support
 
@@ -56,13 +57,13 @@ class BitcoinPublicKeyTest(unittest.TestCase):
 		pass
 
 	def test_address(self):
-		self.assertTrue(self.public_key.address() == self.reference['address'])
+		self.assertEqual(self.public_key.address(), self.reference['address'])
 
 	def test_hex_hash160(self):
-		self.assertTrue(self.public_key.hash160() == self.reference['hex_hash160'])
+		self.assertEqual(self.public_key.hash160(), self.reference['hex_hash160'])
 
 	def test_hex_public_key(self):
-		self.assertTrue(self.public_key.to_hex() == self.reference['hex_public_key'])
+		self.assertEqual(self.public_key.to_hex(), self.reference['hex_public_key'])
 
 class BitcoinPrivateKeyTest(unittest.TestCase):
 	reference = _reference_info
@@ -75,13 +76,13 @@ class BitcoinPrivateKeyTest(unittest.TestCase):
 
 	def test_private_key_from_wif(self):
 		self.private_key_from_wif = BitcoinPrivateKey(self.reference['wif_private_key'])
-		self.assertTrue(self.private_key.to_hex() == self.private_key_from_wif.to_hex())
+		self.assertEqual(self.private_key.to_hex(), self.private_key_from_wif.to_hex())
 
 	def test_hex_private_key(self):
-		self.assertTrue(self.private_key.to_hex() == self.reference['hex_private_key'])
+		self.assertEqual(self.private_key.to_hex(), self.reference['hex_private_key'])
 
 	def test_wif_private_key(self):
-		self.assertTrue(self.private_key.to_wif() == self.reference['wif_private_key'])
+		self.assertEqual(self.private_key.to_wif(), self.reference['wif_private_key'])
 
 class BitcoinKeypairTest(unittest.TestCase):
 	reference = _reference_info
@@ -93,19 +94,19 @@ class BitcoinKeypairTest(unittest.TestCase):
 		pass
 
 	def test_hex_private_key(self):
-		self.assertTrue(self.keypair.private_key() == self.reference['hex_private_key'])
+		self.assertEqual(self.keypair.private_key(), self.reference['hex_private_key'])
 
 	def test_wif_private_key(self):
-		self.assertTrue(self.keypair.wif_pk() == self.reference['wif_private_key'])
+		self.assertEqual(self.keypair.wif_pk(), self.reference['wif_private_key'])
 
 	def test_address(self):
-		self.assertTrue(self.keypair.address() == self.reference['address'])
+		self.assertEqual(self.keypair.address(), self.reference['address'])
 
 	def test_hex_hash160(self):
-		self.assertTrue(self.keypair.hash160() == self.reference['hex_hash160'])
+		self.assertEqual(self.keypair.hash160(), self.reference['hex_hash160'])
 
 	def test_public_key(self):
-		self.assertTrue(self.keypair.public_key() == self.reference['hex_public_key'])
+		self.assertEqual(self.keypair.public_key(), self.reference['hex_public_key'])
 
 class AltcoinKeypairTest(unittest.TestCase):
 	coin_names = [
@@ -172,7 +173,7 @@ class BitcoinBrainWalletKeypairTest(BitcoinKeypairTest):
 		self.keypair = BitcoinKeypair.from_passphrase(self.reference['passphrase'])
 
 	def test_passphrase(self):
-		self.assertTrue(self.keypair.passphrase() == self.reference['passphrase'])
+		self.assertEqual(self.keypair.passphrase(), self.reference['passphrase'])
 
 	def test_random_passphrase_length(self):
 		random_keypair = BitcoinKeypair.from_passphrase()
@@ -211,15 +212,15 @@ class BitcoinB58CheckTest(unittest.TestCase):
 	def test_b58check_encode_then_decode(self):
 		bin_private_key = self.reference['hex_private_key'].decode('hex')
 		wif_private_key = b58check_encode(bin_private_key, version_byte=self.reference['wif_version_byte'])
-		self.assertTrue(self.reference['wif_private_key'] == wif_private_key)
+		self.assertEqual(self.reference['wif_private_key'], wif_private_key)
 		bin_private_key_verification = b58check_decode(wif_private_key)
-		self.assertTrue(bin_private_key_verification == bin_private_key)
+		self.assertEqual(bin_private_key_verification, bin_private_key)
 
 	def test_b58check_unpack_then_encode(self):
 		version_byte, bin_private_key, checksum = b58check_unpack(self.reference['wif_private_key'])
 		self.assertTrue(ord(version_byte) == self.reference['wif_version_byte'])
 		wif_private_key = b58check_encode(bin_private_key, version_byte=ord(version_byte))
-		self.assertTrue(self.reference['wif_private_key'] == wif_private_key)
+		self.assertEqual(self.reference['wif_private_key'], wif_private_key)
 
 class BitcoinFormatCheckTest(unittest.TestCase):
 	reference = _reference_info
@@ -252,8 +253,66 @@ class SequentialWalletTest(unittest.TestCase):
 
 	def test_bitcoin_keypairs(self):
 		bitcoin_keypair_1 = self.wallet.keypair(1, BitcoinKeypair)
-		self.assertTrue(self.reference['bitcoin_keypair_1']['address'], bitcoin_keypair_1.address())
-		self.assertTrue(bitcoin_keypair_1.passphrase(), self.reference['passphrase'] + ' bitcoin1')
+		self.assertEqual(self.reference['bitcoin_keypair_1']['address'], bitcoin_keypair_1.address())
+		self.assertEqual(bitcoin_keypair_1.passphrase(), self.reference['passphrase'] + ' bitcoin1')
+
+class ServicesGetSpendablesTest(unittest.TestCase):
+	def setUp(self):
+		self.address = '1K4nPxBMy6sv7jssTvDLJWk1ADHBZEoUVb'
+		self.total_unspent_value = 332000
+		self.unspents_dict = {
+			'5ad2913b948c883b007b1bca39322c42d60ef465b9dc39bc0a53ffe8fe3faafd': {
+				'script_hex': '76a914c629680b8d13ca7a4b7d196360186d05658da6db88ac',
+				'output_index': 0,
+				'transaction_hash': '5ad2913b948c883b007b1bca39322c42d60ef465b9dc39bc0a53ffe8fe3faafd',
+				'value': 10000
+			},
+			'b84a66c46e24fe71f9d8ab29b06df932d77bec2cc0691799fae398a8dc9069bf': {
+				'script_hex': '76a914c629680b8d13ca7a4b7d196360186d05658da6db88ac',
+				'output_index': 1,
+				'transaction_hash': 'b84a66c46e24fe71f9d8ab29b06df932d77bec2cc0691799fae398a8dc9069bf',
+				'value': 32000
+			},
+			'0bf0de38c26195919179f42d475beb7a6b15258c38b57236afdd60a07eddd2cc': {
+				'script_hex': '76a914c629680b8d13ca7a4b7d196360186d05658da6db88ac',
+				'output_index': 0,
+				'transaction_hash': '0bf0de38c26195919179f42d475beb7a6b15258c38b57236afdd60a07eddd2cc',
+				'value': 290000
+			}
+		}
+
+	def tearDown(self):
+		pass
+
+	def compare_unspents(self, unspents):
+		unspents_dict = {}
+
+		for unspent in unspents:
+			del unspent['confirmations']
+			unspents_dict[unspent['transaction_hash']] = unspent
+
+		self.assertEqual(unspents_dict, self.unspents_dict)
+
+	def compare_total_value(self, unspents):
+		total_value = sum([u['value'] for u in unspents])
+		self.assertEqual(total_value, self.total_unspent_value)
+
+	def test_blockchain_info_get_spendables(self):
+		unspents = services.blockchain_info.get_unspents(self.address)
+		self.compare_total_value(unspents)
+		self.compare_unspents(unspents)
+
+	def test_chain_com_get_spendables(self):
+		unspents = services.chain_com.get_unspents(self.address)
+		self.compare_total_value(unspents)
+		self.compare_unspents(unspents)
+
+	def test_blockcypher_get_spendables(self):
+		unspents = services.blockcypher_com.get_unspents(self.address)
+		for unspent in unspents:
+			unspent['script_hex'] = '76a914c629680b8d13ca7a4b7d196360186d05658da6db88ac'
+		self.compare_total_value(unspents)
+		self.compare_unspents(unspents)
 
 def test_main():
 
@@ -274,6 +333,7 @@ def test_main():
 		BitcoinB58CheckTest,
 		BitcoinFormatCheckTest,
 		SequentialWalletTest,
+		ServicesGetSpendablesTest
 	)
 
 if __name__ == '__main__':

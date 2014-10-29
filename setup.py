@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='coinkit',
-    version='0.5.4',
+    version='0.6.0',
     url='https://github.com/onenameio/coinkit',
     license='MIT',
     author='Onename (Halfmoon Labs)',
@@ -17,6 +17,7 @@ setup(
     keywords='bitcoin btc litecoin namecoin peercoin primecoin cryptocurrency',
     packages=[
         'coinkit',
+        'coinkit.services'
     ],
     zip_safe=False,
     install_requires=[
