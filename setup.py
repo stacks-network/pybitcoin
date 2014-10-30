@@ -17,7 +17,8 @@ setup(
     keywords='bitcoin btc litecoin namecoin peercoin primecoin cryptocurrency',
     packages=[
         'coinkit',
-        'coinkit.services'
+        'coinkit.services',
+        'coinkit.transactions'
     ],
     zip_safe=False,
     install_requires=[
