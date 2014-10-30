@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+    Coinkit
+    ~~~~~
+
+    :copyright: (c) 2014 by Halfmoon Labs
+    :license: MIT, see LICENSE for more details.
+"""
+
 import binascii, hashlib
 from .formatcheck import is_hex
 

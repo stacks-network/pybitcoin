@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+    Coinkit
+    ~~~~~
+
+    :copyright: (c) 2014 by Halfmoon Labs
+    :license: MIT, see LICENSE for more details.
+"""
+
 import json, requests, traceback
 
 BLOCKCYPHER_API_BASE_URL = "http://api.blockcypher.com/v1/btc/main"
