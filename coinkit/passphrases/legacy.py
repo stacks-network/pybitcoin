@@ -7,9 +7,10 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from .entropy import get_entropy
-from .words import TOP_ENGLISH_WORDS
+from utilitybelt import dev_random_entropy
 from math import pow, ceil, log
+from .passphrase import pick_random_words_from_wordlist
+from .english_words import english_words_google
 
 def random_passphrase_from_wordlist(phrase_length, wordlist):
     """ An extremely entropy efficient passphrase generator.
@@ -23,7 +24,7 @@ def random_passphrase_from_wordlist(phrase_length, wordlist):
     passphrase_words = []
     
     numbytes_of_entropy = phrase_length * 2
-    entropy = list(get_entropy(numbytes_of_entropy))
+    entropy = list(dev_random_entropy(numbytes_of_entropy, fallback_to_urandom=True))
 
     bytes_per_word = int(ceil(log(len(wordlist), 2) / 8))
 
@@ -40,7 +41,7 @@ def random_passphrase_from_wordlist(phrase_length, wordlist):
     return " ".join(passphrase_words)
 
 def random_160bit_passphrase():
-    return random_passphrase_from_wordlist(12, TOP_ENGLISH_WORDS[0:10500])
+    return random_passphrase_from_wordlist(english_words_google[0:10500], 12)
 
 def random_256bit_passphrase():
-    return random_passphrase_from_wordlist(16, TOP_ENGLISH_WORDS[0:65536])
+    return random_passphrase_from_wordlist(english_words_google[0:65536], 16)

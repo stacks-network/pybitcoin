@@ -177,7 +177,7 @@ class BitcoinBrainWalletKeypairTest(BitcoinKeypairTest):
 
 	def test_random_passphrase_length(self):
 		random_keypair = BitcoinKeypair.from_passphrase()
-		self.assertTrue(len(random_keypair.passphrase().split()) >= 12)
+		self.assertTrue(len(random_keypair.passphrase().split()) > 1)
 
 class BitcoinKeypairFromWIFTest(BitcoinKeypairTest):
 	def setUp(self):
@@ -198,7 +198,7 @@ class RandomBitcoinKeypairsTest(unittest.TestCase):
 		self.assertTrue(is_b58check_address(self.keypair.address()))
 
 	def test_brainwallet_keypair(self):
-		self.assertTrue(len(self.brainwallet_keypair.passphrase().split()) >= 12)
+		self.assertTrue(len(self.brainwallet_keypair.passphrase().split()) > 1)
 
 class BitcoinB58CheckTest(unittest.TestCase):
 	reference = _reference_info

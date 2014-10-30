@@ -18,12 +18,13 @@ setup(
     packages=[
         'coinkit',
         'coinkit.services',
-        'coinkit.transactions'
+        'coinkit.transactions',
+        'coinkit.passphrases'
     ],
     zip_safe=False,
     install_requires=[
         'ecdsa>=0.10',
-        'utilitybelt>=0.1.4'
+        'utilitybelt>=0.1.7'
     ],
     classifiers=[
         'Intended Audience :: Developers',

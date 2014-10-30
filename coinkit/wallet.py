@@ -10,7 +10,7 @@
 from inspect import isclass
 
 from .keypair import *
-from .passphrase import random_256bit_passphrase, random_160bit_passphrase
+from .passphrases import create_160bit_passphrase
 
 def is_cryptocurrency_keypair_class(cls):
     if not isclass(cls):
@@ -32,7 +32,7 @@ class SDWallet():
     def __init__(self, passphrase=None):
         """ Create wallet from a passphrase input. """
         if not passphrase:
-            passphrase = random_160bit_passphrase()
+            passphrase = create_160bit_passphrase()
 
         self._passphrase = passphrase
     
