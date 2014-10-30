@@ -298,17 +298,17 @@ class ServicesGetSpendablesTest(unittest.TestCase):
 		self.assertEqual(total_value, self.total_unspent_value)
 
 	def test_blockchain_info_get_spendables(self):
-		unspents = services.blockchain_info.get_unspents(self.address)
+		unspents = transactions.get_unspents(self.address, api='blockchain.info')
 		self.compare_total_value(unspents)
 		self.compare_unspents(unspents)
 
 	def test_chain_com_get_spendables(self):
-		unspents = services.chain_com.get_unspents(self.address)
+		unspents = transactions.get_unspents(self.address, api='chain.com')
 		self.compare_total_value(unspents)
 		self.compare_unspents(unspents)
 
 	def test_blockcypher_get_spendables(self):
-		unspents = services.blockcypher_com.get_unspents(self.address)
+		unspents = transactions.get_unspents(self.address, api='blockcypher.com')
 		for unspent in unspents:
 			unspent['script_hex'] = '76a914c629680b8d13ca7a4b7d196360186d05658da6db88ac'
 		self.compare_total_value(unspents)
