@@ -67,6 +67,10 @@ class BitcoinPublicKey():
         """ The address is the hash160 in b58check format. """
         return self._hash160.address()
 
+class CoinPublicKey(BitcoinPublicKey):
+    def __init__(self, public_key, version_byte = 0):
+        BitcoinPublicKey.__init__(self, public_key, version_byte)
+
 class LitecoinPublicKey(BitcoinPublicKey):
     _version_byte = 48
 

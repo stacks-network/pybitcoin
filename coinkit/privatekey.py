@@ -27,9 +27,11 @@ class BitcoinPrivateKey():
     def wif_version_byte(cls):
         return (cls._pubkeyhash_version_byte + 128) % 256
 
-    def __init__(self, private_key=None):
+    def __init__(self, private_key=None, pubkeyhash_version_byte = 0):
         """ Takes in a private key/secret exponent.
         """
+        self._pubkeyhash_version_byte = pubkeyhash_version_byte
+
         if not private_key:
             secret_exponent = random_secret_exponent(self._curve.order)
         elif is_int(private_key):
@@ -91,6 +93,10 @@ class BitcoinPrivateKey():
             return self._passphrase
         else:
             raise Exception(_errors["NOT_A_BRAIN_WALLET"])
+
+class CoinPrivateKey(BitcoinPrivateKey):
+    def __init__(self, private_key=None, pubkeyhash_version_byte=0):
+        BitcoinPrivateKey.__init__(self, private_key, pubkeyhash_version_byte)
 
 class LitecoinPrivateKey(BitcoinPrivateKey):
     _pubkeyhash_version_byte = 48
