@@ -15,3 +15,10 @@ By default bitcoind is turned off and the configuration of a public namecoind se
 source <path-to-dir>/coinrpc/scripts/setup_namecoind.sh 
 source <path-to-dir>/coinrpc/scripts/setup_bitcoind.sh
 ```
+
+## Usage: 
+
+```
+from coinrpc import namecoind
+print namecoind.blocks()
+```
