@@ -46,7 +46,10 @@ def send_transaction(hex_tx, auth=None):
     except ValueError, e:
         raise Exception('Invalid response from chain.com.')
 
-    return data
+    if 'transaction_hash' in data:
+        return {'success': True, 'transaction_hash': data['transaction_hash']}
+    else:
+        raise Exception('Invalid response from chain.com.')
 
 class ChainClient():
     def __init__(self, api_key_id, api_key_secret):

@@ -33,6 +33,18 @@ def get_unspents(address, auth=None):
     
     return format_unspents(unspents)
 
+def send_transaction(hex_tx, auth=None):
+    """ Dispatch a raw transaction to the network.
+    """
+    url = BLOCKCHAIN_API_BASE_URL + '/pushtx'
+    payload = {'tx': hex_tx}
+    r = requests.post(url, data=payload)
+    
+    if 'submitted' in r.text.lower():
+        return {'success': True}
+    else:
+        raise Exception('Invalid response from blockchain.info.')
+
 class BlockchainClient():
     def __init__(self, api_key):
         self.api_key = api_key
@@ -42,3 +54,6 @@ class BlockchainClient():
 
     def get_unspents(self, address):
         return get_unspents(address, auth=self.auth())
+
+    def send_transaction(self, hex_tx):
+        return send_transaction(hex_tx, auth=self.auth())
