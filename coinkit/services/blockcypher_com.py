@@ -21,7 +21,7 @@ def format_unspents(unspents):
         for s in unspents
     ]
 
-def get_unspents(address):
+def get_unspents(address, auth=None):
     """ Get the spendable transaction outputs, also known as UTXOs or
         unspent transaction outputs.
     """
