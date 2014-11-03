@@ -9,14 +9,15 @@
 
 import os, json, binascii, ecdsa, hashlib
 
-from .ellipticcurve import random_secret_exponent
+from .privatekey import random_secret_exponent
 from .b58check import b58check_encode, b58check_decode, b58check_unpack, \
     b58check_version_byte
 from .errors import _errors
 from .hash160 import bin_hash160
-from .formatcheck import *
+from .formatcheck import is_int, is_256bit_hex_string, is_wif_pk, \
+    is_secret_exponent
 from .passphrases import create_160bit_passphrase
-    
+
 class BitcoinKeypair():
     """ NOTE: This object has been replaced by the BitcoinPrivateKey and 
         BitcoinPublicKey objects and is set to be deprecated at a future date.

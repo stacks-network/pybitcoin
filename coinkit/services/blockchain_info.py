@@ -8,11 +8,9 @@
 """
 
 import json, requests, traceback
+from ..hash import reverse_hash
 
 BLOCKCHAIN_API_BASE_URL = "https://blockchain.info"
-
-def reverse_hash(hash):
-    return "".join(reversed([hash[i:i+2] for i in range(0, len(hash), 2)]))
 
 def format_unspents(unspents):
     return [{
@@ -42,7 +40,7 @@ def get_unspents(address, auth=None):
     
     return format_unspents(unspents)
 
-def send_transaction(hex_tx, auth=None):
+def broadcast_transaction(hex_tx, auth=None):
     """ Dispatch a raw transaction to the network.
     """
     url = BLOCKCHAIN_API_BASE_URL + '/pushtx'
@@ -64,5 +62,5 @@ class BlockchainClient():
     def get_unspents(self, address):
         return get_unspents(address, auth=self.auth())
 
-    def send_transaction(self, hex_tx):
-        return send_transaction(hex_tx, auth=self.auth())
+    def broadcast_transaction(self, hex_tx):
+        return broadcast_transaction(hex_tx, auth=self.auth())

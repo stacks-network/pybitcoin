@@ -11,7 +11,7 @@ import random, math
 from .english_words import english_words_bip39, english_words_wiktionary, \
     english_words_google
 
-sr = random.SystemRandom()
+system_random = random.SystemRandom()
 
 def get_wordlist(language, word_source):
     """ Takes in a language and a word source and returns a matching wordlist,
@@ -37,7 +37,7 @@ def get_num_words_required_for_entropy(bits_of_entropy, wordlist):
 def pick_random_words_from_wordlist(wordlist, num_words_to_choose):
     """ Picks words randomly from a wordlist.
     """
-    return [sr.choice(wordlist) for i in range(num_words_to_choose)]
+    return [system_random.choice(wordlist) for i in range(num_words_to_choose)]
 
 def create_passphrase_with_num_words(num_words, language='english',
                                   word_source='bip39'):

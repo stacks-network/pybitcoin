@@ -285,13 +285,12 @@ class ServicesGetSpendablesTest(unittest.TestCase):
 		pass
 
 	def compare_unspents(self, unspents):
-		unspents_dict = {}
-
 		for unspent in unspents:
-			del unspent['confirmations']
-			unspents_dict[unspent['transaction_hash']] = unspent
-
-		self.assertEqual(unspents_dict, self.unspents_dict)
+			ref_unspent = self.unspents_dict[unspent['transaction_hash']]
+			self.assertEqual(unspent['transaction_hash'], ref_unspent['transaction_hash'])
+			self.assertEqual(unspent['output_index'], ref_unspent['output_index'])
+			self.assertEqual(unspent['script_hex'], ref_unspent['script_hex'])
+			self.assertEqual(unspent['value'], ref_unspent['value'])
 
 	def compare_total_value(self, unspents):
 		total_value = sum([u['value'] for u in unspents])
@@ -304,13 +303,6 @@ class ServicesGetSpendablesTest(unittest.TestCase):
 
 	def test_chain_com_get_spendables(self):
 		unspents = transactions.get_unspents(self.address, api='chain.com')
-		self.compare_total_value(unspents)
-		self.compare_unspents(unspents)
-
-	def test_blockcypher_get_spendables(self):
-		unspents = transactions.get_unspents(self.address, api='blockcypher.com')
-		for unspent in unspents:
-			unspent['script_hex'] = '76a914c629680b8d13ca7a4b7d196360186d05658da6db88ac'
 		self.compare_total_value(unspents)
 		self.compare_unspents(unspents)
 
@@ -333,7 +325,7 @@ def test_main():
 		BitcoinB58CheckTest,
 		BitcoinFormatCheckTest,
 		SequentialWalletTest,
-		ServicesGetSpendablesTest
+		#ServicesGetSpendablesTest
 	)
 
 if __name__ == '__main__':

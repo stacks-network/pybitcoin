@@ -11,4 +11,3 @@ __version__ = '0.6.0'
 
 import blockchain_info
 import chain_com
-import blockcypher_com

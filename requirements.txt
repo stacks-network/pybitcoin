@@ -1,2 +1,4 @@
-ecdsa>=0.10
-characters>=0.1
+ecdsa==0.11
+pybitcointools==1.1.15
+requests==2.4.3
+utilitybelt==0.1.7

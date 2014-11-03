@@ -9,14 +9,16 @@
 
 import json, requests, traceback
 
-CHAIN_API_BASE_URL = 'https://api.chain.com/v1'
+CHAIN_API_BASE_URL = 'https://api.chain.com/v2'
 
 def format_unspents(unspents):
     return [{
         "transaction_hash": s["transaction_hash"],
         "output_index": s["output_index"],
         "value": s["value"],
+        "script_opcodes": s["script"],
         "script_hex": s["script_hex"],
+        "script_type": s["script_type"],
         "confirmations": s["confirmations"]
         }
         for s in unspents
@@ -40,7 +42,7 @@ def get_unspents(address, auth=None):
     
     return format_unspents(unspents)
 
-def send_transaction(hex_tx, auth=None):
+def broadcast_transaction(hex_tx, auth=None):
     """ Dispatch a raw hex transaction to the network.
     """
     if not auth or len(auth) != 2:
@@ -71,5 +73,5 @@ class ChainClient():
     def get_unspents(self, address):
         return get_unspents(address, auth=self.auth())
 
-    def send_transaction(self, hex_tx):
-        return send_transaction(hex_tx, auth=self.auth())
+    def broadcast_transaction(self, hex_tx):
+        return broadcast_transaction(hex_tx, auth=self.auth())
