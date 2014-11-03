@@ -10,15 +10,13 @@
 import os, json, hashlib, ecdsa
 from binascii import hexlify, unhexlify
 from ecdsa.keys import SigningKey
-from utilitybelt import is_int
+from utilitybelt import is_int, dev_random_entropy, dev_urandom_entropy
 
 from .errors import _errors
 from .formatcheck import *
 from .b58check import b58check_encode, b58check_decode
 from .publickey import BitcoinPublicKey
 from .passphrases import create_160bit_passphrase
-
-from utilitybelt import dev_random_entropy, dev_urandom_entropy
 
 def random_secret_exponent(curve_order):
     """ Generates a random secret exponent. """

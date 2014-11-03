@@ -8,9 +8,8 @@
 """
 
 import re
-import binascii
+from binascii import hexlify, unhexlify
 from hashlib import sha256
-
 from utilitybelt import change_charset
 
 HEX_KEYSPACE = "0123456789abcdef"
@@ -32,7 +31,7 @@ def b58check_encode(bin_s, version_byte=0):
     # add in the checksum add the end
     bin_s = bin_s + bin_checksum(bin_s)
     # convert from b2 to b16
-    hex_s = binascii.hexlify(bin_s)
+    hex_s = hexlify(bin_s)
     # convert from b16 to b58
     b58_s = change_charset(hex_s, HEX_KEYSPACE, B58_KEYSPACE)
 
@@ -49,7 +48,7 @@ def b58check_unpack(b58_s):
     if len(hex_s) % 2 == 1:
         hex_s = "0" + hex_s
     # convert from b16 to b2
-    bin_s = binascii.unhexlify(hex_s)
+    bin_s = unhexlify(hex_s)
     # add in the leading zeros
     bin_s = '\x00' * num_leading_zeros + bin_s
     # make sure the newly calculated checksum equals the embedded checksum

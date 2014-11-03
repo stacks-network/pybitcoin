@@ -14,8 +14,8 @@ from ..services import blockchain_info, blockcypher_com, chain_com
 from ..privatekey import BitcoinPrivateKey
 from .serialize import make_pay_to_address_transaction
 
-""" Note: for functions that take in an auth object, here are some examples for the
-    various APIs available:
+""" Note: for functions that take in an auth object, here are some examples
+    for the various APIs available:
     
     blockchain.info: auth=(api_key, None)
     chain.com: auth=(api_key_id, api_key_secret)
