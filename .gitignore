@@ -36,4 +36,3 @@ nosetests.xml
 .pydevproject
 
 ignore
-requirements.txt
