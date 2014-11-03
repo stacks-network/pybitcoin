@@ -10,7 +10,7 @@
 from binascii import hexlify, unhexlify
 from pybitcointools import sign as sign_transaction
 
-from ..services import blockchain_info, blockcypher_com, chain_com
+from ..services import blockchain_info, chain_com
 from ..privatekey import BitcoinPrivateKey
 from .serialize import make_pay_to_address_transaction
 
