@@ -71,7 +71,7 @@ True
 
 ## Supported currencies
 
-Litecoin, Namecoin, Peercoin, Primecoin, Testnet, Worldcoin, Megacoin, Feathercoin, Terracoin, Novacoin, Dogecoin, Anoncoin, Protoshares, Ixcoin, Memorycoin, Infinitecoin, Cryptogenic Bullion, Quarkcoin, Netcoin, Earthcoin, Reddcoin
+Litecoin, Namecoin, Peercoin, Primecoin, Testnet, Worldcoin, Megacoin, Feathercoin, Terracoin, Novacoin, Dogecoin, Anoncoin, Protoshares, Ixcoin, Memorycoin, Infinitecoin, Cryptogenic Bullion, Quarkcoin, Netcoin, Earthcoin, Reddcoin, (insert your favorite cryptocurrency here)
 
 ## Developers
 
