@@ -16,7 +16,7 @@ from .errors import _errors
 from .formatcheck import *
 from .b58check import b58check_encode, b58check_decode
 from .publickey import BitcoinPublicKey
-from .passphrases import create_160bit_passphrase
+from .passphrases import create_passphrase
 
 def random_secret_exponent(curve_order):
     """ Generates a random secret exponent. """
@@ -66,7 +66,7 @@ class BitcoinPrivateKey():
             # run a rejection sampling algorithm to ensure the private key is
             # less than the curve order
             while True:
-                passphrase = create_160bit_passphrase()
+                passphrase = create_passphrase(bits_of_entropy=160)
                 hex_private_key = hashlib.sha256(passphrase).hexdigest()
                 if int(hex_private_key, 16) < cls._curve.order:
                     break

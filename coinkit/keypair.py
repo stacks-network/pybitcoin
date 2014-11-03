@@ -16,7 +16,7 @@ from .errors import _errors
 from .hash import bin_hash160
 from .formatcheck import is_int, is_256bit_hex_string, is_wif_pk, \
     is_secret_exponent
-from .passphrases import create_160bit_passphrase
+from .passphrases import create_passphrase
 
 class BitcoinKeypair():
     """ NOTE: This object has been replaced by the BitcoinPrivateKey and 
@@ -68,7 +68,7 @@ class BitcoinKeypair():
             # run a rejection sampling algorithm to ensure the private key is
             # less than the curve order
             while True:
-                passphrase = create_160bit_passphrase()
+                passphrase = create_passphrase(bits_of_entropy=160)
                 hex_private_key = hashlib.sha256(passphrase).hexdigest()
                 if int(hex_private_key, 16) < cls._curve.order:
                     break

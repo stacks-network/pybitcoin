@@ -15,7 +15,6 @@ from .errors import _errors
 from .hash import bin_hash160
 from .formatcheck import is_hex, is_hex_ecdsa_pubkey, is_binary_ecdsa_pubkey
 from .b58check import b58check_encode
-#from .hash160 import Hash160, bin_hash160
 
 class BitcoinPublicKey():
     _curve = ecdsa.curves.SECP256k1
