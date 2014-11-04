@@ -325,7 +325,7 @@ def test_main():
 		BitcoinB58CheckTest,
 		BitcoinFormatCheckTest,
 		SequentialWalletTest,
-		#ServicesGetSpendablesTest
+		ServicesGetSpendablesTest
 	)
 
 if __name__ == '__main__':

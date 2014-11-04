@@ -30,8 +30,6 @@ def get_unspents(address, api='blockchain.info', auth=None):
         return blockchain_info.get_unspents(address, auth=auth)
     elif api == 'chain.com':
         return chain_com.get_unspents(address, auth=auth)
-    elif api == 'blockcypher.com':
-        return blockcypher_com.get_unspents(address, auth=auth)
     else:
         raise Exception('API not supported.')
 
