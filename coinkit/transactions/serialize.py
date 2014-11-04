@@ -9,32 +9,7 @@
 
 from binascii import hexlify, unhexlify
 import struct
-from utilitybelt import is_hex
-
-UINT_MAX = 2**32-1
-
-def flip_endian(s):
-    if is_hex:
-        return hexlify(unhexlify(s)[::-1])
-    return s[::-1]
-
-def variable_length_int(i):
-    """ Encodes integers into variable length integers, which are used in
-        Bitcoin in order to save space.
-    """
-    if not isinstance(i, (int,long)):
-        raise Exception('i must be an integer')
-
-    if i < (2**8-3):
-        return chr(i) # pack the integer into one byte
-    elif i < (2**16):
-        return chr(253) + struct.pack('<H', i) # pack into 2 bytes
-    elif i < (2**32):
-        return chr(254) + struct.pack('<I', i) # pack into 4 bytes
-    elif i < (2**64):
-        return chr(255) + struct.pack('<Q', i) # pack into 8 bites
-    else:
-        raise Exception('Integer cannot exceed 8 bytes in length.')
+from .utils import flip_endian, variable_length_int, UINT_MAX
 
 def serialize_input(input, signature_script_hex=''):
     """ Serializes a transaction input.
@@ -91,12 +66,11 @@ def serialize_transaction(inputs, outputs, lock_time=0, version=1):
         hexlify(struct.pack('<I', lock_time)),
     ])
 
-STANDARD_FEE = 1000 # 1000 satoshis = 10 bits = .01 mbits = .00001 BTC
-
 from .scripts import make_pay_to_address_script
+from .utils import STANDARD_FEE
 
-def make_pay_to_address_transaction(inputs, from_address, to_address,
-        send_amount, fee=STANDARD_FEE, change_address=None):
+def make_pay_to_address_transaction(inputs, to_address, change_address,
+        send_amount, fee=STANDARD_FEE):
     """ Takes in inputs, a recipient address, and a send amount (in satoshis)
         and builds an unsigned transaction.
     """
@@ -104,9 +78,10 @@ def make_pay_to_address_transaction(inputs, from_address, to_address,
     total_amount_in = sum([input['value'] for input in inputs])
     # change = whatever is left over from the amount sent & the transaction fee
     change_amount = total_amount_in - send_amount - fee
-    # make the change address the sending address by default
-    if not change_address:
-        change_address = from_address
+
+    if change_amount < 0:
+        raise Exception('Not enough inputs for transaction.')
+
     # put together the list of transaction outputs
     outputs = [
         # the output that sends money to the recipient

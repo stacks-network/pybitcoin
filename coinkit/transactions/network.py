@@ -13,6 +13,7 @@ from pybitcointools import sign as sign_transaction
 from ..services import blockchain_info, chain_com
 from ..privatekey import BitcoinPrivateKey
 from .serialize import make_pay_to_address_transaction
+from .utils import STANDARD_FEE
 
 """ Note: for functions that take in an auth object, here are some examples
     for the various APIs available:
@@ -24,7 +25,7 @@ from .serialize import make_pay_to_address_transaction
 def get_unspents(address, api='blockchain.info', auth=None):
     """ Gets the unspent outputs for a given address.
 
-        The optional auth object is a 2-item tuple.
+        Optional auth object is a 2-item tuple.
     """
     if api == 'blockchain.info':
         return blockchain_info.get_unspents(address, auth=auth)
@@ -39,28 +40,33 @@ def broadcast_transaction(hex_transaction, api='chain.com', auth=None):
         Auth object is a 2-item tuple.
     """
     if api == 'chain.com':
-        return chain_com.send_transaction(hex_transaction, auth=auth)
+        return chain_com.broadcast_transaction(hex_transaction, auth=auth)
     elif api == 'blockchain.info':
-        return blockchain_info.send_transaction(hex_transaction, auth=auth)
+        return blockchain_info.broadcast_transaction(hex_transaction, auth=auth)
     else:
         raise Exception('API not supported.')
 
 def send_to_address(to_address, amount, sender_private_key, auth,
-                    api='chain.com'):
+                    api='chain.com', fee=STANDARD_FEE, change_address=None):
     """ Builds a transaction, signs it, and dispatches it to the network.
 
         Auth object is a 2-item tuple.
     """
+    if not isinstance(sender_private_key, BitcoinPrivateKey):
+        sender_private_key = BitcoinPrivateKey(sender_private_key)
     # determine the address associated with the supplied private key
-    from_address = BitcoinPrivateKey(sender_private_key).public_key().address()
+    from_address = sender_private_key.public_key().address()
     # get the unspent outputs corresponding to the given address
-    inputs = get_unspents(from_address)
+    inputs = get_unspents(from_address, api=api, auth=auth)
+    # get the change address
+    if not change_address:
+        change_address = from_address
     # create an unsigned transaction from the inputs, to address, & amount
-    unsigned_hex_transaction = make_send_to_address_transaction(inputs,
-        from_address, to_address, amount)
+    unsigned_hex_transaction = make_pay_to_address_transaction(inputs,
+        to_address, change_address, amount, fee)
     # signs the unsigned transaction with the private key
     signed_hex_transaction = sign_transaction(unsigned_hex_transaction, 0,
-        sender_private_key)
+        sender_private_key.to_hex())
     # dispatch the signed transction to the network
     response = broadcast_transaction(signed_hex_transaction, api=api, auth=auth)
     # return the response

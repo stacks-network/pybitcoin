@@ -7,8 +7,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import json
-import unittest
+import json, traceback, unittest
 from test import test_support
 
 from coinkit import *
@@ -306,6 +305,29 @@ class ServicesGetSpendablesTest(unittest.TestCase):
 		self.compare_total_value(unspents)
 		self.compare_unspents(unspents)
 
+class ServicesSendTransactionTest(unittest.TestCase):
+	def setUp(self):
+		try:
+			with open('tests/secrets.json', 'r') as f:
+				self.secrets = json.loads(f.read())
+				self.private_key = str(self.secrets["private_key"])
+				self.chain_auth = (self.secrets["chain_api_id"],
+					self.secrets["chain_api_secret"])
+		except:
+			traceback.print_exc()
+
+	def tearDown(self):
+		pass
+
+	def test_send_transaction(self):		
+		if not hasattr(self, 'private_key'):
+			return
+		recipient_address = '1EEwLZVZMc2EhMf3LXDARbp4mA3qAwhBxu'
+		sender_priv = BitcoinPrivateKey(self.private_key)
+		sender_address = sender_priv.public_key().address()
+		resp = send_to_address(recipient_address, 1000, sender_priv, self.chain_auth)
+		self.assertTrue(resp.get('success'))
+
 def test_main():
 
 	# generate altcoin tests
@@ -325,7 +347,8 @@ def test_main():
 		BitcoinB58CheckTest,
 		BitcoinFormatCheckTest,
 		SequentialWalletTest,
-		ServicesGetSpendablesTest
+		ServicesGetSpendablesTest,
+		#ServicesSendTransactionTest
 	)
 
 if __name__ == '__main__':
