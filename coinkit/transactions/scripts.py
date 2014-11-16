@@ -7,19 +7,11 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import opcodes
 from .opcodes import *
+from .utils import count_bytes, MAX_BYTES_AFTER_OP_RETURN
 from ..b58check import b58check_decode
 from binascii import hexlify
 from utilitybelt import is_hex
-
-MAX_BYTES_AFTER_OP_RETURN = 40
-
-def count_bytes(hex_s):
-    """ Calculate the number of bytes of a given hex string.
-    """
-    assert(is_hex(hex_s))
-    return len(hex_s)/2
 
 def script_to_hex(script):
     """ Parse the string representation of a script and return the hex version.
