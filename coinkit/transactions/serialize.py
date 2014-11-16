@@ -66,31 +66,54 @@ def serialize_transaction(inputs, outputs, lock_time=0, version=1):
         hexlify(struct.pack('<I', lock_time)),
     ])
 
-from .scripts import make_pay_to_address_script
-from .utils import STANDARD_FEE
+from .scripts import make_pay_to_address_script, make_op_return_script
+from .utils import STANDARD_FEE, OP_RETURN_FEE
 
+def calculate_change_amount(inputs, send_amount, fee):
+    # calculate the total amount  coming into the transaction from the inputs
+    total_amount_in = sum([input['value'] for input in inputs])
+    # change = whatever is left over from the amount sent & the transaction fee
+    change_amount = total_amount_in - send_amount - fee
+    # check to ensure the change amount is a non-negative value and return it
+    if change_amount < 0:
+        raise Exception('Not enough inputs for transaction.')
+    return change_amount
+
+def make_pay_to_address_outputs(to_address, send_amount, inputs, change_address,
+                                fee=STANDARD_FEE):
+    """ Builds the outputs for a "pay to address" transaction.
+    """
+    return [
+        # main output
+        { "script_hex": make_pay_to_address_script(to_address), "value": send_amount },
+        # change output
+        { "script_hex": make_pay_to_address_script(change_address),
+          "value": calculate_change_amount(inputs, send_amount, fee)
+        }
+    ]
+
+def make_op_return_outputs(data, inputs, change_address, fee=OP_RETURN_FEE,
+                           send_amount=0, format='bin'):
+    """ Builds the outputs for an OP_RETURN transaction.
+    """
+    return [
+        # main output
+        { "script_hex": make_op_return_script(data, format=format), "value": send_amount },
+        # change output
+        { "script_hex": make_pay_to_address_script(change_address),
+          "value": calculate_change_amount(inputs, send_amount, fee)
+        }
+    ]
+
+# deprecated
 def make_pay_to_address_transaction(inputs, to_address, change_address,
         send_amount, fee=STANDARD_FEE):
     """ Takes in inputs, a recipient address, and a send amount (in satoshis)
         and builds an unsigned transaction.
     """
-    # calculate the total amount  coming into the transaction from the inputs
-    total_amount_in = sum([input['value'] for input in inputs])
-    # change = whatever is left over from the amount sent & the transaction fee
-    change_amount = total_amount_in - send_amount - fee
-
-    if change_amount < 0:
-        raise Exception('Not enough inputs for transaction.')
-
     # put together the list of transaction outputs
-    outputs = [
-        # the output that sends money to the recipient
-        { "script_hex": make_pay_to_address_script(to_address),
-          "value": send_amount },
-        # the output that send the leftover change to the change address
-        { "script_hex": make_pay_to_address_script(change_address),
-          "value": change_amount }
-    ]
+    outputs = make_pay_to_address_outputs(to_address, send_amount, inputs,
+                                          change_address, fee)
     # return the serialized transaction
     return serialize_transaction(inputs, outputs)
 

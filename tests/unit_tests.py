@@ -7,7 +7,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import json, traceback, unittest
+import json, traceback, unittest, string
 from test import test_support
 
 from coinkit import *
@@ -311,6 +311,7 @@ class ServicesSendTransactionTest(unittest.TestCase):
 			with open('tests/secrets.json', 'r') as f:
 				self.secrets = json.loads(f.read())
 				self.private_key = str(self.secrets["private_key"])
+				self.private_key_2 = str(self.secrets["private_key_2"])
 				self.chain_auth = (self.secrets["chain_api_id"],
 					self.secrets["chain_api_secret"])
 		except:
@@ -327,6 +328,37 @@ class ServicesSendTransactionTest(unittest.TestCase):
 		sender_address = sender_priv.public_key().address()
 		resp = send_to_address(recipient_address, 1000, sender_priv, self.chain_auth)
 		self.assertTrue(resp.get('success'))
+
+class ServicesSendOpReturnTransactionTest(unittest.TestCase):
+	def setUp(self):
+		try:
+			with open('tests/secrets.json', 'r') as f:
+				self.secrets = json.loads(f.read())
+				#assert('private_key' in self.secrets and 'chain_auth' in secrets)
+				self.private_key = str(self.secrets['private_key_2'])
+				self.chain_auth = (self.secrets['chain_auth'][0], self.secrets['chain_auth'][1])
+				self.sender_priv = BitcoinPrivateKey(self.private_key)
+		except:
+			traceback.print_exc()
+
+	def tearDown(self):
+		pass
+
+	def test_hex_op_return_tx(self):
+		data = '00'*40
+		resp = embed_data_in_blockchain(data, self.sender_priv, self.chain_auth, format='hex')
+		self.assertTrue(resp.get('success'))
+
+	"""def test_short_hex_op_return_tx(self):
+		data = '0'*2
+		resp = embed_data_in_blockchain(data, self.sender_priv, self.chain_auth, format='hex')
+		self.assertTrue(resp.get('success'))
+
+	def test_bin_op_return_tx(self):
+		data = 'Hello, blockchain!'
+		resp = embed_data_in_blockchain(data, self.sender_priv, self.chain_auth)
+		self.assertTrue(resp.get('success'))
+	"""
 
 def test_main():
 
@@ -348,8 +380,15 @@ def test_main():
 		BitcoinFormatCheckTest,
 		SequentialWalletTest,
 		ServicesGetSpendablesTest,
-		#ServicesSendTransactionTest
+	)
+
+def test_transactions():
+	test_support.run_unittest(
+		ServicesSendTransactionTest,
+		ServicesSendOpReturnTransactionTest
 	)
 
 if __name__ == '__main__':
     test_main()
+    #test_transactions()
+

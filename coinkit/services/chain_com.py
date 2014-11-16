@@ -38,7 +38,7 @@ def get_unspents(address, auth=None):
     try:
         unspents = r.json()
     except ValueError, e:
-        raise Exception('Invalid response from chain.com.')
+        raise Exception('Received non-JSON response from chain.com.')
     
     return format_unspents(unspents)
 
@@ -55,12 +55,13 @@ def broadcast_transaction(hex_tx, auth=None):
     try:
         data = r.json()
     except ValueError, e:
-        raise Exception('Invalid response from chain.com.')
+        raise Exception('Received non-JSON from chain.com.')
 
     if 'transaction_hash' in data:
-        return {'success': True, 'transaction_hash': data['transaction_hash']}
+        data['success'] = True
+        return data
     else:
-        raise Exception('Invalid response from chain.com.')
+        raise Exception('Tx hash missing from chain.com response: ' + str(data))
 
 class ChainClient():
     def __init__(self, api_key_id, api_key_secret):
