@@ -12,9 +12,9 @@ from pybitcointools import sign as sign_transaction
 
 from ..services import blockchain_info, chain_com
 from ..privatekey import BitcoinPrivateKey
-from .serialize import serialize_transaction, make_pay_to_address_outputs, \
-    make_op_return_outputs
-from .utils import STANDARD_FEE
+from .serialize import serialize_transaction
+from .outputs import make_pay_to_address_outputs, make_op_return_outputs
+from .utils import STANDARD_FEE, OP_RETURN_FEE
 
 """ Note: for functions that take in an auth object, here are some examples
     for the various APIs available:
@@ -43,9 +43,9 @@ def broadcast_transaction(hex_transaction, api='chain.com', auth=None):
     else:
         raise Exception('API not supported.')
 
-def send_to_address(recipient_address, amount, sender_private_key, auth,
-                    api='chain.com', fee=STANDARD_FEE, change_address=None):
-    """ Builds, signs, and dispatches a "send to address" transaction.
+def make_send_to_address_tx(recipient_address, amount, sender_private_key,
+        auth, api='chain.com', fee=STANDARD_FEE, change_address=None):
+    """ Builds and signs a "send to address" transaction.
     """
     if not isinstance(sender_private_key, BitcoinPrivateKey):
         sender_private_key = BitcoinPrivateKey(sender_private_key)
@@ -58,19 +58,17 @@ def send_to_address(recipient_address, amount, sender_private_key, auth,
         change_address = from_address
     # create the outputs
     outputs = make_pay_to_address_outputs(recipient_address, amount, inputs,
-                                          change_address, fee)
+                                          change_address, fee=fee)
     # serialize the transaction
     unsigned_tx = serialize_transaction(inputs, outputs)
     # sign the unsigned transaction with the private key
     signed_tx = sign_transaction(unsigned_tx, 0, sender_private_key.to_hex())
-    # dispatch the signed transction to the network
-    response = broadcast_transaction(signed_tx, api=api, auth=auth)
-    # return the response
-    return response
+    # return the signed tx
+    return signed_tx
 
-def embed_data_in_blockchain(data, sender_private_key, auth, api='chain.com',
-        fee=STANDARD_FEE, change_address=None, format='bin'):
-    """ Builds, signs, and dispatches an OP_RETURN transaction.
+def make_op_return_tx(data, sender_private_key, auth, api='chain.com',
+    fee=OP_RETURN_FEE, change_address=None, format='bin'):
+    """ Builds and signs an OP_RETURN transaction.
     """
     if not isinstance(sender_private_key, BitcoinPrivateKey):
         sender_private_key = BitcoinPrivateKey(sender_private_key)
@@ -82,11 +80,34 @@ def embed_data_in_blockchain(data, sender_private_key, auth, api='chain.com',
     if not change_address:
         change_address = from_address
     # create the outputs
-    outputs = make_op_return_outputs(data, inputs, change_address, format=format)
+    outputs = make_op_return_outputs(data, inputs, change_address,
+        fee=fee, format=format)
     # serialize the transaction
     unsigned_tx = serialize_transaction(inputs, outputs)
     # sign the unsigned transaction with the private key
     signed_tx = sign_transaction(unsigned_tx, 0, sender_private_key.to_hex())
+    # return the signed tx
+    return signed_tx
+
+def send_to_address(recipient_address, amount, sender_private_key, auth,
+                    api='chain.com', fee=STANDARD_FEE, change_address=None):
+    """ Builds, signs, and dispatches a "send to address" transaction.
+    """
+    # build and sign the tx
+    signed_tx = make_send_to_address_tx(recipient_address, amount,
+        sender_private_key, auth, api=api, fee=fee, change_address=change_address)
+    # dispatch the signed transction to the network
+    response = broadcast_transaction(signed_tx, api=api, auth=auth)
+    # return the response
+    return response
+
+def embed_data_in_blockchain(data, sender_private_key, auth, api='chain.com',
+        fee=OP_RETURN_FEE, change_address=None, format='bin'):
+    """ Builds, signs, and dispatches an OP_RETURN transaction.
+    """
+    # build and sign the tx
+    signed_tx = make_op_return_tx(data, sender_private_key, auth, api=api,
+        fee=fee, change_address=change_address, format=format)
     # dispatch the signed transction to the network
     response = broadcast_transaction(signed_tx, api=api, auth=auth)
     # return the response

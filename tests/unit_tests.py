@@ -320,12 +320,16 @@ class ServicesSendTransactionTest(unittest.TestCase):
 	def tearDown(self):
 		pass
 
-	def test_send_transaction(self):		
-		if not hasattr(self, 'private_key'):
-			return
+	def test_build_transaction(self):
 		recipient_address = '1EEwLZVZMc2EhMf3LXDARbp4mA3qAwhBxu'
 		sender_priv = BitcoinPrivateKey(self.private_key)
-		sender_address = sender_priv.public_key().address()
+		signed_tx = make_send_to_address_tx(recipient_address, 1000, sender_priv, self.chain_auth)
+		#print signed_tx
+		self.assertTrue(True)
+
+	def test_send_transaction(self):
+		recipient_address = '1EEwLZVZMc2EhMf3LXDARbp4mA3qAwhBxu'
+		sender_priv = BitcoinPrivateKey(self.private_key)
 		resp = send_to_address(recipient_address, 1000, sender_priv, self.chain_auth)
 		self.assertTrue(resp.get('success'))
 
@@ -357,8 +361,7 @@ class ServicesSendOpReturnTransactionTest(unittest.TestCase):
 	def test_bin_op_return_tx(self):
 		data = 'Hello, blockchain!'
 		resp = embed_data_in_blockchain(data, self.sender_priv, self.chain_auth)
-		self.assertTrue(resp.get('success'))
-	"""
+		self.assertTrue(resp.get('success'))"""
 
 def test_main():
 
