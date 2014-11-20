@@ -1,7 +1,7 @@
 coinrpc
 =======
 
-Coinrpc is a python library for RPC calls to namecoind and bitcoind. Under the hood it uses [AuthProxy](https://github.com/jgarzik/python-bitcoinrpc). Coinrpc makes the following changies/additions to directly using the underlying RPC: 
+Coinrpc is a python library for RPC calls to namecoind and bitcoind. Under the hood it uses [AuthProxy](https://github.com/jgarzik/python-bitcoinrpc). Coinrpc makes the following changes/additions to directly using the underlying RPC: 
 
 For Namecoind:
 
