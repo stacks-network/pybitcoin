@@ -10,46 +10,63 @@
 
 VALUE_MAX_LIMIT = 520
 
-import json
-from commontools import utf8len, error_reply, log
+from commontools import utf8len, error_reply, get_json
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
+from coinrpc.config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER, NAMECOIND_PASSWD, NAMECOIND_WALLET_PASSPHRASE, NAMECOIND_USE_HTTPS
 
 #---------------------------------------
 class NamecoindServer(object):
 
 	#-----------------------------------
-	def __init__(self, server, port, user, passwd, use_https=True, passphrase=None):
+	def __init__(self, server=NAMECOIND_SERVER, port=NAMECOIND_PORT, user=NAMECOIND_USER, 
+					passwd=NAMECOIND_PASSWD, use_https=NAMECOIND_USE_HTTPS, passphrase=NAMECOIND_WALLET_PASSPHRASE):
 		
-		self.passphrase = passphrase
-		self.server = server
-
 		if use_https:
 			http_string = 'https://'
 		else:
 			http_string = 'http://'
 
-		self.namecoind = AuthServiceProxy(http_string + user + ':' + passwd + '@' + server + ':' + str(port))
+		self.obj = AuthServiceProxy(http_string + user + ':' + passwd + '@' + server + ':' + str(port))
+
+		self.passphrase = passphrase
+		self.server = server
+
+	#-----------------------------------
+	#changes the behavior of underlying authproxy to return the error from namecoind instead of raising JSONRPCException
+	def __getattr__(self, name):
+		func = getattr(self.__dict__['obj'], name)
+		if callable(func):
+			def my_wrapper(*args, **kwargs):
+				try:
+					ret = func(*args, **kwargs)
+				except JSONRPCException as e:
+					return e.error
+				else:
+					return ret
+			return my_wrapper
+		else:
+			return func
 
 	#-----------------------------------
 	def blocks(self):
 
-		info = self.namecoind.getinfo()
+		info = self.getinfo()
 		return info['blocks']
 
 	#-----------------------------------
-	
 	def name_filter(self,regex,check_blocks=36000,show_from=0,num_results=0):
 
-		info = self.namecoind.name_filter(regex,check_blocks,show_from,num_results)
+		info = self.obj.name_filter(regex,check_blocks,show_from,num_results)
 		return info
 
 	#-----------------------------------
 	#step-1 for registrering new names 
-	def name_new(self, key,value,force_registration=False):
+	def name_new(self, key,value):
 		
 		#check if this key already exists
-		if self.check_registration(key) and not force_registration:
+		#namecoind lets you do name_new on keys that exist
+		if self.check_registration(key):
 			return error_reply("This key already exists")
 			
 		#check if passphrase is valid
@@ -57,12 +74,9 @@ class NamecoindServer(object):
 			return error_reply("Error unlocking wallet", 403)
 
 		#create new name
-		#returns a list of [longhex, rand]
-		try:
-			info = self.namecoind.name_new(key)
-		except JSONRPCException as e:
-			return e.error
-			
+		#returns a list of [tx, rand]
+		info = self.obj.name_new(key)
+		
 		return info
 
 	#----------------------------------------------
@@ -76,18 +90,15 @@ class NamecoindServer(object):
 		if not self.unlock_wallet(self.passphrase):
 			error_reply("Error unlocking wallet", 403)
 
-		try:
-			if tx is not None: 
-				info = self.namecoind.name_firstupdate(key, rand, tx, value)
-			else:
-				info = self.namecoind.name_firstupdate(key, rand, value)
-		except JSONRPCException as e:
-			return e.error
+		if tx is not None: 
+			info = self.obj.name_firstupdate(key, rand, tx, value)
+		else:
+			info = self.obj.name_firstupdate(key, rand, value)
 				
 		return info
 
 	#-----------------------------------
-	def name_update(self, key,value):
+	def name_update(self, key, value):
 
 		if utf8len(value) > VALUE_MAX_LIMIT:
 			return error_reply("value larger than " + str(VALUE_MAX_LIMIT))
@@ -97,11 +108,8 @@ class NamecoindServer(object):
 			error_reply("Error unlocking wallet", 403)
 			
 		#update the 'value'
-		try:
-			info = self.namecoind.name_update(key, value)
-		except JSONRPCException as e:
-			return e.error
-
+		info = self.obj.name_update(key, value)
+		
 		return info
 
 	#-----------------------------------
@@ -120,25 +128,15 @@ class NamecoindServer(object):
 		if value is None: 
 			value = json.dumps(key_details['value'])
 
-		#now unlock the wallet
-		if not self.unlock_wallet(self.passphrase):
-			error_reply("Error unlocking wallet", 403)
-		
-		if utf8len(value) > VALUE_MAX_LIMIT:
-			return error_reply("value larger than " + str(VALUE_MAX_LIMIT))
-
 		#transfer the name (underlying call is still name_update)
-		info = self.namecoind.name_update(key, value, new_address)
+		info = self.name_update(key, value, new_address)
 
 		return info
 
 	#-----------------------------------
 	def check_registration(self, key):
 
-		try:
-			info = self.namecoind.name_show(key)
-		except JSONRPCException as e:
-			info = e.error
+		info = self.name_show(key)
 			
 		if 'code' in info and info.get('code') == -4:
 			return False
@@ -150,12 +148,11 @@ class NamecoindServer(object):
 	#-----------------------------------
 	def validate_address(self, address):
 
-		reply = {}
-		info = self.namecoind.validateaddress(address)
+		info = self.validateaddress(address)
 		
 		info['server'] = self.server
 
-		return json.dumps(info)
+		return info
 
 	#-----------------------------------
 	def get_full_profile(self, key):
@@ -184,54 +181,38 @@ class NamecoindServer(object):
 	#-----------------------------------
 	def name_show(self, input_key):
 
-		reply = {}
-
 		try:
-			value = self.namecoind.name_show(input_key)
+			reply = self.obj.name_show(input_key)
 		except JSONRPCException as e:
 			return e.error
 		
-		try:
-			profile = json.loads(value.get('value'))
-		except:
-			profile = value.get('value')
-  
-		if 'code' in value and value.get('code') == -4:
-			return error_reply("Not found", 404)
-
-		for key in value.keys():
-
-			reply['namecoin_address'] = value['address']
-			
-			if(key == 'value'):
-				try:
-					reply[key] = json.loads(value[key])
-				except:
-					reply[key] = value[key]
+		reply['value'] = get_json(reply['value'])
 
 		return reply
 
 	#-----------------------------------
-	#helper function
 	def unlock_wallet(self, passphrase, timeout = 100):
 
 		try:
-			info = self.namecoind.walletpassphrase(passphrase, timeout)
+			reply = self.walletpassphrase(passphrase, timeout)
 		except JSONRPCException as e:
-			if e.error['code'] == -17:
-				return True
-			else:
-				log.debug(e.error)
-				return False
+			if 'code' in reply:
+				if reply['code'] == -17:
+					return True
+				else:
+					return False
 
 		return True
 
 	#-----------------------------------
 	def importprivkey(self, namecoinprivkey,label='import',rescan=False):
 	
-		self.unlock_wallet(self.passphrase)
-
-		info = self.namecoind.importprivkey(namecoinprivkey,label,rescan)
-
-		return info
-	
+		if not self.unlock_wallet(self.passphrase):
+			error_reply("Error unlocking wallet", 403)
+		
+		try:
+			reply = self.obj.importprivkey(namecoinprivkey,label,rescan)
+		except JSONRPCException as e:
+			return e.error
+		
+		return reply
