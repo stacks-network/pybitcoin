@@ -1,7 +1,17 @@
 coinrpc
 =======
 
-Coinrpc is a python library for RPC calls to namecoind and bitcoind. Under the hood it uses [AuthProxy](https://github.com/jgarzik/python-bitcoinrpc). The main goal of coinrpc is to make it easier to perform common operations using namecoind/bitcoind.  
+Coinrpc is a python library for RPC calls to namecoind and bitcoind. Under the hood it uses [AuthProxy](https://github.com/jgarzik/python-bitcoinrpc). Coinrpc makes the following changies/additions to directly using the underlying RPC: 
+
+For Namecoind:
+
+  1. Adds get_full_profile() that can fetch an Openname profile from a linked-list of key:value entries
+  2. Fixes the bug where value > 520 bytes can cause a key to become unusable
+  3. Logically separates name_transfer from name_update 
+  4. Adds reasonable default values for certain calls e.g., 100 as timeout for unlocking wallet
+  5. Adds calls for checking if a user is registered (True/False) and if a wallet is unlocked (True/False)
+  6. Better error handling 
+  7. Support of managing a cluster of namecoind servers (coming soon)
 
 ## Installation:
 
