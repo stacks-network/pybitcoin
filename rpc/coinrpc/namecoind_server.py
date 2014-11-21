@@ -51,14 +51,18 @@ class NamecoindServer(object):
 	#-----------------------------------
 	def blocks(self):
 
-		info = self.getinfo()
-		return info['blocks']
+		reply = self.getinfo()
+		return reply['blocks']
 
 	#-----------------------------------
 	def name_filter(self,regex,check_blocks=36000,show_from=0,num_results=0):
 
-		info = self.obj.name_filter(regex,check_blocks,show_from,num_results)
-		return info
+		try:
+			reply = self.obj.name_filter(regex,check_blocks,show_from,num_results)
+		except JSONRPCException as e:
+			return e.error
+
+		return reply
 
 	#-----------------------------------
 	#step-1 for registrering new names 
@@ -75,9 +79,12 @@ class NamecoindServer(object):
 
 		#create new name
 		#returns a list of [tx, rand]
-		info = self.obj.name_new(key)
-		
-		return info
+		try:
+			reply = self.obj.name_new(key)
+		except JSONRPCException as e:
+			return e.error
+
+		return reply
 
 	#----------------------------------------------
 	#step-2 for registering 
@@ -90,12 +97,15 @@ class NamecoindServer(object):
 		if not self.unlock_wallet(self.passphrase):
 			error_reply("Error unlocking wallet", 403)
 
-		if tx is not None: 
-			info = self.obj.name_firstupdate(key, rand, tx, value)
-		else:
-			info = self.obj.name_firstupdate(key, rand, value)
-				
-		return info
+		try:
+			if tx is not None: 
+				reply = self.obj.name_firstupdate(key, rand, tx, value)
+			else:
+				reply = self.obj.name_firstupdate(key, rand, value)
+		except JSONRPCException as e:
+			return e.error
+
+		return reply
 
 	#-----------------------------------
 	def name_update(self, key, value):
@@ -106,11 +116,14 @@ class NamecoindServer(object):
 		#now unlock the wallet
 		if not self.unlock_wallet(self.passphrase):
 			error_reply("Error unlocking wallet", 403)
-			
-		#update the 'value'
-		info = self.obj.name_update(key, value)
 		
-		return info
+		try
+			#update the 'value'
+			reply = self.obj.name_update(key, value)
+		except JSONRPCException as e:
+			return e.error
+
+		return reply
 
 	#-----------------------------------
 	def transfer(self, key,new_address,value=None):
@@ -129,18 +142,18 @@ class NamecoindServer(object):
 			value = json.dumps(key_details['value'])
 
 		#transfer the name (underlying call is still name_update)
-		info = self.name_update(key, value, new_address)
+		reply = self.name_update(key, value, new_address)
 
-		return info
+		return reply
 
 	#-----------------------------------
 	def check_registration(self, key):
 
-		info = self.name_show(key)
+		reply = self.name_show(key)
 			
-		if 'code' in info and info.get('code') == -4:
+		if 'code' in reply and reply.get('code') == -4:
 			return False
-		elif 'expired' in info and info.get('expired') == 1:
+		elif 'expired' in reply and reply.get('expired') == 1:
 			return False
 		else:
 			return True
@@ -148,11 +161,11 @@ class NamecoindServer(object):
 	#-----------------------------------
 	def validate_address(self, address):
 
-		info = self.validateaddress(address)
+		reply = self.validateaddress(address)
 		
-		info['server'] = self.server
+		reply['server'] = self.server
 
-		return info
+		return reply
 
 	#-----------------------------------
 	def get_full_profile(self, key):
