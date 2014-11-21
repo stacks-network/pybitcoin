@@ -117,7 +117,7 @@ class NamecoindServer(object):
 		if not self.unlock_wallet(self.passphrase):
 			error_reply("Error unlocking wallet", 403)
 		
-		try
+		try:
 			#update the 'value'
 			reply = self.obj.name_update(key, value)
 		except JSONRPCException as e:
