@@ -10,6 +10,7 @@
 __version__ = '0.6.8'
 
 import services
+from .services import *
 
 import transactions
 from .transactions import *
@@ -24,7 +25,10 @@ from .hash import bin_hash160, hex_hash160, reverse_hash
 from .formatcheck import is_secret_exponent, is_256bit_hex_string, is_wif_pk, \
     is_b58check_address, is_hex_ecdsa_pubkey, is_binary_ecdsa_pubkey
 from .wallet import SDWallet
+from .address import bin_hash160_to_address, script_hex_to_address, \
+    hex_hash160_to_address
 
 from .keypair import *
 from .privatekey import *
 from .publickey import *
+from .constants import *

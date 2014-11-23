@@ -11,11 +11,12 @@ import os, json, hashlib, ecdsa
 from binascii import hexlify, unhexlify
 from ecdsa.keys import SigningKey
 from utilitybelt import is_int, dev_random_entropy, dev_urandom_entropy
+from pybitcointools import compress
 
 from .errors import _errors
 from .formatcheck import *
 from .b58check import b58check_encode, b58check_decode
-from .publickey import BitcoinPublicKey
+from .publickey import BitcoinPublicKey, PUBKEY_MAGIC_BYTE
 from .passphrases import create_passphrase
 
 def random_secret_exponent(curve_order):
@@ -37,6 +38,8 @@ class BitcoinPrivateKey():
 
     @classmethod
     def wif_version_byte(cls):
+        if hasattr(cls, '_wif_version_byte'):
+            return cls._wif_version_byte
         return (cls._pubkeyhash_version_byte + 128) % 256
 
     def __init__(self, private_key=None):
@@ -44,12 +47,15 @@ class BitcoinPrivateKey():
         """
         if not private_key:
             secret_exponent = random_secret_exponent(self._curve.order)
-        elif is_int(private_key):
-            secret_exponent = private_key
-        elif is_256bit_hex_string(private_key):
-            secret_exponent = int(private_key, 16)
-        elif is_wif_pk(private_key):
-            secret_exponent = int(hexlify(b58check_decode(private_key)), 16)
+        else:
+            private_key = str(private_key)
+
+            if is_int(private_key):
+                secret_exponent = private_key
+            elif is_256bit_hex_string(private_key):
+                secret_exponent = int(private_key, 16)
+            elif is_wif_pk(private_key):
+                secret_exponent = int(hexlify(b58check_decode(private_key)), 16)
 
         # make sure that: 1 <= secret_exponent < curve_order
         if not is_secret_exponent(secret_exponent, self._curve.order):
@@ -89,13 +95,20 @@ class BitcoinPrivateKey():
         return b58check_encode(self.to_bin(),
             version_byte=self.wif_version_byte())
 
-    def public_key(self):
+    def public_key(self, compressed=False):
         # lazily calculate and set the public key
-        if not hasattr(self, '_public_key'):
-            self._ecdsa_public_key = self._ecdsa_private_key.get_verifying_key()
-            self._public_key = BitcoinPublicKey(
-                public_key=self._ecdsa_public_key.to_string(),
+        if not hasattr(self, '_public_key'):            
+            ecdsa_public_key = self._ecdsa_private_key.get_verifying_key()
+
+            # compress the public key string if a compressed public key is desired
+            bin_public_key_string = PUBKEY_MAGIC_BYTE + ecdsa_public_key.to_string()
+            if compressed:
+                bin_public_key_string = compress(bin_public_key_string)
+            # create the public key object from the public key string
+            self._public_key = BitcoinPublicKey(bin_public_key_string,
                 version_byte=self._pubkeyhash_version_byte)
+        
+        # return the public key object
         return self._public_key
 
     def passphrase(self):

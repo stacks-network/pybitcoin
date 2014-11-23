@@ -11,16 +11,10 @@ import re
 from binascii import hexlify, unhexlify
 from hashlib import sha256
 from utilitybelt import change_charset
+from .hash import bin_checksum
 
 HEX_KEYSPACE = "0123456789abcdef"
 B58_KEYSPACE = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
-
-def bin_sha256(s):
-    return sha256(s).digest()
-
-def bin_checksum(s):
-    """ Takes in a binary string and returns a checksum. """
-    return bin_sha256(bin_sha256(s))[:4]
 
 def b58check_encode(bin_s, version_byte=0):
     """ Takes in a binary string and converts it to a base 58 check string. """

@@ -8,14 +8,22 @@
 """
 
 import hashlib
+from hashlib import sha256
 from binascii import hexlify, unhexlify
+
+def bin_sha256(s):
+    return sha256(s).digest()
+
+def bin_checksum(s):
+    """ Takes in a binary string and returns a checksum. """
+    return bin_sha256(bin_sha256(s))[:4]
 
 def bin_hash160(s, hex_format=False):
     """ s is in hex or binary format
     """
     if hex_format and is_hex(s):
         s = unhexlify(s)
-    return hashlib.new('ripemd160', hashlib.sha256(s).digest()).digest()
+    return hashlib.new('ripemd160', bin_sha256(s)).digest()
 
 def hex_hash160(s, hex_format=False):
     """ s is in hex or binary format
