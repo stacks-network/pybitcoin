@@ -8,7 +8,7 @@
 """
 
 from .scripts import make_pay_to_address_script, make_op_return_script
-from .utils import STANDARD_FEE, OP_RETURN_FEE
+from ..constants import STANDARD_FEE, OP_RETURN_FEE
 
 def calculate_change_amount(inputs, send_amount, fee):
     # calculate the total amount  coming into the transaction from the inputs
@@ -45,15 +45,3 @@ def make_op_return_outputs(data, inputs, change_address, fee=OP_RETURN_FEE,
           "value": calculate_change_amount(inputs, send_amount, fee)
         }
     ]
-
-
-"""
-# deprecated
-def make_pay_to_address_transaction(inputs, to_address, change_address,
-        send_amount, fee=STANDARD_FEE):
-    # put together the list of transaction outputs
-    outputs = make_pay_to_address_outputs(to_address, send_amount, inputs,
-                                          change_address, fee)
-    # return the serialized transaction
-    return serialize_transaction(inputs, outputs)
-"""

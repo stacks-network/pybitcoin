@@ -8,9 +8,10 @@
 """
 
 from .opcodes import *
-from .utils import count_bytes, MAX_BYTES_AFTER_OP_RETURN
-from ..b58check import b58check_decode
-from binascii import hexlify
+from .utils import count_bytes
+from ..constants import MAX_BYTES_AFTER_OP_RETURN
+from ..b58check import b58check_decode, b58check_encode
+from binascii import hexlify, unhexlify
 from utilitybelt import is_hex
 
 def script_to_hex(script):

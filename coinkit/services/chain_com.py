@@ -11,6 +11,16 @@ import json, requests, traceback
 
 CHAIN_API_BASE_URL = 'https://api.chain.com/v2'
 
+from .blockchain_client import BlockchainClient
+
+class ChainComClient(BlockchainClient):
+    def __init__(self, api_key_id=None, api_key_secret=None):
+        self.type = 'chain.com'
+        if api_key_id and api_key_secret:
+            self.auth = (api_key_id, api_key_secret)
+        else:
+            self.auth = None
+
 def format_unspents(unspents):
     return [{
         "transaction_hash": s["transaction_hash"],
@@ -24,12 +34,16 @@ def format_unspents(unspents):
         for s in unspents
     ]
 
-def get_unspents(address, auth=None):
+def get_unspents(address, blockchain_client=ChainComClient()):
     """ Get the spendable transaction outputs, also known as UTXOs or
         unspent transaction outputs.
     """
+    if not isinstance(blockchain_client, ChainComClient):
+        raise Exception('A ChainComClient object is required')
+
     url = CHAIN_API_BASE_URL + '/bitcoin/addresses/' + address + '/unspents'
 
+    auth = blockchain_client.auth
     if auth:
         r = requests.get(url, auth=auth)
     else:
@@ -42,11 +56,15 @@ def get_unspents(address, auth=None):
     
     return format_unspents(unspents)
 
-def broadcast_transaction(hex_tx, auth=None):
+def broadcast_transaction(hex_tx, blockchain_client):
     """ Dispatch a raw hex transaction to the network.
     """
+    if not isinstance(blockchain_client, ChainComClient):
+        raise Exception('A ChainComClient object is required')
+
+    auth = blockchain_client.auth
     if not auth or len(auth) != 2:
-        raise Exception('Auth required.')
+        raise Exception('ChainComClient object must have auth credentials.')
 
     url = CHAIN_API_BASE_URL + '/bitcoin/transactions'
     payload = json.dumps({ 'hex': hex_tx })
@@ -63,16 +81,3 @@ def broadcast_transaction(hex_tx, auth=None):
     else:
         raise Exception('Tx hash missing from chain.com response: ' + str(data))
 
-class ChainClient():
-    def __init__(self, api_key_id, api_key_secret):
-        self.api_key_id = api_key_id
-        self.api_key_secret = api_key_secret
-
-    def auth(self):
-        return (self.api_key_id, self.api_key_secret)
-
-    def get_unspents(self, address):
-        return get_unspents(address, auth=self.auth())
-
-    def broadcast_transaction(self, hex_tx):
-        return broadcast_transaction(hex_tx, auth=self.auth())

@@ -11,12 +11,6 @@ import struct
 from binascii import hexlify, unhexlify
 from utilitybelt import is_hex
 
-UINT_MAX = 2**32-1
-
-STANDARD_FEE = 1000 # 1000 satoshis = 10 bits = .01 mbits = .00001 BTC
-OP_RETURN_FEE = 10000 # 10k satoshis = .0001 BTC
-MAX_BYTES_AFTER_OP_RETURN = 40
-
 def count_bytes(hex_s):
     """ Calculate the number of bytes of a given hex string.
     """

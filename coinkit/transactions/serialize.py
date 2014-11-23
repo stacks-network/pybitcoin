@@ -9,7 +9,8 @@
 
 from binascii import hexlify, unhexlify
 import struct
-from .utils import flip_endian, variable_length_int, UINT_MAX
+from .utils import flip_endian, variable_length_int
+from ..constants import UINT_MAX
 
 def serialize_input(input, signature_script_hex=''):
     """ Serializes a transaction input.

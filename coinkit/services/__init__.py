@@ -7,5 +7,12 @@
     :license: MIT, see LICENSE for more details.
 """
 
+from .blockchain_client import BlockchainClient
+from blockchain_info import BlockchainInfoClient
+from chain_com import ChainComClient
+from bitcoind import BitcoindClient
+
 import blockchain_info
 import chain_com
+import bitcoind
+
