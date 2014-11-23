@@ -508,13 +508,13 @@ def test_main():
 		BitcoinPrivateKeyTest,
 		BitcoinPrivateKeyToPublicKeyTest,
 		BitcoinKeypairTest,
-		#AltcoinKeypairTest,
-		#BitcoinBrainWalletKeypairTest,
-		#BitcoinKeypairFromWIFTest,
-		#RandomBitcoinKeypairsTest,
+		AltcoinKeypairTest,
+		BitcoinBrainWalletKeypairTest,
+		BitcoinKeypairFromWIFTest,
+		RandomBitcoinKeypairsTest,
 		BitcoinB58CheckTest,
 		BitcoinFormatCheckTest,
-		#SequentialWalletTest,
+		SequentialWalletTest,
 	)
 
 def test_transactions():
@@ -526,5 +526,5 @@ def test_transactions():
 
 if __name__ == '__main__':
     test_main()
-    #test_transactions()
+    test_transactions()
 
