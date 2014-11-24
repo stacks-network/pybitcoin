@@ -12,7 +12,7 @@ from ..hash import reverse_hash
 
 BLOCKCHAIN_API_BASE_URL = "https://blockchain.info"
 
-from .service import BlockchainClient
+from .blockchain_client import BlockchainClient
 
 class BlockchainInfoClient(BlockchainClient):
     def __init__(self, api_key=None):
