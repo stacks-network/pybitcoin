@@ -10,6 +10,7 @@
 import hashlib
 from hashlib import sha256
 from binascii import hexlify, unhexlify
+from utilitybelt import is_hex
 
 def bin_sha256(s):
     return sha256(s).digest()

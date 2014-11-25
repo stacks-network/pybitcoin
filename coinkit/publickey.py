@@ -11,10 +11,11 @@ import os, json, hashlib, ecdsa
 from binascii import hexlify, unhexlify
 from ecdsa.keys import VerifyingKey
 from pybitcointools import decompress, compress, pubkey_to_address
+from utilitybelt import is_hex
 
 from .errors import _errors
 from .hash import bin_hash160 as get_bin_hash160
-from .formatcheck import is_hex, is_hex_ecdsa_pubkey, is_binary_ecdsa_pubkey
+from .formatcheck import is_hex_ecdsa_pubkey, is_binary_ecdsa_pubkey
 from .b58check import b58check_encode
 from .address import bin_hash160_to_address
 
@@ -96,7 +97,7 @@ class BitcoinPublicKey():
     def version_byte(cls):
         return cls._version_byte
 
-    def __init__(self, public_key_string, version_byte=0):
+    def __init__(self, public_key_string, version_byte=0, verify=True):
         """ Takes in a public key in hex format.
         """
         # set the version byte
@@ -108,12 +109,13 @@ class BitcoinPublicKey():
         
         # extract the bin ecdsa public key (uncompressed, w/out a magic byte)
         bin_ecdsa_public_key = extract_bin_ecdsa_pubkey(public_key_string)
-        try:
-            # create the ecdsa key object
-            self._ecdsa_public_key = VerifyingKey.from_string(
-                bin_ecdsa_public_key, self._curve)
-        except AssertionError as e:
-            raise ValueError(_errors['IMPROPER_PUBLIC_KEY_FORMAT'])
+        if verify:
+            try:
+                # create the ecdsa key object
+                self._ecdsa_public_key = VerifyingKey.from_string(
+                    bin_ecdsa_public_key, self._curve)
+            except AssertionError as e:
+                raise ValueError(_errors['IMPROPER_PUBLIC_KEY_FORMAT'])
 
     def to_bin(self):
         return self._bin_public_key
