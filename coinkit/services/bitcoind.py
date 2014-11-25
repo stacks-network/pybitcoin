@@ -18,7 +18,7 @@ from binascii import unhexlify
 from ..b58check import b58check_encode
 from ..address import script_hex_to_address
 
-from .service import BlockchainClient
+from .blockchain_client import BlockchainClient
 
 def create_bitcoind_service_proxy(rpc_username, rpc_password, server='127.0.0.1',
                                   port=8332, use_https=False):
