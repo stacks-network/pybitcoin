@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='coinkit',
-    version='0.7.1',
+    version='0.7.3',
     url='https://github.com/onenameio/coinkit',
     license='MIT',
     author='Onename (Halfmoon Labs)',
@@ -26,7 +26,8 @@ setup(
         'ecdsa==0.11',
         'utilitybelt==0.1.7',
         'requests==2.4.3',
-        'pybitcointools==1.1.15'
+        'pybitcointools==1.1.15',
+        'python-bitcoinrpc==0.1'
     ],
     classifiers=[
         'Intended Audience :: Developers',
