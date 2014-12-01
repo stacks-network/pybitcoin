@@ -48,7 +48,8 @@ def b58check_unpack(b58_s):
     # make sure the newly calculated checksum equals the embedded checksum
     newly_calculated_checksum = bin_checksum(bin_s[:-4])
     embedded_checksum = bin_s[-4:]
-    assert(newly_calculated_checksum == embedded_checksum)    
+    if not (newly_calculated_checksum == embedded_checksum):
+        raise ValueError('b58check value has an invalid checksum')
     # return values
     version_byte = bin_s[:1]
     encoded_value = bin_s[1:-4]

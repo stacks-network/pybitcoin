@@ -387,6 +387,19 @@ class ServicesGetUnspentsTest(unittest.TestCase):
 		self.compare_total_value(unspents)
 		self.compare_unspents(unspents)
 
+class TransactionNetworkFunctionsTest(unittest.TestCase):
+	def setUp(self):
+		self.private_key = SECRETS['private_key']
+
+	def tearDown(self):
+		pass
+
+	def test_analyze_private_key(self):
+		blockchain_client = ChainComClient(SECRETS['chain_api_id'], SECRETS['chain_api_secret'])
+		private_key_obj, from_address, inputs = analyze_private_key(
+			self.private_key, blockchain_client)
+		self.assertTrue(isinstance(private_key_obj, BitcoinPrivateKey))
+
 class SendNamecoinTransactionTest(unittest.TestCase):
 	def setUp(self):
 		self.recipient_address = 'NKUDoWmJevpguXZn9fT37zRub4uS2mrqba'
@@ -520,6 +533,7 @@ def test_main():
 def test_transactions():
 	test_support.run_unittest(
 		ServicesGetUnspentsTest,
+		TransactionNetworkFunctionsTest,
 		#ServicesSendTransactionTest,
 		#ServicesSendOpReturnTransactionTest
 	)
