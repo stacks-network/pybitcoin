@@ -11,6 +11,7 @@
 VALUE_MAX_LIMIT = 520
 
 from commontools import utf8len, error_reply, get_json
+import json
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from coinrpc.config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER, NAMECOIND_PASSWD, NAMECOIND_WALLET_PASSPHRASE, NAMECOIND_USE_HTTPS
@@ -52,7 +53,11 @@ class NamecoindServer(object):
 	def blocks(self):
 
 		reply = self.getinfo()
-		return reply['blocks']
+		
+		if 'blocks' in reply:
+			return reply['blocks']
+
+		return None
 
 	#-----------------------------------
 	def name_filter(self,regex,check_blocks=36000,show_from=0,num_results=0):

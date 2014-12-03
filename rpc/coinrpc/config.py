@@ -12,7 +12,7 @@ import os
 from commontools import log
 
 NAMECOIND_ENABLED = True
-BITCOIND_ENABLED = False 
+BITCOIND_ENABLED = False
 
 DEBUG = True
 
@@ -60,3 +60,4 @@ if BITCOIND_ENABLED:
 		BITCOIND_WALLET_PASSPHRASE = os.environ['BITCOIND_WALLET_PASSPHRASE']
 	except:
 		BITCOIND_WALLET_PASSPHRASE = ''
+
