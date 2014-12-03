@@ -52,7 +52,11 @@ class NamecoindServer(object):
 	def blocks(self):
 
 		reply = self.getinfo()
-		return reply['blocks']
+		
+		if 'blocks' in reply:
+			return reply['blocks']
+
+		return None
 
 	#-----------------------------------
 	def name_filter(self,regex,check_blocks=36000,show_from=0,num_results=0):
