@@ -131,7 +131,7 @@ class NamecoindServer(object):
 		return reply
 
 	#-----------------------------------
-	def transfer(self, key,new_address,value=None):
+	def name_transfer(self, key,new_address,value=None):
 	 
 		#check if this name exists and if it does, find the value field
 		#note that update command needs an arg of <new value>.
@@ -146,8 +146,16 @@ class NamecoindServer(object):
 		if value is None: 
 			value = json.dumps(key_details['value'])
 
+		#now unlock the wallet
+		if not self.unlock_wallet(self.passphrase):
+			error_reply("Error unlocking wallet", 403)
+		
 		#transfer the name (underlying call is still name_update)
-		reply = self.name_update(key, value, new_address)
+		try:
+			#update the 'value'
+			reply = self.obj.name_update(key, value, new_address)
+		except JSONRPCException as e:
+			return e.error
 
 		return reply
 

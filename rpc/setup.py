@@ -12,7 +12,7 @@ from setuptools import setup
 setup(
 	name='coinrpc',
 	version='0.1.0',
-	url='https://github.com/onenameio/coinrpc',
+	url='https://github.com/openname/coinrpc',
 	license='MIT',
 	author='Muneeb Ali (@muneeb) and Ibrahim Ahmed',
 	author_email='hello@halfmoonlabs.com',
