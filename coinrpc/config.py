@@ -12,7 +12,7 @@ import os
 from commontools import log
 
 NAMECOIND_ENABLED = True
-BITCOIND_ENABLED = False
+BITCOIND_ENABLED = True
 
 DEBUG = True
 
@@ -30,7 +30,7 @@ if NAMECOIND_ENABLED:
 		#log.debug("Namecoind not configured")
 		#default settings with a public server
 		NAMECOIND_PORT = 8332
-		NAMECOIND_SERVER = '107.170.167.141'
+		NAMECOIND_SERVER = 'nmcd.onename.com'
 		NAMECOIND_USER = 'opennamesystem' 
 		NAMECOIND_PASSWD = 'opennamesystem'
 
@@ -52,9 +52,10 @@ if BITCOIND_ENABLED:
 		BITCOIND_WALLET_PASSPHRASE = os.environ['BITCOIND_WALLET_PASSPHRASE']
 
 	except:
-		#log.debug("Bitcoind not configured")
-		BITCOIND_PORT = 5005 
-		BITCOIND_SERVER = BITCOIND_USER = BITCOIND_PASSWD = ''
+		BITCOIND_SERVER = 'btcd.onename.com'
+		BITCOIND_PORT = 8332
+		BITCOIND_USER = 'openname'
+		BITCOIND_PASSWD = 'opennamesystem'
 
 	try:
 		BITCOIND_WALLET_PASSPHRASE = os.environ['BITCOIND_WALLET_PASSPHRASE']
