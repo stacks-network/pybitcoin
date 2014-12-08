@@ -11,6 +11,7 @@
 VALUE_MAX_LIMIT = 520
 
 from commontools import utf8len, error_reply, get_json
+import json
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from coinrpc.config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER, NAMECOIND_PASSWD, NAMECOIND_WALLET_PASSPHRASE, NAMECOIND_USE_HTTPS
