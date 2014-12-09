@@ -147,7 +147,7 @@ class NamecoindServer(object):
 			value = json.dumps(key_details['value'])
 
 		#transfer the name (underlying call is still name_update)
-		reply = self.name_update(key, value, new_address)
+		reply = obj.name_update(key, value, new_address)
 
 		return reply
 
