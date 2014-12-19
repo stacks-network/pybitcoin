@@ -23,7 +23,9 @@ from ..constants import STANDARD_FEE, OP_RETURN_FEE
     chain.com: auth=(api_key_id, api_key_secret)
 """
 
-from ..services import BlockchainInfoClient, BitcoindClient, ChainComClient
+from ..services import BlockchainInfoClient, BitcoindClient, ChainComClient, \
+    BlockchainClient
+from bitcoinrpc.authproxy import AuthServiceProxy
 
 def get_unspents(address, blockchain_client=BlockchainInfoClient()):
     """ Gets the unspent outputs for a given address.
@@ -32,7 +34,7 @@ def get_unspents(address, blockchain_client=BlockchainInfoClient()):
         return blockchain_info.get_unspents(address, blockchain_client)
     elif isinstance(blockchain_client, ChainComClient):
         return chain_com.get_unspents(address, blockchain_client)
-    elif isinstance(blockchain_client, BitcoindClient):
+    elif isinstance(blockchain_client, (BitcoindClient, AuthServiceProxy)):
         return bitcoind.get_unspents(address, blockchain_client)
     elif isinstance(blockchain_client, BlockchainClient):
         raise Exception('That blockchain interface is not supported.')
@@ -46,7 +48,7 @@ def broadcast_transaction(hex_tx, blockchain_client):
         return blockchain_info.broadcast_transaction(hex_tx, blockchain_client)
     elif isinstance(blockchain_client, ChainComClient):
         return chain_com.broadcast_transaction(hex_tx, blockchain_client)
-    elif isinstance(blockchain_client, BitcoindClient):
+    elif isinstance(blockchain_client, (BitcoindClient, AuthServiceProxy)):
         return bitcoind.broadcast_transaction(hex_tx, blockchain_client)
     elif isinstance(blockchain_client, BlockchainClient):
         raise Exception('That blockchain interface is not supported.')

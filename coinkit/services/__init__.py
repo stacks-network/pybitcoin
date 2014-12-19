@@ -10,7 +10,7 @@
 from .blockchain_client import BlockchainClient
 from blockchain_info import BlockchainInfoClient
 from chain_com import ChainComClient
-from bitcoind import BitcoindClient
+from bitcoind import BitcoindClient, create_bitcoind_service_proxy
 
 import blockchain_info
 import chain_com

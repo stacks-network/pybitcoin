@@ -20,8 +20,10 @@ from ..address import script_hex_to_address
 
 from .blockchain_client import BlockchainClient
 
-def create_bitcoind_service_proxy(rpc_username, rpc_password, server='127.0.0.1',
-                                  port=8332, use_https=False):
+def create_bitcoind_service_proxy(
+    rpc_username, rpc_password, server='127.0.0.1', port=8332, use_https=False):
+    """ create a bitcoind service proxy
+    """
     protocol = 'https' if use_https else 'http'
     uri = '%s://%s:%s@%s:%s' % (protocol, rpc_username, rpc_password,
         server, port)
@@ -55,16 +57,22 @@ def get_unspents(address, blockchain_client):
         in the bitcoind server. Use the blockchain or chain API to grab the
         unspents for arbitrary addresses.
     """
-    if not isinstance(blockchain_client, BitcoindClient):
+    if isinstance(blockchain_client, BitcoindClient):
+        bitcoind = blockchain_client.bitcoind
+        version_byte = blockchain_client.version_byte
+    elif isinstance(blockchain_client, AuthServiceProxy):
+        bitcoind = blockchain_client
+        version_byte = 0
+    else:
         raise Exception('A BitcoindClient object is required')
 
-    all_unspents = blockchain_client.bitcoind.listunspent()
+    all_unspents = bitcoind.listunspent()
 
     unspents = []
     for u in all_unspents:
         if 'address' not in u:
             u['address'] = script_hex_to_address(u['scriptPubKey'],
-                version_byte=blockchain_client.version_byte)
+                                                 version_byte=version_byte)
         if 'spendable' in u and u['spendable'] is False:
             continue
         if u['address'] == address:
@@ -75,13 +83,16 @@ def get_unspents(address, blockchain_client):
 def broadcast_transaction(hex_tx, blockchain_client):
     """ Dispatch a raw transaction to the network.
     """
-    if not isinstance(blockchain_client, BitcoindClient):
+    if isinstance(blockchain_client, BitcoindClient):
+        bitcoind = blockchain_client.bitcoind
+    elif isinstance(blockchain_client, AuthServiceProxy):
+        bitcoind = blockchain_client
+    else:
         raise Exception('A BitcoindClient object is required')
 
-    resp = blockchain_client.bitcoind.sendrawtransaction(hex_tx)
+    resp = bitcoind.sendrawtransaction(hex_tx)
     if len(resp) > 0:
         return {'transaction_hash': resp, 'success': True}
     else:
         raise Exception('Invalid response from bitcoind.')
-
 

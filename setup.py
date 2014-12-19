@@ -8,19 +8,14 @@ from setuptools import setup
 
 setup(
     name='coinkit',
-    version='0.7.5',
+    version='0.7.6',
     url='https://github.com/onenameio/coinkit',
     license='MIT',
     author='Onename (Halfmoon Labs)',
     author_email='hello@halfmoon.io',
     description='Tools for Bitcoin & other cryptocurrencies (incl. Litecoin, Namecoin, Peercoin, Primecoin, Dogecoin, Worldcoin, Megacoin, Anoncoin, Feathercoin, Terracoin, and Novacoin).',
     keywords='bitcoin btc litecoin namecoin dogecoin cryptocurrency',
-    packages=[
-        'coinkit',
-        'coinkit.services',
-        'coinkit.transactions',
-        'coinkit.passphrases'
-    ],
+    packages=find_packages(),
     zip_safe=False,
     install_requires=[
         'ecdsa==0.11',

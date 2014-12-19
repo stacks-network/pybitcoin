@@ -429,6 +429,8 @@ class ServicesSendTransactionTest(unittest.TestCase):
 			SECRETS['blockchain_api_key'])
 		self.bitcoind_client = BitcoindClient(SECRETS['rpc_username'],
 			SECRETS['rpc_password'])
+		self.bitcoind = create_bitcoind_service_proxy(SECRETS['rpc_username'],
+			SECRETS['rpc_password'])
 
 		self.signed_tx = make_send_to_address_tx(self.recipient_address, self.send_amount,
 			self.private_key, self.chain_com_client)
@@ -451,7 +453,7 @@ class ServicesSendTransactionTest(unittest.TestCase):
 		self.assertTrue(resp.get('success'))
 
 	def test_send_transaction_bitcoind(self):
-		resp = self.broadcast_with_client(self.signed_tx, self.bitcoind_client)
+		resp = self.broadcast_with_client(self.signed_tx, self.bitcoind)
 		self.assertTrue(resp.get('success'))
 	
 	"""
@@ -532,13 +534,13 @@ def test_main():
 
 def test_transactions():
 	test_support.run_unittest(
-		ServicesGetUnspentsTest,
-		TransactionNetworkFunctionsTest,
-		#ServicesSendTransactionTest,
+		#ServicesGetUnspentsTest,
+		#TransactionNetworkFunctionsTest,
+		ServicesSendTransactionTest,
 		#ServicesSendOpReturnTransactionTest
 	)
 
 if __name__ == '__main__':
-    test_main()
+    #test_main()
     test_transactions()
 
