@@ -11,11 +11,11 @@
 import os
 import json
 
-from coinrpc.namecoind_server import NamecoindClient
+from .namecoind_client import NamecoindClient
 
-from config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER
-from config import NAMECOIND_PASSWD
-from config_local import MAIN_SERVER, LOAD_SERVERS
+from .config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER
+from .config import NAMECOIND_PASSWD
+from .config_local import MAIN_SERVER, LOAD_SERVERS
 
 from multiprocessing.pool import ThreadPool
 from commontools import log
@@ -27,7 +27,7 @@ def pending_transactions(server):
     """ get the no. of pending transactions (0 confirmations) on a server
     """
 
-    namecoind = NamecoindServer(server, NAMECOIND_PORT,
+    namecoind = NamecoindClient(server, NAMECOIND_PORT,
                                 NAMECOIND_USER, NAMECOIND_PASSWD)
 
     reply = namecoind.listtransactions("", 10000)
@@ -53,7 +53,7 @@ def check_address(address):
     def check_address_inner(server):
 
         try:
-            namecoind = NamecoindServer(server, NAMECOIND_PORT,
+            namecoind = NamecoindClient(server, NAMECOIND_PORT,
                                         NAMECOIND_USER, NAMECOIND_PASSWD)
 
             info = namecoind.validate_address(address)

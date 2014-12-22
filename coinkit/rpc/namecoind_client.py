@@ -12,9 +12,9 @@ from commontools import utf8len, error_reply, get_json
 import json
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
-from coinrpc.config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER
-from coinrpc.config import NAMECOIND_PASSWD, NAMECOIND_WALLET_PASSPHRASE
-from coinrpc.config import NAMECOIND_USE_HTTPS, VALUE_MAX_LIMIT
+from .config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER
+from .config import NAMECOIND_PASSWD, NAMECOIND_WALLET_PASSPHRASE
+from .config import NAMECOIND_USE_HTTPS, VALUE_MAX_LIMIT
 
 
 class NamecoindClient(object):

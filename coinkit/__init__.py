@@ -15,6 +15,9 @@ from .services import *
 import transactions
 from .transactions import *
 
+import rpc
+from .rpc import *
+
 import passphrases
 from .passphrases import create_passphrase
 from .passphrases.legacy import random_160bit_passphrase, random_256bit_passphrase

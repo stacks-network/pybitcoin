@@ -10,7 +10,8 @@
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from commontools import log, error_reply
-from coinkit import SATOSHIS_PER_COIN, script_hex_to_address
+from ..constants import SATOSHIS_PER_COIN
+from ..address import script_hex_to_address
 
 
 # ---------------------------------------
