@@ -1,7 +1,7 @@
-coinrpc
+rpc
 =======
 
-Coinrpc is a python library for RPC calls to namecoind and bitcoind. Under the hood it uses [AuthProxy](https://github.com/jgarzik/python-bitcoinrpc). Coinrpc makes the following changes/additions to directly using the underlying RPC: 
+This directory in Bitcoinkit contains RPC calls to bitcoind and namecoind. Under the hood it uses [AuthProxy](https://github.com/jgarzik/python-bitcoinrpc). We make the following changes/additions: 
 
 For Namecoind:
 
@@ -16,19 +16,19 @@ For Namecoind:
 ## Installation:
 
 ```
-pip install git+ssh://git@github.com/onenameio/coinrpc.git
+pip install git+ssh://git@github.com/openname/bitcoinkit.git
 ```
 
-By default bitcoind is turned off and the configuration of a public namecoind server is used. Custom namecoind/bitcoind servers can be used by setting the appropriate ENV VARIABLES (see [config.py](coinrpc/config.py)) e.g., by sourcing the following scripts:
+Custom namecoind/bitcoind servers can be used by setting the appropriate ENV VARIABLES (see [config.py](./config.py)) e.g., by sourcing the following scripts:
 
 ```
-source <path-to-dir>/coinrpc/scripts/setup_namecoind.sh 
-source <path-to-dir>/coinrpc/scripts/setup_bitcoind.sh
+source <path-to-dir>/rpc/scripts/setup_namecoind.sh 
+source <path-to-dir>/rpc/scripts/setup_bitcoind.sh
 ```
 
 ## Usage: 
 
 ```
-from coinrpc import namecoind
+from bitcoinkit import namecoind
 print namecoind.blocks()
 ```
