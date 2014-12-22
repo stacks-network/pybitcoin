@@ -8,18 +8,22 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from bitcoinrpc.authproxy import AuthServiceProxy
+from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from commontools import log, error_reply
+from coinkit import SATOSHIS_PER_COIN, script_hex_to_address
 
 
 # ---------------------------------------
 class BitcoindClient(object):
 
     def __init__(self, server, port, user, passwd,
-                 use_https=True, passphrase=None):
+                 use_https=True, passphrase=None, version_byte=0):
 
         self.passphrase = passphrase
         self.server = server
+
+        self.type = 'bitcoind'
+        self.version_byte = version_byte
 
         if use_https:
             http_string = 'https://'
@@ -133,3 +137,50 @@ class BitcoindClient(object):
                 return reply
 
         return error_reply("couldn't send BTC")
+
+    # -----------------------------------
+    def format_unspents(self, unspents):
+        return [{
+            "transaction_hash": s["txid"],
+            "output_index": s["vout"],
+            "value": int(round(s["amount"]*SATOSHIS_PER_COIN)),
+            "script_hex": s["scriptPubKey"],
+            "confirmations": s["confirmations"]
+            }
+            for s in unspents
+        ]
+
+    # -----------------------------------
+    def get_unspents(self, address):
+        """ Get the spendable transaction outputs, also known as UTXOs or
+            unspent transaction outputs.
+
+            NOTE: this will only return unspents if the address provided is
+            present in the bitcoind server. Use the blockchain or chain API
+            to grab the unspents for arbitrary addresses.
+        """
+
+        all_unspents = self.obj.listunspent()
+
+        unspents = []
+        for u in all_unspents:
+            if 'address' not in u:
+                u['address'] = script_hex_to_address(u['scriptPubKey'],
+                                                     version_byte=self.version_byte)
+            if 'spendable' in u and u['spendable'] is False:
+                continue
+            if u['address'] == address:
+                unspents.append(u)
+
+        return self.format_unspents(unspents)
+
+    # -----------------------------------
+    def broadcast_transaction(self, hex_tx):
+        """ Dispatch a raw transaction to the network.
+        """
+
+        resp = self.obj.sendrawtransaction(hex_tx)
+        if len(resp) > 0:
+            return {'transaction_hash': resp, 'success': True}
+        else:
+            return error_reply('Invalid response from bitcoind.')
