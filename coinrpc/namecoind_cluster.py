@@ -1,95 +1,104 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#-----------------------
-# Copyright 2014 Halfmoon Labs, Inc.
-# All Rights Reserved
-#-----------------------
+"""
+    coinrpc
+    ~~~~~
+
+    :copyright: (c) 2014 by Halfmoon Labs
+    :license: MIT, see LICENSE for more details.
+"""
 
 import os
 import json
 
-from coinrpc.namecoind_server import NamecoindServer 
+from coinrpc.namecoind_server import NamecoindClient
 
-from config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER, NAMECOIND_PASSWD
+from config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER
+from config import NAMECOIND_PASSWD
 from config_local import MAIN_SERVER, LOAD_SERVERS
 
-from multiprocessing.pool import ThreadPool 
-from commontools import log 
+from multiprocessing.pool import ThreadPool
+from commontools import log
 
-#-----------------------------------
+
+# -----------------------------------
 def pending_transactions(server):
 
-	'''
-		get the no. of pending transactions (0 confirmations) on a server
-	'''
+    """ get the no. of pending transactions (0 confirmations) on a server
+    """
 
-	namecoind = NamecoindServer(server, NAMECOIND_PORT, NAMECOIND_USER, NAMECOIND_PASSWD) 
+    namecoind = NamecoindServer(server, NAMECOIND_PORT,
+                                NAMECOIND_USER, NAMECOIND_PASSWD)
 
-	reply = namecoind.listtransactions("",10000)
+    reply = namecoind.listtransactions("", 10000)
 
-	counter = 0 
+    counter = 0
 
-	for i in reply:
-		if i['confirmations'] == 0:
-			counter += 1 
+    for i in reply:
+        if i['confirmations'] == 0:
+            counter += 1
 
-	return counter 
+    return counter
 
-#-----------------------------------
-def check_address(address): 
 
-	reply = {}
-	reply["server"] = None
-	reply["ismine"] = False
-	reply['registered'] = True
+# -----------------------------------
+def check_address(address):
 
-	#--------------------------
-	def check_address_inner(server):
+    reply = {}
+    reply["server"] = None
+    reply["ismine"] = False
+    reply['registered'] = True
 
-		try:
-			namecoind = NamecoindServer(server, NAMECOIND_PORT, NAMECOIND_USER, NAMECOIND_PASSWD)
+    # --------------------------
+    def check_address_inner(server):
 
-			info = namecoind.validate_address(address)
-		except Exception as e:
-			log.debug("Error in server %s",server)
-			log.debug(e)
-			return
+        try:
+            namecoind = NamecoindServer(server, NAMECOIND_PORT,
+                                        NAMECOIND_USER, NAMECOIND_PASSWD)
 
-		if info['ismine'] is True:
-			reply['server'] = server 
-			reply['ismine'] = True
+            info = namecoind.validate_address(address)
+        except Exception as e:
+            log.debug("Error in server %s", server)
+            log.debug(e)
+            return
 
-	#first check the main server
-	check_address_inner(MAIN_SERVER)
+        if info['ismine'] is True:
+            reply['server'] = server
+            reply['ismine'] = True
 
-	if reply['ismine'] is True:
-		return reply
+    # first check the main server
+    check_address_inner(MAIN_SERVER)
 
-	#if not main server, check others
-	pool = ThreadPool(len(LOAD_SERVERS))
+    if reply['ismine'] is True:
+        return reply
 
-	pool.map(check_address_inner, LOAD_SERVERS)
-	pool.close()
-	pool.join() 
+    # if not main server, check others
+    pool = ThreadPool(len(LOAD_SERVERS))
 
-	return reply
+    pool.map(check_address_inner, LOAD_SERVERS)
+    pool.close()
+    pool.join()
 
-#-----------------------------------
-def get_server(key): 
+    return reply
 
-	'''
-		given a key, get the IP address of the server that has the pvt key that owns the name/key
-	'''
 
-	namecoind = NamecoindServer(NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER, NAMECOIND_PASSWD)
+# -----------------------------------
+def get_server(key):
 
-	info = namecoind.name_show(key)
+    """ given a key, get the IP address of the server that has the pvt key that
+        owns the name/key
+    """
 
-	if 'address' in info:	
-		return check_address(info['address'])
-	
-	response = {}
-	response["registered"] = False
-	response["server"] = None
-	response["ismine"] = False 
-	return response
+    namecoind = NamecoindClient(NAMECOIND_SERVER, NAMECOIND_PORT,
+                                NAMECOIND_USER, NAMECOIND_PASSWD)
+
+    info = namecoind.name_show(key)
+
+    if 'address' in info:
+        return check_address(info['address'])
+
+    response = {}
+    response["registered"] = False
+    response["server"] = None
+    response["ismine"] = False
+    return response

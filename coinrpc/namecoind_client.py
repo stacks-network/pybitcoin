@@ -17,7 +17,7 @@ from coinrpc.config import NAMECOIND_PASSWD, NAMECOIND_WALLET_PASSPHRASE
 from coinrpc.config import NAMECOIND_USE_HTTPS, VALUE_MAX_LIMIT
 
 
-class NamecoindServer(object):
+class NamecoindClient(object):
 
     def __init__(self, server=NAMECOIND_SERVER, port=NAMECOIND_PORT,
                  user=NAMECOIND_USER, passwd=NAMECOIND_PASSWD,
