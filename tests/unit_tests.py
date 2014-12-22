@@ -555,10 +555,10 @@ def test_main():
 
 def test_transactions():
 	test_support.run_unittest(
-		#ServicesGetUnspentsTest,
-		#TransactionNetworkFunctionsTest,
+		ServicesGetUnspentsTest,
+		TransactionNetworkFunctionsTest,
 		ServicesSendTransactionTest,
-		#ServicesSendOpReturnTransactionTest
+		ServicesSendOpReturnTransactionTest
 	)
 
 if __name__ == '__main__':
