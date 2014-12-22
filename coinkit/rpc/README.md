@@ -1,7 +1,7 @@
-rpc
+Bitcoinkit RPC
 =======
 
-This directory in Bitcoinkit contains RPC calls to bitcoind and namecoind. Under the hood it uses [AuthProxy](https://github.com/jgarzik/python-bitcoinrpc). We make the following changes/additions: 
+This directory in bitcoinkit contains RPC calls to bitcoind and namecoind. Under the hood it uses [AuthProxy](https://github.com/jgarzik/python-bitcoinrpc). We make the following changes/additions: 
 
 For Namecoind:
 
