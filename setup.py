@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='coinkit',
-    version='0.7.7',
+    version='0.7.8',
     url='https://github.com/onenameio/coinkit',
     license='MIT',
     author='Onename (Halfmoon Labs)',
