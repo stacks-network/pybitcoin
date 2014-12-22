@@ -8,7 +8,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from bitcoinrpc.authproxy import AuthServiceProxy
+from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from commontools import log, error_reply
 from coinkit import SATOSHIS_PER_COIN, script_hex_to_address
 
