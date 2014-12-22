@@ -7,7 +7,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-__version__ = '0.7.6'
+__version__ = '0.7.7'
 
 import services
 from .services import *
@@ -28,6 +28,7 @@ from .formatcheck import is_secret_exponent, is_256bit_hex_string, is_wif_pk, \
 from .wallet import SDWallet
 from .address import bin_hash160_to_address, script_hex_to_address, \
     hex_hash160_to_address
+from .merkle import MerkleTree, calculate_merkle_pairs, calculate_merkle_root
 
 from .keypair import *
 from .privatekey import *

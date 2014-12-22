@@ -508,6 +508,26 @@ class ServicesSendOpReturnTransactionTest(unittest.TestCase):
 		self.assertTrue(resp.get('success'))
 	"""
 
+class MerkleTest(unittest.TestCase):
+    def setUp(self):
+        self.hashes = [
+            'f484b014c55a43b409a59de3177d49a88149b4473f9a7b81ea9e3535d4b7a301',
+            '7b5636e9bc6ec910157e88702699bc7892675e8b489632c9166764341a4d4cfe',
+            'f8b02b8bf25cb6008e38eb5453a22c502f37e76375a86a0f0cfaa3c301aa1209'
+        ]
+        self.merkle_root = '4f4c8c201e85a64a410cc7272c77f443d8b8df3289c67af9dab1e87d9e61985e'
+
+    def tearDown(self):
+        pass
+
+    def test_merkle_tree(self):
+        merkle_tree = MerkleTree(self.hashes)
+        self.assertEqual(merkle_tree.root(), self.merkle_root)
+
+    def test_calculate_merkle_root(self):
+        merkle_root = calculate_merkle_root(self.hashes)
+        self.assertEqual(merkle_root, self.merkle_root)
+
 def test_main():
 
 	# generate altcoin tests
@@ -517,13 +537,14 @@ def test_main():
 		setattr(AltcoinKeypairTest, test_name, test)
 
 	test_support.run_unittest(
+		MerkleTest,
 		BitcoinUncompressedPublicKeyTest,
 		BitcoinCompressedPublicKeyTest,
 		BitcoinPublicKeyCreationTest,
 		BitcoinPrivateKeyTest,
 		BitcoinPrivateKeyToPublicKeyTest,
 		BitcoinKeypairTest,
-		AltcoinKeypairTest,
+		#AltcoinKeypairTest,
 		BitcoinBrainWalletKeypairTest,
 		BitcoinKeypairFromWIFTest,
 		RandomBitcoinKeypairsTest,
