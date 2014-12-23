@@ -6,12 +6,12 @@ import sys
 
 # Hack around absolute paths
 current_dir = os.path.abspath(os.path.dirname(__file__))
-parent_dir = os.path.abspath(current_dir + "/../")
+parent_dir = os.path.abspath(current_dir + "/../../")
 
 sys.path.insert(0, parent_dir)
 
 import unittest
-from coinrpc import namecoind, bitcoind
+from coinkit.rpc import namecoind, bitcoind
 
 
 class NamecoindTestCase(unittest.TestCase):
