@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    coinrpc
+    pybitcoin
     ~~~~~
 
     :copyright: (c) 2014 by Halfmoon Labs
@@ -8,7 +8,6 @@
 """
 
 import os
-from commontools import log
 
 NAMECOIND_ENABLED = True
 BITCOIND_ENABLED = True
