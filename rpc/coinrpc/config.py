@@ -8,7 +8,6 @@
 """
 
 import os
-from commontools import log
 
 NAMECOIND_ENABLED = True
 BITCOIND_ENABLED = True
@@ -38,6 +37,12 @@ if NAMECOIND_ENABLED:
         NAMECOIND_WALLET_PASSPHRASE = os.environ['NAMECOIND_WALLET_PASSPHRASE']
     except:
         NAMECOIND_WALLET_PASSPHRASE = ''
+
+    try:
+        from .config_local import MAIN_SERVER, LOAD_SERVERS
+    except:
+        MAIN_SERVER = NAMECOIND_SERVER
+        LOAD_SERVERS = []
 
 # --------------------------------------------------
 if BITCOIND_ENABLED:

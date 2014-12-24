@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
     coinrpc
@@ -12,9 +11,9 @@ from commontools import utf8len, error_reply, get_json
 import json
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
-from coinrpc.config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER
-from coinrpc.config import NAMECOIND_PASSWD, NAMECOIND_WALLET_PASSPHRASE
-from coinrpc.config import NAMECOIND_USE_HTTPS, VALUE_MAX_LIMIT
+from .config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER
+from .config import NAMECOIND_PASSWD, NAMECOIND_WALLET_PASSPHRASE
+from .config import NAMECOIND_USE_HTTPS, VALUE_MAX_LIMIT
 
 
 class NamecoindClient(object):
@@ -133,11 +132,11 @@ class NamecoindClient(object):
         return reply
 
     # -----------------------------------
-    def name_transfer(self, key,new_address,value=None):
-     
-        # check if this name exists and if it does, find the value field
-        # note that update command needs an arg of <new value>.
-        # in case we're simply transferring, we need to obtain old value first
+    def name_transfer(self, key, new_address, value=None):
+        """ Check if this name exists and if it does, find the value field
+            note that update command needs an arg of <new value>.
+            in case we're simply transferring, need to obtain old value first
+        """
 
         key_details = self.name_show(key)
 
@@ -233,13 +232,13 @@ class NamecoindClient(object):
         return True
 
     # -----------------------------------
-    def importprivkey(self, namecoinprivkey,label='import',rescan=False):
+    def importprivkey(self, namecoinprivkey, label='import', rescan=False):
 
         if not self.unlock_wallet(self.passphrase):
             error_reply("Error unlocking wallet", 403)
 
         try:
-            reply = self.obj.importprivkey(namecoinprivkey,label,rescan)
+            reply = self.obj.importprivkey(namecoinprivkey, label, rescan)
         except JSONRPCException as e:
             return e.error
         return reply
