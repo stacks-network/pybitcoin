@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
     coinrpc
@@ -9,16 +8,21 @@
 """
 
 import os
+import sys
 import json
 
-from coinrpc.namecoind_server import NamecoindClient
+from .config import NAMECOIND_SERVER
 
-from config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER
-from config import NAMECOIND_PASSWD
-from config_local import MAIN_SERVER, LOAD_SERVERS
+
+from .namecoind_client import NamecoindClient
+
+from .config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER
+from .config import NAMECOIND_PASSWD
+from .config import MAIN_SERVER, LOAD_SERVERS
 
 from multiprocessing.pool import ThreadPool
 from commontools import log
+from commontools import pretty_print as pprint
 
 
 # -----------------------------------
@@ -27,7 +31,7 @@ def pending_transactions(server):
     """ get the no. of pending transactions (0 confirmations) on a server
     """
 
-    namecoind = NamecoindServer(server, NAMECOIND_PORT,
+    namecoind = NamecoindClient(server, NAMECOIND_PORT,
                                 NAMECOIND_USER, NAMECOIND_PASSWD)
 
     reply = namecoind.listtransactions("", 10000)
@@ -53,7 +57,7 @@ def check_address(address):
     def check_address_inner(server):
 
         try:
-            namecoind = NamecoindServer(server, NAMECOIND_PORT,
+            namecoind = NamecoindClient(server, NAMECOIND_PORT,
                                         NAMECOIND_USER, NAMECOIND_PASSWD)
 
             info = namecoind.validate_address(address)
@@ -102,3 +106,76 @@ def get_server(key):
     response["server"] = None
     response["ismine"] = False
     return response
+
+
+# -----------------------------------
+def clean_wallet(server, clean_wallet):
+
+    namecoind = NamecoindClient(server)
+
+    reply = namecoind.listtransactions("", 10000)
+
+    counter = 0
+    counter_total = 0
+
+    track_confirmations = 1000
+
+    for i in reply:
+        counter_total += 1
+
+        if i['confirmations'] == 0:
+
+            counter += 1
+
+            if clean_wallet:
+                log.debug(namecoind.deletetransaction(i['txid']))
+
+        elif i['confirmations'] < track_confirmations:
+            track_confirmations = i['confirmations']
+
+    log.debug("%s: %s pending tx, %s confirmations (last tx), %s total tx"
+              % (server, counter, track_confirmations, counter_total))
+
+
+# -----------------------------------
+def rebroadcast_tx(server, raw_tx):
+
+    namecoind = NamecoindClient(server)
+
+    print namecoind.sendrawtransaction(raw_tx)
+
+
+# -----------------------------------
+def check_servers(servers, clean=False):
+
+    for server in servers:
+        clean_wallet(server, clean)
+
+
+# -----------------------------------
+def get_confirmations(server, tx):
+
+    namecoind = NamecoindClient(server)
+
+    reply = namecoind.listtransactions("",10000)
+
+    for entry in reply:
+
+        if entry['txid'] == tx:
+            return int(entry['confirmations'])
+
+    return 0
+
+# -----------------------------------
+if __name__ == '__main__':
+
+    try:
+        option = sys.argv[1]
+        if(option == '--clean'):
+            check_servers(LOAD_SERVERS, clean=True)
+        exit(0)
+    except:
+        pass
+
+    check_servers(LOAD_SERVERS, clean=False)
+    

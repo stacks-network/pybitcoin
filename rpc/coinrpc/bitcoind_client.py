@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
     coinrpc
@@ -10,14 +9,21 @@
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from commontools import log, error_reply
-from coinkit import SATOSHIS_PER_COIN, script_hex_to_address
+from coinkit import SATOSHIS_PER_COIN
+from coinkit import script_hex_to_address
+
+from .config import BITCOIND_SERVER, BITCOIND_PORT, BITCOIND_USER
+from .config import BITCOIND_PASSWD, BITCOIND_WALLET_PASSPHRASE
+from .config import BITCOIND_USE_HTTPS
 
 
 # ---------------------------------------
 class BitcoindClient(object):
 
-    def __init__(self, server, port, user, passwd,
-                 use_https=True, passphrase=None, version_byte=0):
+    def __init__(self, server=BITCOIND_SERVER, port=BITCOIND_PORT,
+                 user=BITCOIND_USER, passwd=BITCOIND_PASSWD,
+                 use_https=BITCOIND_USE_HTTPS,
+                 passphrase=BITCOIND_WALLET_PASSPHRASE, version_byte=0):
 
         self.passphrase = passphrase
         self.server = server
