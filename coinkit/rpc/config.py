@@ -38,6 +38,12 @@ if NAMECOIND_ENABLED:
     except:
         NAMECOIND_WALLET_PASSPHRASE = ''
 
+    try:
+        from .config_local import MAIN_SERVER, LOAD_SERVERS
+    except:
+        MAIN_SERVER = NAMECOIND_SERVER
+        LOAD_SERVERS = []
+
 # --------------------------------------------------
 if BITCOIND_ENABLED:
 
