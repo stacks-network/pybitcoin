@@ -664,5 +664,5 @@ def test_transactions():
     )
 
 if __name__ == '__main__':
-    test_main()
-    # test_transactions()
+    #test_main()
+    test_transactions()
