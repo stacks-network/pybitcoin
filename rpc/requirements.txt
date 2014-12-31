@@ -1,0 +1,2 @@
+commontools==0.1.0
+python-bitcoinrpc==0.1
