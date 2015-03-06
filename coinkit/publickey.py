@@ -108,11 +108,12 @@ class BitcoinPublicKey():
     def version_byte(cls):
         return cls._version_byte
 
-    def __init__(self, public_key_string, version_byte=0, verify=True):
+    def __init__(self, public_key_string, version_byte=None, verify=True):
         """ Takes in a public key in hex format.
         """
         # set the version byte
-        self._version_byte = version_byte
+        if version_byte:
+            self._version_byte = version_byte
         self._charencoding, self._type = get_public_key_format(
             public_key_string)
 
