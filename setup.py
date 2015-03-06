@@ -13,7 +13,7 @@ setup(
     license='MIT',
     author='Onename (Halfmoon Labs)',
     author_email='hello@halfmoon.io',
-    description='Tools for Bitcoin & other cryptocurrencies (incl. Litecoin, Namecoin, Peercoin, Primecoin, Dogecoin, Worldcoin, Megacoin, Anoncoin, Feathercoin, Terracoin, and Novacoin).',
+    description='Tools for Bitcoin & other cryptocurrencies (incl. Namecoin, Litecoin, Dogecoin, etc.).',
     keywords='bitcoin btc litecoin namecoin dogecoin cryptocurrency',
     packages=find_packages(),
     zip_safe=False,

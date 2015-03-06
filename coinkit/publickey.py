@@ -42,7 +42,8 @@ def get_public_key_format(public_key_string):
 
     if len(public_key_string) == 64:
         return CharEncoding.bin, PubkeyType.ecdsa
-    if len(public_key_string) == 65 and public_key_string[0] == PUBKEY_MAGIC_BYTE:
+    if (len(public_key_string) == 65 and
+            public_key_string[0] == PUBKEY_MAGIC_BYTE):
         return CharEncoding.bin, PubkeyType.uncompressed
     if len(public_key_string) == 33:
         return CharEncoding.bin, PubkeyType.compressed
@@ -50,7 +51,8 @@ def get_public_key_format(public_key_string):
     if is_hex(public_key_string):
         if len(public_key_string) == 128:
             return CharEncoding.hex, PubkeyType.ecdsa
-        if len(public_key_string) == 130 and public_key_string[0:2] == hexlify(PUBKEY_MAGIC_BYTE):
+        if (len(public_key_string) == 130 and
+                public_key_string[0:2] == hexlify(PUBKEY_MAGIC_BYTE)):
             return CharEncoding.hex, PubkeyType.uncompressed
         if len(public_key_string) == 66:
             return CharEncoding.hex, PubkeyType.compressed
@@ -111,9 +113,10 @@ class BitcoinPublicKey():
         """
         # set the version byte
         self._version_byte = version_byte
-        self._charencoding, self._type = get_public_key_format(public_key_string)
+        self._charencoding, self._type = get_public_key_format(
+            public_key_string)
 
-        # extract the binary bitcoin key (compressed or uncompressed w/ magic byte)
+        # extract the binary bitcoin key (compressed/uncompressed w magic byte)
         self._bin_public_key = extract_bin_bitcoin_pubkey(public_key_string)
 
         # extract the bin ecdsa public key (uncompressed, w/out a magic byte)
