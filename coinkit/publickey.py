@@ -149,6 +149,10 @@ class BitcoinPublicKey():
                                       version_byte=self._version_byte)
 
 
+class CoinPublicKey(BitcoinPublicKey):
+    def __init__(self, public_key, version_byte = 0):
+        BitcoinPublicKey.__init__(self, public_key, version_byte)
+
 class LitecoinPublicKey(BitcoinPublicKey):
     _version_byte = 48
 
