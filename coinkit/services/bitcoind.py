@@ -7,7 +7,10 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import json, requests, traceback
+import json
+import requests
+import traceback
+import httplib
 from ..hash import reverse_hash
 
 from bitcoinrpc.authproxy import AuthServiceProxy
@@ -80,6 +83,7 @@ def get_unspents(address, blockchain_client):
 
     return format_unspents(unspents)
 
+
 def broadcast_transaction(hex_tx, blockchain_client):
     """ Dispatch a raw transaction to the network.
     """
@@ -90,9 +94,12 @@ def broadcast_transaction(hex_tx, blockchain_client):
     else:
         raise Exception('A BitcoindClient object is required')
 
-    resp = bitcoind.sendrawtransaction(hex_tx)
+    try:
+        resp = bitcoind.sendrawtransaction(hex_tx)
+    except httplib.BadStatusLine:
+        raise Exception('Invalid HTTP status code from bitcoind.')
+
     if len(resp) > 0:
         return {'transaction_hash': resp, 'success': True}
     else:
         raise Exception('Invalid response from bitcoind.')
-
