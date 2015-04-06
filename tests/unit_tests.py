@@ -13,8 +13,8 @@ import unittest
 import string
 from test import test_support
 
-from coinkit import *
-from coinkit.rpc import BitcoindClient
+from pybitcoin import *
+from pybitcoin.rpc import BitcoindClient
 
 get_class = lambda x: globals()[x]
 

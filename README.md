@@ -1,9 +1,9 @@
-Coinkit
+pybitcoin
 =====
 
-[![Latest Version](https://pypip.in/version/coinkit/badge.svg)](https://pypi.python.org/pypi/coinkit/)
-[![Downloads](https://pypip.in/download/coinkit/badge.svg)](https://pypi.python.org/pypi/coinkit/)
-[![License](https://pypip.in/license/coinkit/badge.svg)](https://pypi.python.org/pypi/coinkit>/)
+[![Latest Version](https://pypip.in/version/pybitcoin/badge.svg)](https://pypi.python.org/pypi/pybitcoin/)
+[![Downloads](https://pypip.in/download/pybitcoin/badge.svg)](https://pypi.python.org/pypi/pybitcoin/)
+[![License](https://pypip.in/license/pybitcoin/badge.svg)](https://pypi.python.org/pypi/pybitcoin>/)
 
 Python library with tools for Bitcoin and other cryptocurrencies.
 
@@ -12,7 +12,7 @@ Python library with tools for Bitcoin and other cryptocurrencies.
 ### Private Keys
 
 ```python
->>> from coinkit import BitcoinPrivateKey
+>>> from pybitcoin import BitcoinPrivateKey
 >>> priv = BitcoinPrivateKey()
 >>> priv.to_hex()
 '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
@@ -75,7 +75,7 @@ Litecoin, Namecoin, Peercoin, Primecoin, Testnet, Worldcoin, Megacoin, Featherco
 
 ## Developers
 
-**Q:** Can I contribute to Coinkit?
+**Q:** Can I contribute to pybitcoin?
 
 **A:** Of course! Any and all are encouraged to contribute. Just fork a copy of the repo and get started on something that you think would improve the current offering.
 
@@ -87,4 +87,4 @@ Meanwhile, for something a bit more ambitious, check the issues section for outs
 
 ## Notice
 
-Coinkit is still in beta. Developers using Coinkit are encouraged to inspect the code for themselves and perform their own tests. We are committed to ensuring that this library behaves exactly as it is supposed to under all conditions, and have plans to ramp up our testing efforts going forward.
+pybitcoin is still in beta. Developers using pybitcoin are encouraged to inspect the code for themselves and perform their own tests. We are committed to ensuring that this library behaves exactly as it is supposed to under all conditions, and have plans to ramp up our testing efforts going forward.

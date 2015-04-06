@@ -9,8 +9,8 @@
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from commontools import log, error_reply
-from coinkit import SATOSHIS_PER_COIN
-from coinkit import script_hex_to_address
+from .. import SATOSHIS_PER_COIN
+from .. import script_hex_to_address
 
 from .config import BITCOIND_SERVER, BITCOIND_PORT, BITCOIND_USER
 from .config import BITCOIND_PASSWD, BITCOIND_WALLET_PASSPHRASE
