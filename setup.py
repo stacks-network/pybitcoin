@@ -1,5 +1,5 @@
 """
-Coinkit
+pybitcoin
 ==============
 
 """

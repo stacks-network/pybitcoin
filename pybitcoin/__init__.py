@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    Coinkit
+    pybitcoin
     ~~~~~
 
     :copyright: (c) 2014 by Halfmoon Labs
