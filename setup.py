@@ -7,13 +7,13 @@ Coinkit
 from setuptools import setup, find_packages
 
 setup(
-    name='coinkit',
-    version='0.7.8',
-    url='https://github.com/onenameio/coinkit',
+    name='pybitcoin',
+    version='0.7.9',
+    url='https://github.com/openname/pybitcoin',
     license='MIT',
-    author='Onename (Halfmoon Labs)',
-    author_email='hello@halfmoon.io',
-    description='Tools for Bitcoin & other cryptocurrencies (incl. Namecoin, Litecoin, Dogecoin, etc.).',
+    author='Halfmoon Labs, Inc.',
+    author_email='hello@onename.com',
+    description='Tools for Bitcoin & other cryptocurrencies (private & public keys, addresses, transactions, RPC, etc.).',
     keywords='bitcoin btc litecoin namecoin dogecoin cryptocurrency',
     packages=find_packages(),
     zip_safe=False,
