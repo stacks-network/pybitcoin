@@ -1,5 +1,5 @@
 """
-Coinkit
+pybitcoin
 ==============
 
 """
@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pybitcoin',
-    version='0.7.9',
+    version='0.8.0',
     url='https://github.com/openname/pybitcoin',
     license='MIT',
     author='Halfmoon Labs, Inc.',
