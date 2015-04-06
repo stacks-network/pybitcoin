@@ -2,3 +2,5 @@ ecdsa==0.11
 pybitcointools==1.1.15
 requests==2.4.3
 utilitybelt==0.1.7
+commontools==0.1.0
+python-bitcoinrpc==0.1
