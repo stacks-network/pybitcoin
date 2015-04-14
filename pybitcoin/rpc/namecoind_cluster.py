@@ -46,7 +46,7 @@ def pending_transactions(server):
 
 
 # -----------------------------------
-def check_address(address):
+def check_address(address, server=MAIN_SERVER, servers=LOAD_SERVERS):
 
     reply = {}
     reply["server"] = None
@@ -71,15 +71,15 @@ def check_address(address):
             reply['ismine'] = True
 
     # first check the main server
-    check_address_inner(MAIN_SERVER)
+    check_address_inner(server)
 
     if reply['ismine'] is True:
         return reply
 
     # if not main server, check others
-    pool = ThreadPool(len(LOAD_SERVERS))
+    pool = ThreadPool(len(servers))
 
-    pool.map(check_address_inner, LOAD_SERVERS)
+    pool.map(check_address_inner, servers)
     pool.close()
     pool.join()
 
@@ -87,7 +87,7 @@ def check_address(address):
 
 
 # -----------------------------------
-def get_server(key):
+def get_server(key, server=MAIN_SERVER, servers=LOAD_SERVERS):
 
     """ given a key, get the IP address of the server that has the pvt key that
         owns the name/key
@@ -99,7 +99,7 @@ def get_server(key):
     info = namecoind.name_show(key)
 
     if 'address' in info:
-        return check_address(info['address'])
+        return check_address(info['address'], server, servers)
 
     response = {}
     response["registered"] = False
