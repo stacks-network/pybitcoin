@@ -63,7 +63,9 @@ _reference_info = {
     'hex_hash160': 'c4c5d791fcb4654a1ef5e03fe0ad3d9c598f9827',
     'wif_private_key':'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
     'address': '1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T',
-    'wif_version_byte': 128
+    'wif_version_byte': 128,
+    'pem_private_key': '-----BEGIN EC PRIVATE KEY-----\nMHQCAQEEIMS7yx++yZ1lv1nYXIy2LuLblj8P4Qb0g9mvpzvU45qKoAcGBSuBBAAK\noUQDQgAEeNQwJ0+MXsEyEzgVHp8n9MZ2oAi9+GONB8C2vpqzXHGhUYBjJDrNTf6W\ntm4/LsgBPI4HLNCbODShn4H2Wcw0VQ==\n-----END EC PRIVATE KEY-----\n',
+    'pem_public_key': '-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeNQwJ0+MXsEyEzgVHp8n9MZ2oAi9+GON\nB8C2vpqzXHGhUYBjJDrNTf6Wtm4/LsgBPI4HLNCbODShn4H2Wcw0VQ==\n-----END PUBLIC KEY-----\n'
 }
 
 
@@ -86,6 +88,10 @@ class BitcoinUncompressedPublicKeyTest(unittest.TestCase):
     def test_hex_public_key(self):
         self.assertEqual(
             self.public_key.to_hex(), self.reference['hex_public_key'])
+
+    def test_pem_public_key(self):
+        self.assertEqual(
+            self.public_key.to_pem(), self.reference['pem_public_key'])
 
 
 class BitcoinCompressedPublicKeyTest(unittest.TestCase):
@@ -199,6 +205,10 @@ class BitcoinPrivateKeyTest(unittest.TestCase):
     def test_wif_private_key(self):
         self.assertEqual(
             self.private_key.to_wif(), self.reference['wif_private_key'])
+
+    def test_pem_private_key(self):
+        self.assertEqual(
+            self.private_key.to_pem(), self.reference['pem_private_key'])
 
 
 class BitcoinKeypairTest(unittest.TestCase):
@@ -643,5 +653,5 @@ def test_transactions():
     )
 
 if __name__ == '__main__':
-    # test_main()
-    test_transactions()
+    test_main()
+    # test_transactions()

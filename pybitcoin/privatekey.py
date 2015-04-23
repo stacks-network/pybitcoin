@@ -103,6 +103,9 @@ class BitcoinPrivateKey():
         return b58check_encode(
             self.to_bin(), version_byte=self.wif_version_byte())
 
+    def to_pem(self):
+        return self._ecdsa_private_key.to_pem()
+
     def public_key(self, compressed=False):
         # lazily calculate and set the public key
         if not hasattr(self, '_public_key'):
