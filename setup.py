@@ -8,12 +8,13 @@ from setuptools import setup, find_packages
 
 setup(
     name='pybitcoin',
-    version='0.8.0',
-    url='https://github.com/openname/pybitcoin',
+    version='0.8.1',
+    url='https://github.com/namesystem/pybitcoin',
     license='MIT',
     author='Halfmoon Labs, Inc.',
     author_email='hello@onename.com',
-    description='Tools for Bitcoin & other cryptocurrencies (private & public keys, addresses, transactions, RPC, etc.).',
+    description=("Tools for Bitcoin & other cryptocurrencies (private & ",
+                 "public keys, addresses, transactions, RPC, etc.)."),
     keywords='bitcoin btc litecoin namecoin dogecoin cryptocurrency',
     packages=find_packages(),
     zip_safe=False,

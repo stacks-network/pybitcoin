@@ -62,6 +62,8 @@ class BitcoinPrivateKey():
             elif is_wif_pk(private_key):
                 secret_exponent = int(
                     hexlify(b58check_decode(private_key)), 16)
+            else:
+                raise Exception('Not a valid private key format.')
 
         # make sure that: 1 <= secret_exponent < curve_order
         if not is_secret_exponent(secret_exponent, self._curve.order):
