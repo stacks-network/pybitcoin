@@ -2,12 +2,16 @@
 """
     pybitcoin
     ~~~~~
-    
+
     :copyright: (c) 2014 by Halfmoon Labs
     :license: MIT, see LICENSE for more details.
 """
 
-import os, json, binascii, ecdsa, hashlib
+import os
+import json
+import binascii
+import ecdsa
+import hashlib
 
 from .privatekey import random_secret_exponent
 from .b58check import b58check_encode, b58check_decode, b58check_unpack, \
@@ -17,6 +21,7 @@ from .hash import bin_hash160
 from .formatcheck import is_int, is_256bit_hex_string, is_wif_pk, \
     is_secret_exponent
 from .passphrases import create_passphrase
+
 
 class BitcoinKeypair():
     """ NOTE: This object has been replaced by the BitcoinPrivateKey and 
@@ -46,12 +51,13 @@ class BitcoinKeypair():
         elif is_256bit_hex_string(private_key):
             secret_exponent = int(private_key, 16)
         elif is_wif_pk(private_key):
-            secret_exponent = int(binascii.hexlify(b58check_decode(private_key)), 16)
+            secret_exponent = int(
+                binascii.hexlify(b58check_decode(private_key)), 16)
 
         # make sure that: 1 <= secret_exponent < curve_order
         if not is_secret_exponent(secret_exponent, self._curve.order):
             raise IndexError(_errors["EXPONENT_OUTSIDE_CURVE_ORDER"])
-        
+
         self._ecdsa_private_key = ecdsa.keys.SigningKey.from_secret_exponent(
             secret_exponent, self._curve, self._hash_function
         )
@@ -99,7 +105,8 @@ class BitcoinKeypair():
         elif format == 'hex':
             return binascii.hexlify(self._bin_private_key())
         elif format == 'wif' or format == 'b58check':
-            return b58check_encode(self._bin_private_key(),
+            return b58check_encode(
+                self._bin_private_key(),
                 version_byte=self.version_byte('private_key'))
         else:
             raise ValueError(_errors["MUST_BE_VALID_PRIVKEY_FORMAT"])
@@ -118,7 +125,8 @@ class BitcoinKeypair():
         elif format == 'hex':
             return binascii.hexlify(self._bin_hash160())
         elif format == 'b58check':
-            return b58check_encode(self._bin_hash160(),
+            return b58check_encode(
+                self._bin_hash160(),
                 version_byte=self.version_byte('pubkey_hash'))
         else:
             raise ValueError(_errors["MUST_BE_VALID_HASH160_FORMAT"])
@@ -143,72 +151,95 @@ class BitcoinKeypair():
         else:
             raise Exception(_errors["NOT_A_BRAIN_WALLET"])
 
+
 class LitecoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 48
+
 
 class NamecoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 52
 
+
 class PeercoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 55
+
 
 class PrimecoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 23
 
+
 class DogecoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 30
+
 
 class WorldcoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 73
 
+
 class FeathercoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 14
+
 
 class TerracoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 0
 
+
 class NovacoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 8
+
 
 class IxcoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 138
 
+
 class TestnetKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 111
+
 
 class ProtosharesKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 56
 
+
 class MemorycoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 50
+
 
 class QuarkcoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 58
 
+
 class InfinitecoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 102
+
 
 class CryptogenicbullionKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 11
 
+
 class AnoncoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 23
+
 
 class MegacoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 50
 
+
 class EarthcoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 93
+
 
 class NetcoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 112
 
+
 class HuntercoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 40
 
+
 class VertcoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 71
-    
+
+
 class ReddcoinKeypair(BitcoinKeypair):
     _pubkeyhash_version_byte = 61
 
@@ -240,7 +271,3 @@ class ReddcoinKeypair(BitcoinKeypair):
 # karmacoin
 # mooncoin
 # sexcoin
-
-
-
-

@@ -15,5 +15,5 @@ SATOSHIS_PER_COIN = 10**8
 MAX_BYTES_AFTER_OP_RETURN = 40
 
 # fee defaults
-STANDARD_FEE = 1000 # 1000 satoshis = 10 bits = .01 mbits = .00001 BTC
-OP_RETURN_FEE = 10000 # 10k satoshis = .0001 BTC
+STANDARD_FEE = 1000  # 1000 satoshis = 10 bits = .01 mbits = .00001 BTC
+OP_RETURN_FEE = 10000  # 10k satoshis = .0001 BTC
