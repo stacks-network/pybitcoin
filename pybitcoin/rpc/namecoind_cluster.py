@@ -19,11 +19,15 @@ from .namecoind_client import NamecoindClient
 from .config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER
 from .config import NAMECOIND_PASSWD
 from .config import MAIN_SERVER, LOAD_SERVERS
+from .config import NAMECOIND_WALLET_PASSPHRASE
 
 from multiprocessing.pool import ThreadPool
 from commontools import log
 from commontools import pretty_print as pprint
 
+# IN NMC
+MIN_BALANCE = 25
+RELOAD_AMOUNT = 5
 
 # -----------------------------------
 def pending_transactions(server):
@@ -165,6 +169,72 @@ def get_confirmations(server, tx):
             return int(entry['confirmations'])
 
     return 0
+
+
+# -----------------------------------
+def get_receiver_address(server):
+
+    reply = {}
+
+    namecoind = NamecoindClient(server)
+
+    info = namecoind.listreceivedbyaddress()
+
+    address = info[0]['address']
+
+    info = namecoind.validateaddress(address)
+
+    if info['ismine'] is not True:
+        msg = "something went wrong"
+        print msg
+        reply['error'] = msg
+    else:
+        reply['address'] = address
+
+    return address
+
+
+# -----------------------------------
+def check_if_needs_reload(server, min_balance=MIN_BALANCE):
+
+    reply = {}
+
+    namecoind = NamecoindClient(server)
+
+    info = namecoind.getinfo()
+    balance = float(info['balance'])
+
+    if balance < min_balance:
+        print "%s needs reloading" % server
+        return True
+
+
+# -----------------------------------
+def send_payment(server, payments):
+
+    reply = {}
+
+    namecoind = NamecoindClient(server)
+
+    namecoind.unlock_wallet(NAMECOIND_WALLET_PASSPHRASE)
+    for payment in payments:
+        print namecoind.sendtoaddress(payment['address'], payment['amount'])
+
+
+# -----------------------------------
+def reload_wallets(main_server, slave_servers=LOAD_SERVERS):
+
+    payments = []
+
+    for server in LOAD_SERVERS:
+        #print get_receiver_address(server)
+        if check_if_needs_reload(server):
+            reload_tx = {}
+            reload_tx['amount'] = RELOAD_AMOUNT
+            reload_tx['address'] = get_receiver_address(server)
+            payments.append(reload_tx)
+
+    send_payment(main_server, payments)
 
 # -----------------------------------
 if __name__ == '__main__':
