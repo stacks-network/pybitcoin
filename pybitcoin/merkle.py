@@ -1,7 +1,9 @@
 from .hash import bin_double_sha256, bin_to_hex_reversed, hex_to_bin_reversed
 
+
 def hex_to_bin_reversed_hashes(hex_hashes):
     return [hex_to_bin_reversed(h) for h in hex_hashes]
+
 
 def calculate_merkle_pairs(bin_hashes, hash_function=bin_double_sha256):
     """ takes in a list of binary hashes, returns a binary hash
@@ -17,7 +19,9 @@ def calculate_merkle_pairs(bin_hashes, hash_function=bin_double_sha256):
     # return the new list of hashes
     return new_hashes
 
-def calculate_merkle_root(hashes, hash_function=bin_double_sha256, hex_format=True):
+
+def calculate_merkle_root(hashes, hash_function=bin_double_sha256,
+                          hex_format=True):
     """ takes in a list of binary hashes, returns a binary hash
     """
     if hex_format:
@@ -33,8 +37,10 @@ def calculate_merkle_root(hashes, hash_function=bin_double_sha256, hex_format=Tr
     # return the binary merkle root
     return merkle_root
 
+
 class MerkleTree():
-    def __init__(self, hashes, hex_format=True, hash_function=bin_double_sha256):
+    def __init__(self, hashes, hex_format=True,
+                 hash_function=bin_double_sha256):
         if not len(hashes) > 0:
             raise ValueError("At least one hash is required.")
 

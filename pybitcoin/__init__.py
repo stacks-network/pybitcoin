@@ -17,7 +17,8 @@ from .transactions import *
 
 import passphrases
 from .passphrases import create_passphrase
-from .passphrases.legacy import random_160bit_passphrase, random_256bit_passphrase
+from .passphrases.legacy import random_160bit_passphrase, \
+    random_256bit_passphrase
 
 from .b58check import b58check_encode, b58check_decode, b58check_unpack, \
     b58check_version_byte, is_b58check
