@@ -2,7 +2,7 @@
 """
     pybitcoin
     ~~~~~
-    
+
     :copyright: (c) 2014 by Halfmoon Labs
     :license: MIT, see LICENSE for more details.
 """
@@ -12,18 +12,21 @@ from inspect import isclass
 from .keypair import *
 from .passphrases import create_passphrase
 
+
 def is_cryptocurrency_keypair_class(cls):
     if not isclass(cls):
         return False
     if cls.__name__ == 'BitcoinKeypair':
         return True
-    if len(cls.__bases__) > 0 and cls.__bases__[0].__name__ == 'BitcoinKeypair':
+    if (len(cls.__bases__) > 0
+            and cls.__bases__[0].__name__ == 'BitcoinKeypair'):
         return True
 
 _messages = {
     "SHORT_PASSPHRASE": "Warning! Passphrase must be at least %s characters.",
     "INVALID_KEYPAIR_CLASS": "Class must be a valid currency keypair class.",
 }
+
 
 class SDWallet():
     """ A sequential deterministic wallet.
@@ -35,7 +38,7 @@ class SDWallet():
             passphrase = create_passphrase(bits_of_entropy=160)
 
         self._passphrase = passphrase
-    
+
     def passphrase(self):
         return self._passphrase
 
@@ -55,11 +58,10 @@ class SDWallet():
 
         return k
 
+
 class HDWallet():
     """ A hierarchical deterministic wallet in accordance with BIP 32.
     """
 
     def __init__(self):
         raise NotImplementedError()
-
-

@@ -16,6 +16,7 @@ from .hash import bin_checksum
 HEX_KEYSPACE = "0123456789abcdef"
 B58_KEYSPACE = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
+
 def b58check_encode(bin_s, version_byte=0):
     """ Takes in a binary string and converts it to a base 58 check string. """
     # append the version byte to the beginning
@@ -30,6 +31,7 @@ def b58check_encode(bin_s, version_byte=0):
     b58_s = change_charset(hex_s, HEX_KEYSPACE, B58_KEYSPACE)
 
     return B58_KEYSPACE[0] * num_leading_zeros + b58_s
+
 
 def b58check_unpack(b58_s):
     """ Takes in a base 58 check string and returns: the version byte, the
@@ -56,6 +58,7 @@ def b58check_unpack(b58_s):
     checksum = bin_s[-4:]
     return version_byte, encoded_value, checksum
 
+
 def b58check_decode(b58_s):
     """ Takes in a base 58 check string and returns the original encoded binary
         string.
@@ -63,13 +66,15 @@ def b58check_decode(b58_s):
     version_byte, encoded_value, checksum = b58check_unpack(b58_s)
     return encoded_value
 
+
 def b58check_version_byte(b58_s):
     """ Takes in a base 58 check string and returns the version byte as an
         integer. """
     version_byte, encoded_value, checksum = b58check_unpack(b58_s)
     return ord(version_byte)
 
+
 def is_b58check(b58_s):
     version_byte, binary_s, checksum = b58check_unpack(b58_s)
-    return (b58_s == b58check_encode(binary_s,
-        version_byte=ord(version_byte)))
+    return (b58_s == b58check_encode(
+        binary_s, version_byte=ord(version_byte)))
