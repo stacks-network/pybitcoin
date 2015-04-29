@@ -10,7 +10,7 @@
 from binascii import hexlify, unhexlify
 from pybitcointools import sign as sign_transaction
 
-from ..services import blockchain_info, chain_com, bitcoind
+from ..services import blockcypher, blockchain_info, chain_com, bitcoind
 from ..privatekey import BitcoinPrivateKey
 from .serialize import serialize_transaction
 from .outputs import make_pay_to_address_outputs, make_op_return_outputs
@@ -18,19 +18,22 @@ from ..constants import STANDARD_FEE, OP_RETURN_FEE
 
 """ Note: for functions that take in an auth object, here are some examples
     for the various APIs available:
-    
+
+    blockcypher.com: auth=(api_key, None) or None
     blockchain.info: auth=(api_key, None)
     chain.com: auth=(api_key_id, api_key_secret)
 """
 
-from ..services import BlockchainInfoClient, BitcoindClient, ChainComClient, \
-    BlockchainClient
+from ..services import (BlockcypherClient, BlockchainInfoClient, BitcoindClient,
+    ChainComClient, BlockchainClient)
 from bitcoinrpc.authproxy import AuthServiceProxy
 
-def get_unspents(address, blockchain_client=BlockchainInfoClient()):
+def get_unspents(address, blockchain_client=BlockcypherClient()):
     """ Gets the unspent outputs for a given address.
     """
-    if isinstance(blockchain_client, BlockchainInfoClient):
+    if isinstance(blockchain_client, BlockcypherClient):
+        return blockcypher.get_unspents(address, blockchain_client)
+    elif isinstance(blockchain_client, BlockchainInfoClient):
         return blockchain_info.get_unspents(address, blockchain_client)
     elif isinstance(blockchain_client, ChainComClient):
         return chain_com.get_unspents(address, blockchain_client)
@@ -44,7 +47,9 @@ def get_unspents(address, blockchain_client=BlockchainInfoClient()):
 def broadcast_transaction(hex_tx, blockchain_client):
     """ Dispatches a raw hex transaction to the network.
     """
-    if isinstance(blockchain_client, BlockchainInfoClient):
+    if isinstance(blockchain_client, BlockcypherClient):
+        return blockcypher.broadcast_transaction(hex_tx, blockchain_client)
+    elif isinstance(blockchain_client, BlockchainInfoClient):
         return blockchain_info.broadcast_transaction(hex_tx, blockchain_client)
     elif isinstance(blockchain_client, ChainComClient):
         return chain_com.broadcast_transaction(hex_tx, blockchain_client)
@@ -71,7 +76,7 @@ def analyze_private_key(private_key, blockchain_client):
     return private_key_obj, from_address, inputs
 
 def make_send_to_address_tx(recipient_address, amount, private_key,
-        blockchain_client=BlockchainInfoClient(), fee=STANDARD_FEE,
+        blockchain_client=BlockcypherClient(), fee=STANDARD_FEE,
         change_address=None):
     """ Builds and signs a "send to address" transaction.
     """
@@ -92,7 +97,7 @@ def make_send_to_address_tx(recipient_address, amount, private_key,
     return signed_tx
 
 def make_op_return_tx(data, private_key,
-        blockchain_client=BlockchainInfoClient(), fee=OP_RETURN_FEE,
+        blockchain_client=BlockcypherClient(), fee=OP_RETURN_FEE,
         change_address=None, format='bin'):
     """ Builds and signs an OP_RETURN transaction.
     """
@@ -113,7 +118,7 @@ def make_op_return_tx(data, private_key,
     return signed_tx
 
 def send_to_address(recipient_address, amount, private_key,
-        blockchain_client=BlockchainInfoClient(), fee=STANDARD_FEE,
+        blockchain_client=BlockcypherClient(), fee=STANDARD_FEE,
         change_address=None):
     """ Builds, signs, and dispatches a "send to address" transaction.
     """
@@ -127,7 +132,7 @@ def send_to_address(recipient_address, amount, private_key,
     return response
 
 def embed_data_in_blockchain(data, private_key,
-        blockchain_client=BlockchainInfoClient(), fee=OP_RETURN_FEE,
+        blockchain_client=BlockcypherClient(), fee=OP_RETURN_FEE,
         change_address=None, format='bin'):
     """ Builds, signs, and dispatches an OP_RETURN transaction.
     """
@@ -140,7 +145,7 @@ def embed_data_in_blockchain(data, private_key,
     return response
 
 def serialize_sign_and_broadcast(inputs, outputs, private_key,
-                                 blockchain_client=BlockchainInfoClient()):
+                                 blockchain_client=BlockcypherClient()):
     # extract the private key object
     private_key_obj = get_private_key_obj(private_key)
     # serialize the transaction

@@ -8,8 +8,8 @@
 """
 
 class BlockchainClient(object):
-    """ type parameter can be 'bitcoind', 'blockchain.info', 'chain.com', etc.
-        auth object is a two item tuple
+    """ type parameter can be 'bitcoind', 'blockcypher.com', 'blockchain.info',
+        'chain.com', etc. auth object is a two item tuple
     """
     def __init__(self, type, auth=None):
         self.type = type

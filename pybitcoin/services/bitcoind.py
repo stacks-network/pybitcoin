@@ -21,7 +21,7 @@ from binascii import unhexlify
 from ..b58check import b58check_encode
 from ..address import script_hex_to_address
 
-from .blockchain_client import BlockchainClient
+from .blockcypher import BlockcypherClient
 
 def create_bitcoind_service_proxy(
     rpc_username, rpc_password, server='127.0.0.1', port=8332, use_https=False):
@@ -32,7 +32,7 @@ def create_bitcoind_service_proxy(
         server, port)
     return AuthServiceProxy(uri)
 
-class BitcoindClient(BlockchainClient):
+class BitcoindClient(BlockcypherClient):
     def __init__(self, rpc_username, rpc_password, use_https=False,
                  server='127.0.0.1', port=8332, version_byte=0):
         self.type = 'bitcoind'
@@ -52,19 +52,19 @@ def format_unspents(unspents):
         for s in unspents
     ]
 
-def get_unspents(address, blockchain_client):
+def get_unspents(address, blockcypher_client):
     """ Get the spendable transaction outputs, also known as UTXOs or
         unspent transaction outputs.
 
         NOTE: this will only return unspents if the address provided is present
-        in the bitcoind server. Use the blockchain or chain API to grab the
-        unspents for arbitrary addresses.
+        in the bitcoind server. Use the blockcypher, blockchain, or chain API
+        to grab the unspents for arbitrary addresses.
     """
-    if isinstance(blockchain_client, BitcoindClient):
-        bitcoind = blockchain_client.bitcoind
-        version_byte = blockchain_client.version_byte
-    elif isinstance(blockchain_client, AuthServiceProxy):
-        bitcoind = blockchain_client
+    if isinstance(blockcypher_client, BitcoindClient):
+        bitcoind = blockcypher_client.bitcoind
+        version_byte = blockcypher_client.version_byte
+    elif isinstance(blockcypher_client, AuthServiceProxy):
+        bitcoind = blockcypher_client
         version_byte = 0
     else:
         raise Exception('A BitcoindClient object is required')
@@ -84,13 +84,13 @@ def get_unspents(address, blockchain_client):
     return format_unspents(unspents)
 
 
-def broadcast_transaction(hex_tx, blockchain_client):
+def broadcast_transaction(hex_tx, blockcypher_client):
     """ Dispatch a raw transaction to the network.
     """
-    if isinstance(blockchain_client, BitcoindClient):
-        bitcoind = blockchain_client.bitcoind
-    elif isinstance(blockchain_client, AuthServiceProxy):
-        bitcoind = blockchain_client
+    if isinstance(blockcypher_client, BitcoindClient):
+        bitcoind = blockcypher_client.bitcoind
+    elif isinstance(blockcypher_client, AuthServiceProxy):
+        bitcoind = blockcypher_client
     else:
         raise Exception('A BitcoindClient object is required')
 
