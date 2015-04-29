@@ -10,11 +10,25 @@
 import json
 import traceback
 import unittest
-import string
 from test import test_support
 
-from pybitcoin import *
+from pybitcoin.publickey import BitcoinPublicKey
+from pybitcoin.privatekey import BitcoinPrivateKey, NamecoinPrivateKey
+from pybitcoin.keypair import BitcoinKeypair
 from pybitcoin.rpc import BitcoindClient
+from pybitcoin.wallet import SDWallet
+from pybitcoin.merkle import MerkleTree, calculate_merkle_root
+
+from pybitcoin.b58check import b58check_encode, b58check_decode, b58check_unpack
+from pybitcoin.formatcheck import is_b58check_address, is_256bit_hex_string, is_wif_pk
+
+from pybitcoin.transactions import analyze_private_key
+from pybitcoin.transactions.network import make_send_to_address_tx, make_op_return_tx, send_to_address, broadcast_transaction
+
+from pybitcoin.services import blockcypher
+from pybitcoin.services import blockchain_info
+from pybitcoin.services import chain_com
+from pybitcoin.services.bitcoind import create_bitcoind_service_proxy
 
 get_class = lambda x: globals()[x]
 
@@ -31,6 +45,7 @@ bitcoind_client = BitcoindClient(
 namecoind_client = BitcoindClient(
     server='127.0.0.1', port=8336, user=SECRETS['rpc_username'],
     passwd=SECRETS['rpc_password'], use_https=True, version_byte=52)
+
 
 def equality_test_generator(a, b):
     def test(self):
@@ -60,10 +75,11 @@ _reference_info = {
     'hex_private_key': 'c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a',
     'hex_public_key': '0478d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455',
     'hex_hash160': 'c4c5d791fcb4654a1ef5e03fe0ad3d9c598f9827',
-    'wif_private_key':'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
+    'wif_private_key': '5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
     'address': '1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T',
     'wif_version_byte': 128
 }
+
 
 class BitcoinUncompressedPublicKeyTest(unittest.TestCase):
     reference = _reference_info
@@ -82,6 +98,7 @@ class BitcoinUncompressedPublicKeyTest(unittest.TestCase):
 
     def test_hex_public_key(self):
         self.assertEqual(self.public_key.to_hex(), self.reference['hex_public_key'])
+
 
 class BitcoinCompressedPublicKeyTest(unittest.TestCase):
     def setUp(self):
@@ -111,6 +128,7 @@ class BitcoinCompressedPublicKeyTest(unittest.TestCase):
 
     def test_hex_public_key(self):
         self.assertEqual(self.public_key.to_hex(), self.reference['hex_public_key'])
+
 
 class BitcoinPublicKeyCreationTest(unittest.TestCase):
     def setUp(self):
@@ -144,6 +162,7 @@ class BitcoinPublicKeyCreationTest(unittest.TestCase):
         public_key_string = '\x02\x06\x8f\xd9\xd4r\x83\xfb1\x0em\xfbf\xb1A\xddx\xfb\xab\xc7m\x07=H\xcd\xdcw\x0f\xfb+\xd2b\xd7'
         self.assertEqual(self.address_compressed, BitcoinPublicKey(public_key_string).address())
 
+
 class BitcoinPrivateKeyToPublicKeyTest(unittest.TestCase):
     reference = _reference_info
 
@@ -158,6 +177,7 @@ class BitcoinPrivateKeyToPublicKeyTest(unittest.TestCase):
         pub = priv.public_key()
         self.assertEqual(pub.to_hex(), self.reference['hex_public_key'])
         self.assertEqual(pub.address(), self.reference['address'])
+
 
 class BitcoinPrivateKeyTest(unittest.TestCase):
     reference = _reference_info
@@ -177,6 +197,7 @@ class BitcoinPrivateKeyTest(unittest.TestCase):
 
     def test_wif_private_key(self):
         self.assertEqual(self.private_key.to_wif(), self.reference['wif_private_key'])
+
 
 class BitcoinKeypairTest(unittest.TestCase):
     reference = _reference_info
@@ -202,6 +223,7 @@ class BitcoinKeypairTest(unittest.TestCase):
     def test_public_key(self):
         self.assertEqual(self.keypair.public_key(), self.reference['hex_public_key'])
 
+
 class AltcoinKeypairTest(unittest.TestCase):
     coin_names = [
         'bitcoin', 'litecoin', 'namecoin', 'peercoin', 'primecoin',
@@ -215,7 +237,7 @@ class AltcoinKeypairTest(unittest.TestCase):
         'hex_private_key': 'c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8a',
         'hex_public_key': '78d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455',
         'hex_hash160': 'c4c5d791fcb4654a1ef5e03fe0ad3d9c598f9827',
-        ('bitcoin', 'wif'):'5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
+        ('bitcoin', 'wif'): '5KJvsngHeMpm884wtkJNzQGaCErckhHJBGFsvd3VyK5qMZXj3hS',
         ('bitcoin', 'address'): '1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T',
         ('litecoin', 'wif'): '6vcfLvDpYnHdbVxoQa6Lmo3k9iR5xVjKwwf3dp4XgmQT3QJywYi',
         ('litecoin', 'address'): 'LdAPi7uXrLLmeh7u57pzkZc3KovxEDYRJq',
@@ -257,9 +279,10 @@ class AltcoinKeypairTest(unittest.TestCase):
 
     def setUp(self):
         pass
-        
+
     def tearDown(self):
         pass
+
 
 class BitcoinBrainWalletKeypairTest(BitcoinKeypairTest):
     def setUp(self):
@@ -273,10 +296,12 @@ class BitcoinBrainWalletKeypairTest(BitcoinKeypairTest):
         random_keypair = BitcoinKeypair.from_passphrase()
         self.assertTrue(len(random_keypair.passphrase().split()) > 1)
 
+
 class BitcoinKeypairFromWIFTest(BitcoinKeypairTest):
     def setUp(self):
         BitcoinKeypairTest.setUp(self)
         self.keypair = BitcoinKeypair.from_private_key(self.reference['wif_private_key'])
+
 
 class RandomBitcoinKeypairsTest(unittest.TestCase):
     def setUp(self):
@@ -293,6 +318,7 @@ class RandomBitcoinKeypairsTest(unittest.TestCase):
 
     def test_brainwallet_keypair(self):
         self.assertTrue(len(self.brainwallet_keypair.passphrase().split()) > 1)
+
 
 class BitcoinB58CheckTest(unittest.TestCase):
     reference = _reference_info
@@ -316,6 +342,7 @@ class BitcoinB58CheckTest(unittest.TestCase):
         wif_private_key = b58check_encode(bin_private_key, version_byte=ord(version_byte))
         self.assertEqual(self.reference['wif_private_key'], wif_private_key)
 
+
 class BitcoinFormatCheckTest(unittest.TestCase):
     reference = _reference_info
 
@@ -330,6 +357,7 @@ class BitcoinFormatCheckTest(unittest.TestCase):
 
     def test_is_hex_private_key(self):
         self.assertTrue(is_256bit_hex_string(self.reference['hex_private_key']))
+
 
 class SequentialWalletTest(unittest.TestCase):
     reference = {
@@ -349,6 +377,7 @@ class SequentialWalletTest(unittest.TestCase):
         bitcoin_keypair_1 = self.wallet.keypair(1, BitcoinKeypair)
         self.assertEqual(self.reference['bitcoin_keypair_1']['address'], bitcoin_keypair_1.address())
         self.assertEqual(bitcoin_keypair_1.passphrase(), self.reference['passphrase'] + ' bitcoin1')
+
 
 class ServicesGetUnspentsTest(unittest.TestCase):
     def setUp(self):
@@ -382,15 +411,21 @@ class ServicesGetUnspentsTest(unittest.TestCase):
         total_value = sum([u['value'] for u in unspents])
         self.assertEqual(total_value, self.total_unspent_value)
 
+    def test_blockcypher_get_unspents(self):
+        client = blockcypher.BlockcypherClient()
+        unspents = blockcypher.get_unspents(self.address, client)
+        self.compare_total_value(unspents)
+        self.compare_unspents(unspents)
+
     def test_blockchain_info_get_unspents(self):
-        client = BlockchainInfoClient(SECRETS['blockchain_api_key'])
-        unspents = get_unspents(self.address, client)
+        client = blockchain_info.BlockchainInfoClient(SECRETS['blockchain_api_key'])
+        unspents = blockchain_info.get_unspents(self.address, client)
         self.compare_total_value(unspents)
         self.compare_unspents(unspents)
 
     def test_chain_com_get_unspents(self):
-        client = ChainComClient(SECRETS['chain_api_id'], SECRETS['chain_api_secret'])
-        unspents = transactions.get_unspents(self.address, client)
+        client = chain_com.ChainComClient(SECRETS['chain_api_id'], SECRETS['chain_api_secret'])
+        unspents = chain_com.get_unspents(self.address, client)
         self.compare_total_value(unspents)
         self.compare_unspents(unspents)
 
@@ -400,6 +435,7 @@ class ServicesGetUnspentsTest(unittest.TestCase):
         self.compare_total_value(unspents)
         self.compare_unspents(unspents)
 
+
 class TransactionNetworkFunctionsTest(unittest.TestCase):
     def setUp(self):
         self.private_key = SECRETS['private_key']
@@ -408,43 +444,45 @@ class TransactionNetworkFunctionsTest(unittest.TestCase):
         pass
 
     def test_analyze_private_key(self):
-        client = ChainComClient(SECRETS['chain_api_id'], SECRETS['chain_api_secret'])
+        client = chain_com.ChainComClient(SECRETS['chain_api_id'], SECRETS['chain_api_secret'])
         private_key_obj, from_address, inputs = analyze_private_key(
             self.private_key, client)
         self.assertTrue(isinstance(private_key_obj, BitcoinPrivateKey))
 
+
 class SendNamecoinTransactionTest(unittest.TestCase):
     def setUp(self):
         self.recipient_address = 'NKUDoWmJevpguXZn9fT37zRub4uS2mrqba'
-        self.private_key = NamecoinPrivateKey(SECRET['namecoin_private_key'])
+        self.private_key = NamecoinPrivateKey(SECRETS['namecoin_private_key'])
         self.namecoind_client = namecoind_client
 
     def tearDown(self):
         pass
 
     def test_namecoin_build_transaction(self):
-        unspents = get_unspents(recipient_address, self.namecoind_client)
-        signed_tx = make_send_to_address_tx(recipient_address, 1000000,
-            private_key, self.namecoind_client)
+        signed_tx = make_send_to_address_tx(self.recipient_address, 1000000,
+            self.private_key, self.namecoind_client)
         resp = broadcast_transaction(signed_tx, self.namecoind_client)
         self.assertTrue(resp.get('success'))
+
 
 class ServicesSendTransactionTest(unittest.TestCase):
     def setUp(self):
         self.recipient_address = '1EEwLZVZMc2EhMf3LXDARbp4mA3qAwhBxu'
         self.private_key = BitcoinPrivateKey(SECRETS["private_key"])
         self.send_amount = 1000
-        
-        self.chain_com_client = ChainComClient(SECRETS['chain_api_id'],
+
+        self.blockcypher_client = blockcypher.BlockcypherClient()
+        self.chain_com_client = chain_com.ChainComClient(SECRETS['chain_api_id'],
             SECRETS['chain_api_secret'])
-        self.blockchain_info_client = BlockchainInfoClient(
+        self.blockchain_info_client = blockchain_info.BlockchainInfoClient(
             SECRETS['blockchain_api_key'])
         self.bitcoind_client = bitcoind_client
         self.bitcoind = create_bitcoind_service_proxy(SECRETS['rpc_username'],
             SECRETS['rpc_password'])
 
         self.signed_tx = make_send_to_address_tx(self.recipient_address, self.send_amount,
-            self.private_key, self.chain_com_client)
+            self.private_key, self.blockcypher_client)
 
     def tearDown(self):
         pass
@@ -454,6 +492,10 @@ class ServicesSendTransactionTest(unittest.TestCase):
 
     def send_to_address_with_client(self, client):
         return send_to_address(self.recipient_address, 1000, self.private_key, client)
+
+    def test_send_transaction_blockcypher_com(self):
+        resp = self.broadcast_with_client(self.signed_tx, self.blockcypher_client)
+        self.assertTrue(resp.get('success'))
 
     def test_send_transaction_chain_com(self):
         resp = self.broadcast_with_client(self.signed_tx, self.chain_com_client)
@@ -475,13 +517,15 @@ class ServicesSendTransactionTest(unittest.TestCase):
         self.assertTrue(True)
     """
 
+
 class ServicesSendOpReturnTransactionTest(unittest.TestCase):
     def setUp(self):
         self.private_key = SECRETS['private_key_2']
 
-        self.chain_com_client = ChainComClient(SECRETS['chain_api_id'],
+        self.blockcypher_client = blockcypher.BlockcypherClient()
+        self.chain_com_client = chain_com.ChainComClient(SECRETS['chain_api_id'],
             SECRETS['chain_api_secret'])
-        self.blockchain_info_client = BlockchainInfoClient(
+        self.blockchain_info_client = blockchain_info.BlockchainInfoClient(
             SECRETS['blockchain_api_key'])
         self.bitcoind_client = bitcoind_client
 
@@ -496,28 +540,12 @@ class ServicesSendOpReturnTransactionTest(unittest.TestCase):
     def run_tx_broadcasting(self, tx, client):
         return broadcast_transaction(tx, client)
 
-    """
-    def run_data_embedding(self, data, client):
-        resp = embed_data_in_blockchain(data, self.private_key,
-            client, format='hex', fee=100000)
-        return resp
-    """
-
     def test_hex_op_return_tx(self):
-        data = '00'*40
-        signed_tx = self.run_op_return_tx_building(data, self.chain_com_client, format='hex')
-        resp = self.run_tx_broadcasting(signed_tx, self.chain_com_client)
+        data = '00' * 40
+        signed_tx = self.run_op_return_tx_building(data, self.blockcypher_client, format='hex')
+        resp = self.run_tx_broadcasting(signed_tx, self.blockcypher_client)
         self.assertTrue(resp.get('success'))
 
-    """
-    def test_short_hex_op_return_tx(self):
-        resp = embed_data('0'*2)
-        self.assertTrue(resp.get('success'))
-
-    def test_bin_op_return_tx(self):
-        resp = embed_data("Hello, Blockchain!")
-        self.assertTrue(resp.get('success'))
-    """
 
 class MerkleTest(unittest.TestCase):
     def setUp(self):
@@ -538,6 +566,7 @@ class MerkleTest(unittest.TestCase):
     def test_calculate_merkle_root(self):
         merkle_root = calculate_merkle_root(self.hashes)
         self.assertEqual(merkle_root, self.merkle_root)
+
 
 def test_main():
 
@@ -563,6 +592,7 @@ def test_main():
         BitcoinFormatCheckTest,
         SequentialWalletTest,
     )
+
 
 def test_transactions():
     test_support.run_unittest(
