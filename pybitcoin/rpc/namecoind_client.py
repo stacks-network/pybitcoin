@@ -15,6 +15,9 @@ from .config import NAMECOIND_SERVER, NAMECOIND_PORT, NAMECOIND_USER
 from .config import NAMECOIND_PASSWD, NAMECOIND_WALLET_PASSPHRASE
 from .config import NAMECOIND_USE_HTTPS, VALUE_MAX_LIMIT
 
+#opt-out for verifying self-signed certificates (typically used in namecoin/bitcoind)
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 class NamecoindClient(object):
 
