@@ -1,9 +1,9 @@
 pybitcoin
 =====
 
-[![Latest Version](https://pypip.in/version/pybitcoin/badge.svg)](https://pypi.python.org/pypi/pybitcoin/)
-[![Downloads](https://pypip.in/download/pybitcoin/badge.svg)](https://pypi.python.org/pypi/pybitcoin/)
-[![License](https://pypip.in/license/pybitcoin/badge.svg)](https://pypi.python.org/pypi/pybitcoin>/)
+[![PyPI](https://img.shields.io/pypi/v/pybitcoin.svg)](https://pypi.python.org/pypi/pybitcoin/)
+[![PyPI](https://img.shields.io/pypi/dm/pybitcoin.svg)](https://pypi.python.org/pypi/pybitcoin/)
+[![PyPI](https://img.shields.io/pypi/l/pybitcoin.svg)](https://github.com/namesystem/pybitcoin/blob/master/LICENSE)
 
 Python library with tools for Bitcoin and other cryptocurrencies.
 
