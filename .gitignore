@@ -35,5 +35,11 @@ nosetests.xml
 .project
 .pydevproject
 
+# Mac Hidden File
+.DS_Store
+
+# Virtual Environment
+/venv/
+
 ignore
 tests/secrets*

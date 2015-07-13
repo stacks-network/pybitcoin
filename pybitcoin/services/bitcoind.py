@@ -7,18 +7,12 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import json
-import requests
-import traceback
 import httplib
-from ..hash import reverse_hash
 
 from bitcoinrpc.authproxy import AuthServiceProxy
 
 from ..constants import SATOSHIS_PER_COIN
 
-from binascii import unhexlify
-from ..b58check import b58check_encode
 from ..address import script_hex_to_address
 
 from .blockchain_client import BlockchainClient
@@ -57,8 +51,8 @@ def get_unspents(address, blockchain_client):
         unspent transaction outputs.
 
         NOTE: this will only return unspents if the address provided is present
-        in the bitcoind server. Use the blockchain or chain API to grab the
-        unspents for arbitrary addresses.
+        in the bitcoind server. Use the blockcypher, blockchain, or chain API
+        to grab the unspents for arbitrary addresses.
     """
     if isinstance(blockchain_client, BitcoindClient):
         bitcoind = blockchain_client.bitcoind
