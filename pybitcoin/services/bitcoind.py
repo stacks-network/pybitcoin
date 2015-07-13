@@ -51,7 +51,7 @@ def get_unspents(address, blockchain_client):
         unspent transaction outputs.
 
         NOTE: this will only return unspents if the address provided is present
-        in the bitcoind server. Use the blockcypher, blockchain, or chain API
+        in the bitcoind server. Use the chain, blockchain, or blockcypher API
         to grab the unspents for arbitrary addresses.
     """
     if isinstance(blockchain_client, BitcoindClient):
