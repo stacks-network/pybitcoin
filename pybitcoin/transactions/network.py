@@ -10,7 +10,7 @@
 from binascii import hexlify, unhexlify
 from pybitcointools import sign as sign_transaction
 
-from ..services import blockchain_info, chain_com, bitcoind
+from ..services import blockchain_info, chain_com, bitcoind, blockcypher
 from ..privatekey import BitcoinPrivateKey
 from .serialize import serialize_transaction
 from .outputs import make_pay_to_address_outputs, make_op_return_outputs
@@ -18,19 +18,22 @@ from ..constants import STANDARD_FEE, OP_RETURN_FEE
 
 """ Note: for functions that take in an auth object, here are some examples
     for the various APIs available:
-    
+
+    blockcypher.com: auth=(api_key, None) or None
     blockchain.info: auth=(api_key, None)
     chain.com: auth=(api_key_id, api_key_secret)
 """
 
-from ..services import BlockchainInfoClient, BitcoindClient, ChainComClient, \
-    BlockchainClient
+from ..services import (ChainComClient, BlockchainInfoClient, BitcoindClient,
+    BlockcypherClient, BlockchainClient)
 from bitcoinrpc.authproxy import AuthServiceProxy
 
 def get_unspents(address, blockchain_client=BlockchainInfoClient()):
     """ Gets the unspent outputs for a given address.
     """
-    if isinstance(blockchain_client, BlockchainInfoClient):
+    if isinstance(blockchain_client, BlockcypherClient):
+        return blockcypher.get_unspents(address, blockchain_client)
+    elif isinstance(blockchain_client, BlockchainInfoClient):
         return blockchain_info.get_unspents(address, blockchain_client)
     elif isinstance(blockchain_client, ChainComClient):
         return chain_com.get_unspents(address, blockchain_client)
@@ -44,7 +47,9 @@ def get_unspents(address, blockchain_client=BlockchainInfoClient()):
 def broadcast_transaction(hex_tx, blockchain_client):
     """ Dispatches a raw hex transaction to the network.
     """
-    if isinstance(blockchain_client, BlockchainInfoClient):
+    if isinstance(blockchain_client, BlockcypherClient):
+        return blockcypher.broadcast_transaction(hex_tx, blockchain_client)
+    elif isinstance(blockchain_client, BlockchainInfoClient):
         return blockchain_info.broadcast_transaction(hex_tx, blockchain_client)
     elif isinstance(blockchain_client, ChainComClient):
         return chain_com.broadcast_transaction(hex_tx, blockchain_client)
