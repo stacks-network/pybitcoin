@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pybitcoin',
-    version='0.8.2',
+    version='0.8.3',
     url='https://github.com/namesystem/pybitcoin',
     license='MIT',
     author='Halfmoon Labs, Inc.',
