@@ -162,8 +162,8 @@ class BitcoindClient(object):
             unspent transaction outputs.
 
             NOTE: this will only return unspents if the address provided is
-            present in the bitcoind server. Use the blockchain or chain API
-            to grab the unspents for arbitrary addresses.
+            present in the bitcoind server. Use the chain, blockchain,
+            or blockcypher API to grab the unspents for arbitrary addresses.
         """
 
         all_unspents = self.obj.listunspent()
