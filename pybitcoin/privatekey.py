@@ -14,7 +14,7 @@ import ecdsa
 from binascii import hexlify, unhexlify
 from ecdsa.keys import SigningKey
 from utilitybelt import is_int, dev_random_entropy, dev_urandom_entropy
-from pybitcointools import compress
+from pybitcointools import compress, encode_privkey
 
 from .errors import _errors
 from .formatcheck import *
@@ -54,16 +54,8 @@ class BitcoinPrivateKey():
             secret_exponent = random_secret_exponent(self._curve.order)
         else:
             private_key = str(private_key)
-
-            if is_int(private_key):
-                secret_exponent = private_key
-            elif is_256bit_hex_string(private_key):
-                secret_exponent = int(private_key, 16)
-            elif is_wif_pk(private_key):
-                secret_exponent = int(
-                    hexlify(b58check_decode(private_key)), 16)
-            else:
-                raise Exception('Not a valid private key format.')
+            private_key = encode_privkey( private_key, 'decimal' )
+            secret_exponent = private_key
 
         # make sure that: 1 <= secret_exponent < curve_order
         if not is_secret_exponent(secret_exponent, self._curve.order):
@@ -96,10 +88,15 @@ class BitcoinPrivateKey():
     def to_bin(self):
         return self._ecdsa_private_key.to_string()
 
-    def to_hex(self):
+    def to_hex(self, compressed=False):
+        if compressed:
+            return encode_privkey( self.to_bin(), 'hex_compressed' )
         return hexlify(self.to_bin())
 
-    def to_wif(self):
+    def to_wif(self, compressed=False):
+        if compressed:
+            return encode_privkey( self.to_bin(), 'wif_compressed' )
+
         return b58check_encode(
             self.to_bin(), version_byte=self.wif_version_byte())
 
