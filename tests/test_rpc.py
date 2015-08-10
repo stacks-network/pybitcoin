@@ -11,7 +11,10 @@ parent_dir = os.path.abspath(current_dir + "/../")
 sys.path.insert(0, parent_dir)
 
 import unittest
-from coinrpc import namecoind, bitcoind
+from pybitcoin.rpc import BitcoindClient, NamecoindClient
+
+bitcoind = BitcoindClient()
+namecoind = NamecoindClient()
 
 
 class NamecoindTestCase(unittest.TestCase):

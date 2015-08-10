@@ -69,7 +69,7 @@ def get_private_key_obj(private_key):
 def analyze_private_key(private_key, blockchain_client):
     private_key_obj = get_private_key_obj(private_key)
     # determine the address associated with the supplied private key
-    from_address = private_key_obj.public_key().address()
+    from_address = private_key_obj.public_key().address() 
     # get the unspent outputs corresponding to the given address
     inputs = get_unspents(from_address, blockchain_client)
     # return the inputs
