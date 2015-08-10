@@ -1,5 +1,4 @@
 import os
-from secrets import *
 
 secrets_list = [
     'CHAIN_API_ID', 'CHAIN_API_SECRET', 'BITCOIN_PRIVATE_KEY', \
