@@ -69,7 +69,7 @@ def get_private_key_obj(private_key):
 def analyze_private_key(private_key, blockchain_client):
     private_key_obj = get_private_key_obj(private_key)
     # determine the address associated with the supplied private key
-    from_address = private_key_obj.public_key().address()
+    from_address = private_key_obj.public_key().address( compressed=True )
     # get the unspent outputs corresponding to the given address
     inputs = get_unspents(from_address, blockchain_client)
     # return the inputs
@@ -92,7 +92,7 @@ def make_send_to_address_tx(recipient_address, amount, private_key,
     # serialize the transaction
     unsigned_tx = serialize_transaction(inputs, outputs)
     # sign the unsigned transaction with the private key
-    signed_tx = sign_transaction(unsigned_tx, 0, private_key_obj.to_hex())
+    signed_tx = sign_transaction(unsigned_tx, 0, private_key_obj.to_hex( compressed=True ))
     # return the signed tx
     return signed_tx
 
@@ -113,7 +113,7 @@ def make_op_return_tx(data, private_key,
     # serialize the transaction
     unsigned_tx = serialize_transaction(inputs, outputs)
     # sign the unsigned transaction with the private key
-    signed_tx = sign_transaction(unsigned_tx, 0, private_key_obj.to_hex())
+    signed_tx = sign_transaction(unsigned_tx, 0, private_key_obj.to_hex( compressed=True ))
     # return the signed tx
     return signed_tx
 
