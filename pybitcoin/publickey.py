@@ -42,18 +42,22 @@ def get_public_key_format(public_key_string):
 
     if len(public_key_string) == 64:
         return CharEncoding.bin, PubkeyType.ecdsa
+
     if (len(public_key_string) == 65 and
             public_key_string[0] == PUBKEY_MAGIC_BYTE):
         return CharEncoding.bin, PubkeyType.uncompressed
+
     if len(public_key_string) == 33:
         return CharEncoding.bin, PubkeyType.compressed
 
     if is_hex(public_key_string):
         if len(public_key_string) == 128:
             return CharEncoding.hex, PubkeyType.ecdsa
+
         if (len(public_key_string) == 130 and
                 public_key_string[0:2] == hexlify(PUBKEY_MAGIC_BYTE)):
             return CharEncoding.hex, PubkeyType.uncompressed
+
         if len(public_key_string) == 66:
             return CharEncoding.hex, PubkeyType.compressed
 
@@ -114,6 +118,7 @@ class BitcoinPublicKey():
         # set the version byte
         if version_byte:
             self._version_byte = version_byte
+
         self._charencoding, self._type = get_public_key_format(
             public_key_string)
 
@@ -147,8 +152,8 @@ class BitcoinPublicKey():
     def hash160(self):
         return hexlify(self.bin_hash160())
 
-    def address(self, compressed=False):
-        if compressed:
+    def address(self):
+        if self._type == PubkeyType.compressed:
             return bin_hash160_to_address( get_bin_hash160( compress(self.to_bin()) ), version_byte=self._version_byte )
 
         return bin_hash160_to_address(self.bin_hash160(),
