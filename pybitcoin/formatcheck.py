@@ -25,7 +25,7 @@ def is_256bit_hex_string(val):
 
 
 def is_wif_pk(val):
-    return (len(val) >= 51 and len(val) <= 51 and is_b58check(val))
+    return (len(val) >= 51 and len(val) <= 52 and is_b58check(val))
 
 
 def is_b58check_address(val):
