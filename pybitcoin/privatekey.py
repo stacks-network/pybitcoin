@@ -14,7 +14,7 @@ import ecdsa
 from binascii import hexlify, unhexlify
 from ecdsa.keys import SigningKey
 from utilitybelt import is_int, dev_random_entropy, dev_urandom_entropy
-from pybitcointools import compress
+from pybitcointools import compress, encode_privkey, get_privkey_format
 
 from .errors import _errors
 from .formatcheck import *
@@ -50,20 +50,13 @@ class BitcoinPrivateKey():
     def __init__(self, private_key=None):
         """ Takes in a private key/secret exponent.
         """
+        self._compressed = False
         if not private_key:
             secret_exponent = random_secret_exponent(self._curve.order)
         else:
-            private_key = str(private_key)
-
-            if is_int(private_key):
-                secret_exponent = private_key
-            elif is_256bit_hex_string(private_key):
-                secret_exponent = int(private_key, 16)
-            elif is_wif_pk(private_key):
-                secret_exponent = int(
-                    hexlify(b58check_decode(private_key)), 16)
-            else:
-                raise Exception('Not a valid private key format.')
+            secret_exponent = encode_privkey( private_key, 'decimal' )
+            if get_privkey_format( private_key ).endswith('compressed'):
+                self._compressed = True
 
         # make sure that: 1 <= secret_exponent < curve_order
         if not is_secret_exponent(secret_exponent, self._curve.order):
@@ -94,29 +87,38 @@ class BitcoinPrivateKey():
         return keypair
 
     def to_bin(self):
-        return self._ecdsa_private_key.to_string()
+        if self._compressed:
+            return encode_privkey( self._ecdsa_private_key.to_string(), 'bin_compressed' )
+        else:
+            return self._ecdsa_private_key.to_string()
 
     def to_hex(self):
-        return hexlify(self.to_bin())
+        if self._compressed:
+            return encode_privkey( self._ecdsa_private_key.to_string(), 'hex_compressed' )
+        else:
+            return hexlify(self.to_bin())
 
     def to_wif(self):
-        return b58check_encode(
-            self.to_bin(), version_byte=self.wif_version_byte())
+        if self._compressed:
+            return encode_privkey( self._ecdsa_private_key.to_string(), 'wif_compressed' )
+        else:
+            return b58check_encode(
+                self.to_bin(), version_byte=self.wif_version_byte())
 
     def to_pem(self):
         return self._ecdsa_private_key.to_pem()
 
-    def public_key(self, compressed=False):
+    def public_key(self):
         # lazily calculate and set the public key
         if not hasattr(self, '_public_key'):
             ecdsa_public_key = self._ecdsa_private_key.get_verifying_key()
 
-            # compress the public key string if a compressed public key is
-            # desired
             bin_public_key_string = PUBKEY_MAGIC_BYTE + \
                 ecdsa_public_key.to_string()
-            if compressed:
-                bin_public_key_string = compress(bin_public_key_string)
+
+            if self._compressed:
+                bin_public_key_string = compress( bin_public_key_string )
+
             # create the public key object from the public key string
             self._public_key = BitcoinPublicKey(
                 bin_public_key_string,
