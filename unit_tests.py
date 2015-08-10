@@ -49,22 +49,6 @@ namecoind_client = BitcoindClient(
     passwd=BITCOIND_RPC_PASSWORD, use_https=True, version_byte=52)
 
 
-def altcoin_test_generator(coin_name):
-    def generated_test(self):
-        keypair = get_class(coin_name.title() + 'Keypair')
-        private_key = self.reference['hex_private_key']
-        keypair = keypair.from_private_key(private_key)
-
-        wif_private_key = keypair.wif_pk()
-        reference_wif_private_key = self.reference[(coin_name, 'wif')]
-        self.assertEqual(wif_private_key, reference_wif_private_key)
-
-        address = keypair.address()
-        reference_address = self.reference[(coin_name, 'address')]
-        self.assertEqual(address, reference_address)
-
-    return generated_test
-
 _reference_info = {
     'passphrase': 'correct horse battery staple',
     'bin_private_key': '\xc4\xbb\xcb\x1f\xbe\xc9\x9de\xbfY\xd8\\\x8c\xb6.\xe2\xdb\x96?\x0f\xe1\x06\xf4\x83\xd9\xaf\xa7;\xd4\xe3\x9a\x8a',
@@ -647,6 +631,21 @@ class MerkleTest(unittest.TestCase):
 
 
 def test_main():
+    def altcoin_test_generator(coin_name):
+        def generate(self):
+            keypair = get_class(coin_name.title() + 'Keypair')
+            private_key = self.reference['hex_private_key']
+            keypair = keypair.from_private_key(private_key)
+
+            wif_private_key = keypair.wif_pk()
+            reference_wif_private_key = self.reference[(coin_name, 'wif')]
+            self.assertEqual(wif_private_key, reference_wif_private_key)
+
+            address = keypair.address()
+            reference_address = self.reference[(coin_name, 'address')]
+            self.assertEqual(address, reference_address)
+
+        return generate
 
     # generate altcoin tests
     for coin_name in AltcoinKeypairTest.coin_names:
