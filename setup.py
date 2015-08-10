@@ -11,7 +11,7 @@ setup(
     version='0.9.0',
     url='https://github.com/blockstack/pybitcoin',
     license='MIT',
-    author='Halfmoon Labs, Inc.',
+    author='Blockstack Developers',
     author_email='hello@onename.com',
     description=("Tools for Bitcoin & other cryptocurrencies (private & ",
                  "public keys, addresses, transactions, RPC, etc.)."),

@@ -34,42 +34,20 @@ from pybitcoin.services.bitcoind import create_bitcoind_service_proxy
 
 get_class = lambda x: globals()[x]
 
-try:
-    with open('tests/secrets.json', 'r') as f:
-        SECRETS = json.loads(f.read())
-except:
-    traceback.print_exc()
+from settings import BITCOIND_RPC_PASSWORD, BITCOIND_RPC_USERNAME, \
+    BLOCKCHAIN_API_KEY, CHAIN_API_ID, CHAIN_API_SECRET, NAMECOIN_PRIVATE_KEY, \
+    BLOCKCYPHER_API_KEY, BLOCKCHAIN_API_KEY, BITCOIN_PRIVATE_KEY, \
+    BITCOIN_PRIVATE_KEY_2
+
 
 bitcoind_client = BitcoindClient(
-    server='127.0.0.1', port=8332, user=SECRETS['rpc_username'],
-    passwd=SECRETS['rpc_password'], use_https=True)
+    server='127.0.0.1', port=8332, user=BITCOIND_RPC_USERNAME,
+    passwd=BITCOIND_RPC_PASSWORD, use_https=True)
 
 namecoind_client = BitcoindClient(
-    server='127.0.0.1', port=8336, user=SECRETS['rpc_username'],
-    passwd=SECRETS['rpc_password'], use_https=True, version_byte=52)
+    server='127.0.0.1', port=8336, user=BITCOIND_RPC_USERNAME,
+    passwd=BITCOIND_RPC_PASSWORD, use_https=True, version_byte=52)
 
-
-def equality_test_generator(a, b):
-    def test(self):
-        self.assertEqual(a, b)
-    return test
-
-
-def altcoin_test_generator(coin_name):
-    def test(self):
-        keypair = get_class(coin_name.title() + 'Keypair')
-        private_key = self.reference['hex_private_key']
-        keypair = keypair.from_private_key(private_key)
-
-        wif_private_key = keypair.wif_pk()
-        reference_wif_private_key = self.reference[(coin_name, 'wif')]
-        self.assertEqual(wif_private_key, reference_wif_private_key)
-
-        address = keypair.address()
-        reference_address = self.reference[(coin_name, 'address')]
-        self.assertEqual(address, reference_address)
-
-    return test
 
 _reference_info = {
     'passphrase': 'correct horse battery staple',
@@ -469,14 +447,13 @@ class ServicesGetUnspentsTest(unittest.TestCase):
 
     def test_blockchain_info_get_unspents(self):
         client = blockchain_info.BlockchainInfoClient(
-            SECRETS['blockchain_api_key'])
+            BLOCKCHAIN_API_KEY)
         unspents = blockchain_info.get_unspents(self.address, client)
         self.compare_total_value(unspents)
         self.compare_unspents(unspents)
 
     def test_chain_com_get_unspents(self):
-        client = chain_com.ChainComClient(SECRETS['chain_api_id'],
-                SECRETS['chain_api_secret'])
+        client = chain_com.ChainComClient(CHAIN_API_ID, CHAIN_API_SECRET)
         unspents = chain_com.get_unspents(self.address, client)
         self.compare_total_value(unspents)
         self.compare_unspents(unspents)
@@ -492,23 +469,23 @@ class ServicesGetUnspentsTest(unittest.TestCase):
 
 class TransactionNetworkFunctionsTest(unittest.TestCase):
     def setUp(self):
-        self.private_key = SECRETS['private_key']
+        self.private_key = BITCOIN_PRIVATE_KEY
 
     def tearDown(self):
         pass
 
     def test_analyze_private_key(self):
-        client = chain_com.ChainComClient(SECRETS['chain_api_id'],
-                SECRETS['chain_api_secret'])
+        client = chain_com.ChainComClient(CHAIN_API_ID, CHAIN_API_SECRET)
         private_key_obj, from_address, inputs = analyze_private_key(
             self.private_key, client)
         self.assertTrue(isinstance(private_key_obj, BitcoinPrivateKey))
 
 
+"""
 class SendNamecoinTransactionTest(unittest.TestCase):
     def setUp(self):
         self.recipient_address = 'NKUDoWmJevpguXZn9fT37zRub4uS2mrqba'
-        self.private_key = NamecoinPrivateKey(SECRETS['namecoin_private_key'])
+        self.private_key = NamecoinPrivateKey(NAMECOIN_PRIVATE_KEY)
         self.namecoind_client = namecoind_client
 
     def tearDown(self):
@@ -519,23 +496,24 @@ class SendNamecoinTransactionTest(unittest.TestCase):
             self.private_key, self.namecoind_client)
         resp = broadcast_transaction(signed_tx, self.namecoind_client)
         self.assertTrue(resp.get('success'))
+"""
 
 
 class ServicesSendTransactionTest(unittest.TestCase):
     def setUp(self):
         self.recipient_address = '1EEwLZVZMc2EhMf3LXDARbp4mA3qAwhBxu'
-        self.private_key = BitcoinPrivateKey(SECRETS["private_key"])
+        self.private_key = BitcoinPrivateKey(BITCOIN_PRIVATE_KEY)
         self.send_amount = 1000
 
         self.blockcypher_client = blockcypher.BlockcypherClient(
-            SECRETS['blockcypher_api_key'])
-        self.chain_com_client = chain_com.ChainComClient(
-            SECRETS['chain_api_id'], SECRETS['chain_api_secret'])
+            BLOCKCYPHER_API_KEY)
+        self.chain_com_client = chain_com.ChainComClient(CHAIN_API_ID,
+            CHAIN_API_SECRET)
         self.blockchain_info_client = blockchain_info.BlockchainInfoClient(
-            SECRETS['blockchain_api_key'])
+            BLOCKCHAIN_API_KEY)
         self.bitcoind_client = bitcoind_client
         self.bitcoind = create_bitcoind_service_proxy(
-            SECRETS['rpc_username'], SECRETS['rpc_password'])
+            BITCOIND_RPC_USERNAME, BITCOIND_RPC_PASSWORD)
 
         self.signed_tx = make_send_to_address_tx(
             self.recipient_address, self.send_amount,
@@ -583,14 +561,14 @@ class ServicesSendTransactionTest(unittest.TestCase):
 
 class ServicesSendOpReturnTransactionTest(unittest.TestCase):
     def setUp(self):
-        self.private_key = SECRETS['private_key_2']
+        self.private_key = BITCOIN_PRIVATE_KEY_2
 
         self.blockcypher_client = blockcypher.BlockcypherClient(
-            SECRETS['blockcypher_api_key'])
+            BLOCKCYPHER_API_KEY)
         self.chain_com_client = chain_com.ChainComClient(
-            SECRETS['chain_api_id'], SECRETS['chain_api_secret'])
+            CHAIN_API_ID, CHAIN_API_SECRET)
         self.blockchain_info_client = blockchain_info.BlockchainInfoClient(
-            SECRETS['blockchain_api_key'])
+            BLOCKCHAIN_API_KEY)
         self.bitcoind_client = bitcoind_client
 
         self.fee = 10000
@@ -653,6 +631,21 @@ class MerkleTest(unittest.TestCase):
 
 
 def test_main():
+    def altcoin_test_generator(coin_name):
+        def generate(self):
+            keypair = get_class(coin_name.title() + 'Keypair')
+            private_key = self.reference['hex_private_key']
+            keypair = keypair.from_private_key(private_key)
+
+            wif_private_key = keypair.wif_pk()
+            reference_wif_private_key = self.reference[(coin_name, 'wif')]
+            self.assertEqual(wif_private_key, reference_wif_private_key)
+
+            address = keypair.address()
+            reference_address = self.reference[(coin_name, 'address')]
+            self.assertEqual(address, reference_address)
+
+        return generate
 
     # generate altcoin tests
     for coin_name in AltcoinKeypairTest.coin_names:
