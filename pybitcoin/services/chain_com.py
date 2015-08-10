@@ -66,10 +66,10 @@ def broadcast_transaction(hex_tx, blockchain_client):
     if not auth or len(auth) != 2:
         raise Exception('ChainComClient object must have auth credentials.')
 
-    url = CHAIN_API_BASE_URL + '/bitcoin/transactions'
-    payload = json.dumps({ 'hex': hex_tx })
-    r = requests.put(url, data=payload, auth=auth)
-    
+    url = CHAIN_API_BASE_URL + '/bitcoin/transactions/send'
+    payload = json.dumps({ 'signed_hex': hex_tx })
+    r = requests.post(url, data=payload, auth=auth)
+
     try:
         data = r.json()
     except ValueError, e:
@@ -79,5 +79,5 @@ def broadcast_transaction(hex_tx, blockchain_client):
         data['success'] = True
         return data
     else:
-        raise Exception('Tx hash missing from chain.com response: ' + str(data))
+        raise Exception('Tx hash missing from chain.com response: ' + str(data) + '\noriginal: ' + str(payload))
 
