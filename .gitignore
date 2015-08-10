@@ -43,3 +43,4 @@ nosetests.xml
 
 ignore
 tests/secrets*
+secrets.py
