@@ -49,14 +49,8 @@ namecoind_client = BitcoindClient(
     passwd=BITCOIND_RPC_PASSWORD, use_https=True, version_byte=52)
 
 
-def equality_test_generator(a, b):
-    def test(self):
-        self.assertEqual(a, b)
-    return test
-
-
 def altcoin_test_generator(coin_name):
-    def test(self):
+    def generated_test(self):
         keypair = get_class(coin_name.title() + 'Keypair')
         private_key = self.reference['hex_private_key']
         keypair = keypair.from_private_key(private_key)
@@ -69,7 +63,7 @@ def altcoin_test_generator(coin_name):
         reference_address = self.reference[(coin_name, 'address')]
         self.assertEqual(address, reference_address)
 
-    return test
+    return generated_test
 
 _reference_info = {
     'passphrase': 'correct horse battery staple',
@@ -503,6 +497,7 @@ class TransactionNetworkFunctionsTest(unittest.TestCase):
         self.assertTrue(isinstance(private_key_obj, BitcoinPrivateKey))
 
 
+"""
 class SendNamecoinTransactionTest(unittest.TestCase):
     def setUp(self):
         self.recipient_address = 'NKUDoWmJevpguXZn9fT37zRub4uS2mrqba'
@@ -517,6 +512,7 @@ class SendNamecoinTransactionTest(unittest.TestCase):
             self.private_key, self.namecoind_client)
         resp = broadcast_transaction(signed_tx, self.namecoind_client)
         self.assertTrue(resp.get('success'))
+"""
 
 
 class ServicesSendTransactionTest(unittest.TestCase):
