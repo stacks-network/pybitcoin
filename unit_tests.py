@@ -34,20 +34,19 @@ from pybitcoin.services.bitcoind import create_bitcoind_service_proxy
 
 get_class = lambda x: globals()[x]
 
-from settings import RPC_PASSWORD, RPC_USERNAME, BLOCKCHAIN_API_KEY, \
-    CHAIN_API_ID, CHAIN_API_SECRET, NAMECOIN_PRIVATE_KEY, \
-    BLOCKCYPHER_API_KEY, BLOCKCHAIN_API_KEY
-from settings import PRIVATE_KEY as BITCOIN_PRIVATE_KEY
-from settings import PRIVATE_KEY_2 as BITCOIN_PRIVATE_KEY_2
+from settings import BITCOIND_RPC_PASSWORD, BITCOIND_RPC_USERNAME, \
+    BLOCKCHAIN_API_KEY, CHAIN_API_ID, CHAIN_API_SECRET, NAMECOIN_PRIVATE_KEY, \
+    BLOCKCYPHER_API_KEY, BLOCKCHAIN_API_KEY, BITCOIN_PRIVATE_KEY, \
+    BITCOIN_PRIVATE_KEY_2
 
 
 bitcoind_client = BitcoindClient(
-    server='127.0.0.1', port=8332, user=RPC_USERNAME,
-    passwd=RPC_PASSWORD, use_https=True)
+    server='127.0.0.1', port=8332, user=BITCOIND_RPC_USERNAME,
+    passwd=BITCOIND_RPC_PASSWORD, use_https=True)
 
 namecoind_client = BitcoindClient(
-    server='127.0.0.1', port=8336, user=RPC_USERNAME,
-    passwd=RPC_PASSWORD, use_https=True, version_byte=52)
+    server='127.0.0.1', port=8336, user=BITCOIND_RPC_USERNAME,
+    passwd=BITCOIND_RPC_PASSWORD, use_https=True, version_byte=52)
 
 
 def equality_test_generator(a, b):
@@ -534,7 +533,7 @@ class ServicesSendTransactionTest(unittest.TestCase):
             BLOCKCHAIN_API_KEY)
         self.bitcoind_client = bitcoind_client
         self.bitcoind = create_bitcoind_service_proxy(
-            RPC_USERNAME, RPC_PASSWORD)
+            BITCOIND_RPC_USERNAME, BITCOIND_RPC_PASSWORD)
 
         self.signed_tx = make_send_to_address_tx(
             self.recipient_address, self.send_amount,
