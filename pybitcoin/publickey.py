@@ -147,7 +147,10 @@ class BitcoinPublicKey():
     def hash160(self):
         return hexlify(self.bin_hash160())
 
-    def address(self):
+    def address(self, compressed=False):
+        if compressed:
+            return bin_hash160_to_address( get_bin_hash160( compress(self.to_bin()) ), version_byte=self._version_byte )
+
         return bin_hash160_to_address(self.bin_hash160(),
                                       version_byte=self._version_byte)
 
