@@ -144,6 +144,9 @@ class BitcoinPublicKey():
     def to_pem(self):
         return self._ecdsa_public_key.to_pem()
 
+    def to_der(self):
+        return hexlify(self._ecdsa_public_key.to_der())
+
     def bin_hash160(self):
         if not hasattr(self, '_bin_hash160'):
             self._bin_hash160 = get_bin_hash160(self.to_bin())

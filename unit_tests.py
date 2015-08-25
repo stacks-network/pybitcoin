@@ -59,7 +59,9 @@ _reference_info = {
     'address': '1JwSSubhmg6iPtRjtyqhUYYH7bZg3Lfy1T',
     'wif_version_byte': 128,
     'pem_private_key': '-----BEGIN EC PRIVATE KEY-----\nMHQCAQEEIMS7yx++yZ1lv1nYXIy2LuLblj8P4Qb0g9mvpzvU45qKoAcGBSuBBAAK\noUQDQgAEeNQwJ0+MXsEyEzgVHp8n9MZ2oAi9+GONB8C2vpqzXHGhUYBjJDrNTf6W\ntm4/LsgBPI4HLNCbODShn4H2Wcw0VQ==\n-----END EC PRIVATE KEY-----\n',
-    'pem_public_key': '-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeNQwJ0+MXsEyEzgVHp8n9MZ2oAi9+GON\nB8C2vpqzXHGhUYBjJDrNTf6Wtm4/LsgBPI4HLNCbODShn4H2Wcw0VQ==\n-----END PUBLIC KEY-----\n'
+    'pem_public_key': '-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeNQwJ0+MXsEyEzgVHp8n9MZ2oAi9+GON\nB8C2vpqzXHGhUYBjJDrNTf6Wtm4/LsgBPI4HLNCbODShn4H2Wcw0VQ==\n-----END PUBLIC KEY-----\n',
+    'der_private_key': '30740201010420c4bbcb1fbec99d65bf59d85c8cb62ee2db963f0fe106f483d9afa73bd4e39a8aa00706052b8104000aa1440342000478d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455',
+    'der_public_key': '3056301006072a8648ce3d020106052b8104000a0342000478d430274f8c5ec1321338151e9f27f4c676a008bdf8638d07c0b6be9ab35c71a1518063243acd4dfe96b66e3f2ec8013c8e072cd09b3834a19f81f659cc3455'
 }
 
 
@@ -86,6 +88,10 @@ class BitcoinUncompressedPublicKeyTest(unittest.TestCase):
     def test_pem_public_key(self):
         self.assertEqual(
             self.public_key.to_pem(), self.reference['pem_public_key'])
+
+    def test_der_public_key(self):
+        self.assertEqual(
+            self.public_key.to_der(), self.reference['der_public_key'])
 
 
 class BitcoinCompressedPublicKeyTest(unittest.TestCase):
@@ -203,6 +209,10 @@ class BitcoinPrivateKeyTest(unittest.TestCase):
     def test_pem_private_key(self):
         self.assertEqual(
             self.private_key.to_pem(), self.reference['pem_private_key'])
+
+    def test_der_private_key(self):
+        self.assertEqual(
+            self.private_key.to_der(), self.reference['der_private_key'])
 
 
 class BitcoinKeypairTest(unittest.TestCase):

@@ -108,6 +108,9 @@ class BitcoinPrivateKey():
     def to_pem(self):
         return self._ecdsa_private_key.to_pem()
 
+    def to_der(self):
+        return hexlify(self._ecdsa_private_key.to_der())
+
     def public_key(self):
         # lazily calculate and set the public key
         if not hasattr(self, '_public_key'):
