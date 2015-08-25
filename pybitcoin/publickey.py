@@ -157,7 +157,9 @@ class BitcoinPublicKey():
 
     def address(self):
         if self._type == PubkeyType.compressed:
-            return bin_hash160_to_address( get_bin_hash160( compress(self.to_bin()) ), version_byte=self._version_byte )
+            bin_hash160 = get_bin_hash160(compress(self.to_bin()))
+            return bin_hash160_to_address(
+                bin_hash160, version_byte=self._version_byte)
 
         return bin_hash160_to_address(self.bin_hash160(),
                                       version_byte=self._version_byte)
