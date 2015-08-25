@@ -529,14 +529,15 @@ class ServicesSendTransactionTest(unittest.TestCase):
         return send_to_address(
             self.recipient_address, 1000, self.private_key, client)
 
-    def test_send_transaction_blockcypher_com(self):
-        resp = self.broadcast_with_client(
-            self.signed_tx, self.blockcypher_client)
-        self.assertTrue(resp.get('success'))
-
     def test_send_transaction_chain_com(self):
         resp = self.broadcast_with_client(
             self.signed_tx, self.chain_com_client)
+        self.assertTrue(resp.get('success'))
+
+    """
+    def test_send_transaction_blockcypher_com(self):
+        resp = self.broadcast_with_client(
+            self.signed_tx, self.blockcypher_client)
         self.assertTrue(resp.get('success'))
 
     def test_send_transaction_blockchain_info(self):
@@ -544,7 +545,6 @@ class ServicesSendTransactionTest(unittest.TestCase):
             self.signed_tx, self.blockchain_info_client)
         self.assertTrue(resp.get('success'))
 
-    """
     def test_send_transaction_bitcoind(self):
         resp = self.broadcast_with_client(self.signed_tx, self.bitcoind)
         self.assertTrue(resp.get('success'))
