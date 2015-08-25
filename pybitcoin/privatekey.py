@@ -47,15 +47,15 @@ class BitcoinPrivateKey():
             return cls._wif_version_byte
         return (cls._pubkeyhash_version_byte + 128) % 256
 
-    def __init__(self, private_key=None):
+    def __init__(self, private_key=None, compressed=False):
         """ Takes in a private key/secret exponent.
         """
-        self._compressed = False
+        self._compressed = compressed
         if not private_key:
             secret_exponent = random_secret_exponent(self._curve.order)
         else:
-            secret_exponent = encode_privkey( private_key, 'decimal' )
-            if get_privkey_format( private_key ).endswith('compressed'):
+            secret_exponent = encode_privkey(private_key, 'decimal')
+            if get_privkey_format(private_key).endswith('compressed'):
                 self._compressed = True
 
         # make sure that: 1 <= secret_exponent < curve_order
@@ -88,25 +88,31 @@ class BitcoinPrivateKey():
 
     def to_bin(self):
         if self._compressed:
-            return encode_privkey( self._ecdsa_private_key.to_string(), 'bin_compressed' )
+            return encode_privkey(
+                self._ecdsa_private_key.to_string(), 'bin_compressed')
         else:
             return self._ecdsa_private_key.to_string()
 
     def to_hex(self):
         if self._compressed:
-            return encode_privkey( self._ecdsa_private_key.to_string(), 'hex_compressed' )
+            return encode_privkey(
+                self._ecdsa_private_key.to_string(), 'hex_compressed')
         else:
             return hexlify(self.to_bin())
 
     def to_wif(self):
         if self._compressed:
-            return encode_privkey( self._ecdsa_private_key.to_string(), 'wif_compressed' )
+            return encode_privkey(
+                self._ecdsa_private_key.to_string(), 'wif_compressed')
         else:
             return b58check_encode(
                 self.to_bin(), version_byte=self.wif_version_byte())
 
     def to_pem(self):
         return self._ecdsa_private_key.to_pem()
+
+    def to_der(self):
+        return hexlify(self._ecdsa_private_key.to_der())
 
     def public_key(self):
         # lazily calculate and set the public key
@@ -117,7 +123,7 @@ class BitcoinPrivateKey():
                 ecdsa_public_key.to_string()
 
             if self._compressed:
-                bin_public_key_string = compress( bin_public_key_string )
+                bin_public_key_string = compress(bin_public_key_string)
 
             # create the public key object from the public key string
             self._public_key = BitcoinPublicKey(

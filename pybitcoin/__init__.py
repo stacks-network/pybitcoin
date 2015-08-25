@@ -7,7 +7,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-__version__ = '0.9.0'
+__version__ = '0.9.1'
 
 import services
 from .services import *
