@@ -8,13 +8,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='pybitcoin',
-    version='0.9.2',
+    version='0.9.3',
     url='https://github.com/blockstack/pybitcoin',
     license='MIT',
     author='Blockstack Developers',
     author_email='hello@onename.com',
-    description=("Tools for Bitcoin & other cryptocurrencies (private & ",
-                 "public keys, addresses, transactions, RPC, etc.)."),
+    description="""Library for Bitcoin & other cryptocurrencies. Tools are provided for blockchain transactions, RPC calls, and private keys, public keys, and addresses.""",
     keywords='bitcoin btc litecoin namecoin dogecoin cryptocurrency',
     packages=find_packages(),
     zip_safe=False,
