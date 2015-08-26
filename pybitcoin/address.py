@@ -7,8 +7,8 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from binascii import unhexlify
-from .b58check import b58check_encode
+from binascii import unhexlify, hexlify
+from .b58check import b58check_encode, b58check_decode
 
 
 def bin_hash160_to_address(bin_hash160, version_byte=0):
@@ -25,3 +25,16 @@ def script_hex_to_address(script, version_byte=0):
         bin_hash160 = unhexlify(script[6:-4])
         return bin_hash160_to_address(bin_hash160, version_byte=version_byte)
     return None
+
+
+def address_to_bin_hash160(address):
+    return b58check_decode(address)
+
+
+def address_to_hex_hash160(address):
+    return hexlify(address_to_bin_hash160(address))
+
+
+def address_to_new_cryptocurrency(address, new_version_number):
+    bin_hash160 = address_to_bin_hash160(address)
+    return bin_hash160_to_address(bin_hash160, new_version_number)
