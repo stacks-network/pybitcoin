@@ -112,8 +112,12 @@ def make_op_return_tx(data, private_key,
         fee=fee, format=format)
     # serialize the transaction
     unsigned_tx = serialize_transaction(inputs, outputs)
-    # sign the unsigned transaction with the private key
-    signed_tx = sign_transaction(unsigned_tx, 0, private_key_obj.to_hex())
+    
+    # generate a scriptSig for each input
+    for i in xrange(0, len(inputs)):
+        signed_tx = sign_transaction( unsigned_tx, i, private_key_obj.to_hex() )
+        unsigned_tx = signed_tx
+    
     # return the signed tx
     return signed_tx
 
