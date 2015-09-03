@@ -601,7 +601,7 @@ class ServicesSendOpReturnTransactionTest(unittest.TestCase):
     """
 
     def test_hex_op_return_tx(self):
-        data = '00' * 40
+        data = '00' * 80
         signed_tx = self.run_op_return_tx_building(
             data, self.blockcypher_client, format='hex')
         resp = self.run_tx_broadcasting(signed_tx, self.blockcypher_client)
@@ -690,5 +690,5 @@ def test_transactions():
     )
 
 if __name__ == '__main__':
-    test_main()
-    # test_transactions()
+    # test_main()
+    test_transactions()
