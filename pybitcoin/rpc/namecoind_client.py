@@ -18,37 +18,38 @@ from .config import NAMECOIND_USE_HTTPS, VALUE_MAX_LIMIT
 import ssl
 import httplib
 
-create_ssl_authproxy = False 
+create_ssl_authproxy = False
 do_wrap_socket = False
 
-if hasattr( ssl, "_create_unverified_context" ):
-   #opt-out for verifying self-signed certificates (typically used in namecoin/bitcoind)
-   ssl._create_default_https_context = ssl._create_unverified_context
-   create_ssl_authproxy = True 
+if hasattr(ssl, "_create_unverified_context"):
+    # opt-out for verifying self-signed certificates (typically used in namecoin/bitcoind)
 
-if not hasattr( ssl, "create_default_context" ):
-   create_ssl_authproxy = False
-   do_wrap_socket = True
+    ssl._create_default_https_context = ssl._create_unverified_context
+    create_ssl_authproxy = True
+
+if not hasattr(ssl, "create_default_context"):
+    create_ssl_authproxy = False
+    do_wrap_socket = True
 
 
-class NamecoindConnection( httplib.HTTPSConnection ):
-   """
-   Wrapped SSL connection, if we can't use SSLContext.
-   """
+class NamecoindConnection(httplib.HTTPSConnection):
+    """
+    Wrapped SSL connection, if we can't use SSLContext.
+    """
 
-   def __init__(self, host, port, timeout=None ):
-   
-      httplib.HTTPSConnection.__init__(self, host, port )
-      self.timeout = timeout
-        
-   def connect( self ):
-      
-      sock = socket.create_connection((self.host, self.port), self.timeout)
-      if self._tunnel_host:
-         self.sock = sock
-         self._tunnel()
-         
-      self.sock = ssl.wrap_socket( sock, cert_reqs=ssl.CERT_NONE )
+    def __init__(self, host, port, timeout=None):
+
+        httplib.HTTPSConnection.__init__(self, host, port)
+        self.timeout = timeout
+
+    def connect(self):
+
+        sock = socket.create_connection((self.host, self.port), self.timeout)
+        if self._tunnel_host:
+            self.sock = sock
+            self._tunnel()
+
+        self.sock = ssl.wrap_socket(sock, cert_reqs=ssl.CERT_NONE)
 
 
 class NamecoindClient(object):
@@ -59,7 +60,7 @@ class NamecoindClient(object):
                  passphrase=NAMECOIND_WALLET_PASSPHRASE):
 
         global create_ssl_authproxy, do_wrap_socket
-        
+
         if use_https:
             http_string = 'https://'
         else:
@@ -69,25 +70,24 @@ class NamecoindClient(object):
 
         self.passphrase = passphrase
         self.server = server
-        
-        if do_wrap_socket:
-           # ssl._create_unverified_context and ssl.create_default_context are not supported.
-           # wrap the socket directly 
-           connection = NamecoindConnection( server, int(port) )
-           self.obj = AuthServiceProxy(authproxy_config_uri, connection=connection)
-       
-        elif create_ssl_authproxy:
-           # ssl has _create_unverified_context, so we're good to go 
-           self.obj = AuthServiceProxy(authproxy_config_uri)
-    
-        else:
-           # have to set up an unverified context ourselves 
-           ssl_ctx = ssl.create_default_context()
-           ssl_ctx.check_hostname = False
-           ssl_ctx.verify_mode = ssl.CERT_NONE
-           connection = httplib.HTTPSConnection( server, int(port), context=ssl_ctx )
-           self.obj = AuthServiceProxy(authproxy_config_uri, connection=connection)
 
+        if do_wrap_socket:
+            # ssl._create_unverified_context and ssl.create_default_context are not supported.
+            # wrap the socket directly
+            connection = NamecoindConnection(server, int(port))
+            self.obj = AuthServiceProxy(authproxy_config_uri, connection=connection)
+
+        elif create_ssl_authproxy:
+            # ssl has _create_unverified_context, so we're good to go
+            self.obj = AuthServiceProxy(authproxy_config_uri)
+
+        else:
+            # have to set up an unverified context ourselves
+            ssl_ctx = ssl.create_default_context()
+            ssl_ctx.check_hostname = False
+            ssl_ctx.verify_mode = ssl.CERT_NONE
+            connection = httplib.HTTPSConnection(server, int(port), context=ssl_ctx)
+            self.obj = AuthServiceProxy(authproxy_config_uri, connection=connection)
 
     def __getattr__(self, name):
         """ changes the behavior of underlying authproxy to return the error
@@ -170,7 +170,7 @@ class NamecoindClient(object):
         return reply
 
     # -----------------------------------
-    def name_update(self, key, value):
+    def name_update(self, key, value, new_address=None):
 
         if utf8len(value) > VALUE_MAX_LIMIT:
             return error_reply("value larger than " + str(VALUE_MAX_LIMIT))
@@ -179,8 +179,13 @@ class NamecoindClient(object):
             error_reply("Error unlocking wallet", 403)
 
         try:
-            # update the 'value'
-            reply = self.obj.name_update(key, value)
+
+            if new_address is None:
+                # update the 'value'
+                reply = self.obj.name_update(key, value)
+            else:
+                reply = self.obj.name_update(key, value, new_address)
+
         except JSONRPCException as e:
             return e.error
 
