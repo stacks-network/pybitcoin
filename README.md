@@ -5,6 +5,7 @@ pybitcoin
 [![PyPI](https://img.shields.io/pypi/v/pybitcoin.svg)](https://pypi.python.org/pypi/pybitcoin/)
 [![PyPI](https://img.shields.io/pypi/dm/pybitcoin.svg)](https://pypi.python.org/pypi/pybitcoin/)
 [![PyPI](https://img.shields.io/pypi/l/pybitcoin.svg)](https://github.com/namesystem/pybitcoin/blob/master/LICENSE)
+[![Slack](http://slack.blockstack.org/badge.svg)](http://slack.blockstack.org/)
 
 Python library with tools for Bitcoin and other cryptocurrencies.
 
