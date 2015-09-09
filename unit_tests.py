@@ -455,12 +455,14 @@ class ServicesGetUnspentsTest(unittest.TestCase):
         self.compare_total_value(unspents)
         self.compare_unspents(unspents)
 
+    """
     def test_blockchain_info_get_unspents(self):
         client = blockchain_info.BlockchainInfoClient(
             BLOCKCHAIN_API_KEY)
         unspents = blockchain_info.get_unspents(self.address, client)
         self.compare_total_value(unspents)
         self.compare_unspents(unspents)
+    """
 
     def test_chain_com_get_unspents(self):
         client = chain_com.ChainComClient(CHAIN_API_ID, CHAIN_API_SECRET)
@@ -691,4 +693,4 @@ def test_transactions():
 
 if __name__ == '__main__':
     test_main()
-    #test_transactions()
+    test_transactions()
