@@ -49,13 +49,3 @@ class PublicKeychain():
         child_keychain = self.keychain.get_child(
             index, is_prime=False, as_private=False)
         return PublicKeychain(child_keychain)
-
-if __name__ == '__main__':
-    private_keychain = PrivateKeychain()
-    print private_keychain
-    public_keychain = private_keychain.public_keychain()
-    print public_keychain
-    public_child = public_keychain.child(0)
-    print public_child
-    public_child_2 = private_keychain.child(0).public_keychain()
-    print public_child_2
