@@ -32,7 +32,7 @@ from pybitcoin.services import blockchain_info
 from pybitcoin.services import chain_com
 from pybitcoin.services.bitcoind import create_bitcoind_service_proxy
 
-from pybitcoin.keychain import PrivateKeychain, PublicKeychain
+from pybitcoin import PrivateKeychain, PublicKeychain
 
 get_class = lambda x: globals()[x]
 
