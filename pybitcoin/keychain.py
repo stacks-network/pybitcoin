@@ -17,37 +17,45 @@ class PrivateKeychain():
     def __str__(self):
         return self.keychain.serialize_b58(private=True)
 
-    def get_hardened_child(self, index):
+    def hardened_child(self, index):
         child_keychain = self.keychain.get_child(
             index, is_prime=True, as_private=True)
         return PrivateKeychain(child_keychain)
 
-    def get_unhardened_child(self, index):
+    def child(self, index):
         child_keychain = self.keychain.get_child(
             index, is_prime=False, as_private=True)
         return PrivateKeychain(child_keychain)
 
-    def get_public_keychain(self):
-        return PublicKeychain(self.keychain.public_copy())
+    def public_keychain(self):
+        public_keychain = self.keychain.public_copy()
+        return PublicKeychain(public_keychain)
 
 
 class PublicKeychain():
-    def __init__(self, public_keychain=None):
-        if public_keychain:
-            if isinstance(public_keychain, HDWallet):
-                keychain = public_keychain
-            elif isinstance(public_keychain, (str, unicode)):
-                keychain = HDWallet.deserialize(public_keychain)
-            else:
-                raise ValueError('private keychain must be a string')
+    def __init__(self, public_keychain):
+        if isinstance(public_keychain, HDWallet):
+            keychain = public_keychain
+        elif isinstance(public_keychain, (str, unicode)):
+            keychain = HDWallet.deserialize(public_keychain)
         else:
-            keychain = HDWallet.new_random_wallet()
+            raise ValueError('public keychain must be a string')
         self.keychain = keychain
-
-    def get_unhardened_child(self, index):
-        child_keychain = self.keychain.get_child(
-            index, is_prime=False, as_private=False)
-        return PrivateKeychain(child_keychain)
 
     def __str__(self):
         return self.keychain.serialize_b58(private=False)
+
+    def child(self, index):
+        child_keychain = self.keychain.get_child(
+            index, is_prime=False, as_private=False)
+        return PublicKeychain(child_keychain)
+
+if __name__ == '__main__':
+    private_keychain = PrivateKeychain()
+    print private_keychain
+    public_keychain = private_keychain.public_keychain()
+    print public_keychain
+    public_child = public_keychain.child(0)
+    print public_child
+    public_child_2 = private_keychain.child(0).public_keychain()
+    print public_child_2
