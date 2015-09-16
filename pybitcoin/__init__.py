@@ -42,3 +42,5 @@ from .keypair import *
 from .privatekey import *
 from .publickey import *
 from .constants import *
+
+from keychain import PrivateKeychain, PublicKeychain
