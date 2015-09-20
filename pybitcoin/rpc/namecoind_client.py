@@ -17,6 +17,7 @@ from .config import NAMECOIND_USE_HTTPS, VALUE_MAX_LIMIT
 
 import ssl
 import httplib
+import socket
 
 create_ssl_authproxy = False
 do_wrap_socket = False
