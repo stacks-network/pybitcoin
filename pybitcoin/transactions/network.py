@@ -39,6 +39,8 @@ def get_unspents(address, blockchain_client=BlockchainInfoClient()):
         return chain_com.get_unspents(address, blockchain_client)
     elif isinstance(blockchain_client, (BitcoindClient, AuthServiceProxy)):
         return bitcoind.get_unspents(address, blockchain_client)
+    elif hasattr(blockchain_client, "get_unspents"):
+        return blockchain_client.get_unspents( address )
     elif isinstance(blockchain_client, BlockchainClient):
         raise Exception('That blockchain interface is not supported.')
     else:
@@ -55,6 +57,8 @@ def broadcast_transaction(hex_tx, blockchain_client):
         return chain_com.broadcast_transaction(hex_tx, blockchain_client)
     elif isinstance(blockchain_client, (BitcoindClient, AuthServiceProxy)):
         return bitcoind.broadcast_transaction(hex_tx, blockchain_client)
+    elif hasattr(blockchain_client, "broadcast_transaction"):
+        return blockchain_client.broadcast_transaction( hex_tx )
     elif isinstance(blockchain_client, BlockchainClient):
         raise Exception('That blockchain interface is not supported.')
     else:
