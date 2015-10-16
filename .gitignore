@@ -44,3 +44,6 @@ nosetests.xml
 ignore
 tests/secrets*
 secrets.py
+
+# swap files 
+*.swp
