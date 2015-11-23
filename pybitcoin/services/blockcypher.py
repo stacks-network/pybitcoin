@@ -82,8 +82,10 @@ def broadcast_transaction(hex_tx, blockchain_client):
         raise Exception('Received non-JSON from blockcypher.com.')
 
     if 'tx' in data:
-        data['success'] = True
-        return {'success': True}  # FIXME
+        reply = {}
+        reply['tx_hash'] = data['tx']['hash']
+        reply['success'] = True
+        return reply
     else:
         err_str = 'Tx hash missing from blockcypher response: ' + str(data)
         raise Exception(err_str)
