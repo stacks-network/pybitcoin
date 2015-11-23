@@ -24,7 +24,7 @@ setup(
         'utilitybelt>=0.2.1',
         'pybitcointools==1.1.15',
         'python-bitcoinrpc==0.1',
-        'keychain>=0.1.0',
+        'keychain>=0.1.4',
         'bitcoin>=1.1.39'
     ],
     classifiers=[
