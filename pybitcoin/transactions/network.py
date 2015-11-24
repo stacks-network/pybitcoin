@@ -8,7 +8,7 @@
 """
 
 from binascii import hexlify, unhexlify
-from pybitcointools import sign as sign_transaction
+from bitcoin import sign as sign_transaction
 
 from ..services import blockchain_info, chain_com, bitcoind, blockcypher
 from ..privatekey import BitcoinPrivateKey

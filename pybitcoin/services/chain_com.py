@@ -76,8 +76,10 @@ def broadcast_transaction(hex_tx, blockchain_client):
         raise Exception('Received non-JSON from chain.com.')
 
     if 'transaction_hash' in data:
-        data['success'] = True
-        return data
+        reply = {}
+        reply['tx_hash'] = data['transaction_hash']
+        reply['success'] = True
+        return reply
     else:
         raise Exception('Tx hash missing from chain.com response: ' + str(data) + '\noriginal: ' + str(payload))
 
