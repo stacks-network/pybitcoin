@@ -3,14 +3,18 @@
     pybitcoin
     ~~~~~
 
-    :copyright: (c) 2014 by Halfmoon Labs
+    :copyright: (c) 2014-2016 by Halfmoon Labs, Inc.
     :license: MIT, see LICENSE for more details.
 """
 
-from binascii import hexlify, unhexlify
+import bitcoin
 import struct
+
+from binascii import hexlify, unhexlify
+
 from .utils import flip_endian, variable_length_int
 from ..constants import UINT_MAX
+
 
 def serialize_input(input, signature_script_hex=''):
     """ Serializes a transaction input.
@@ -30,6 +34,7 @@ def serialize_input(input, signature_script_hex=''):
         hexlify(struct.pack('<I', input['sequence']))
     ])
 
+
 def serialize_output(output):
     """ Serializes a transaction output.
     """
@@ -41,6 +46,7 @@ def serialize_output(output):
         hexlify(variable_length_int(len(output['script_hex'])/2)),
         output['script_hex']
     ])
+
 
 def serialize_transaction(inputs, outputs, lock_time=0, version=1):
     """ Serializes a transaction.
@@ -66,3 +72,52 @@ def serialize_transaction(inputs, outputs, lock_time=0, version=1):
         # add in the lock time
         hexlify(struct.pack('<I', lock_time)),
     ])
+
+
+def deserialize_transaction(tx_hex):
+    """
+        Given a serialized transaction, return its inputs, outputs,
+        locktime, and version
+
+        Each input will have:
+        * transaction_hash: string
+        * output_index: int
+        * [optional] sequence: int
+        * [optional] script_sig: string
+
+        Each output will have:
+        * value: int
+        * script_hex: string
+    """
+
+    tx = bitcoin.deserialize(str(tx_hex))
+
+    inputs = tx["ins"]
+    outputs = tx["outs"]
+
+    ret_inputs = []
+    ret_outputs = []
+
+    for inp in inputs:
+        ret_inp = {
+            "transaction_hash": inp["outpoint"]["hash"],
+            "output_index": int(inp["outpoint"]["index"]),
+        }
+
+        if "sequence" in inp:
+            ret_inp["sequence"] = int(inp["sequence"])
+
+        if "script" in inp:
+            ret_inp["script_sig"] = inp["script"]
+
+        ret_inputs.append(ret_inp)
+
+    for out in outputs:
+        ret_out = {
+            "value": out["value"],
+            "script_hex": out["script"]
+        }
+
+        ret_outputs.append(ret_out)
+
+    return ret_inputs, ret_outputs, tx["locktime"], tx["version"]
