@@ -8,7 +8,7 @@
 """
 
 from binascii import hexlify, unhexlify
-from pybitcointools import sign as sign_transaction
+from bitcoin import sign as sign_transaction
 
 from ..services import blockchain_info, chain_com, bitcoind, blockcypher
 from ..privatekey import BitcoinPrivateKey
@@ -39,6 +39,8 @@ def get_unspents(address, blockchain_client=BlockchainInfoClient()):
         return chain_com.get_unspents(address, blockchain_client)
     elif isinstance(blockchain_client, (BitcoindClient, AuthServiceProxy)):
         return bitcoind.get_unspents(address, blockchain_client)
+    elif hasattr(blockchain_client, "get_unspents"):
+        return blockchain_client.get_unspents( address )
     elif isinstance(blockchain_client, BlockchainClient):
         raise Exception('That blockchain interface is not supported.')
     else:
@@ -55,6 +57,8 @@ def broadcast_transaction(hex_tx, blockchain_client):
         return chain_com.broadcast_transaction(hex_tx, blockchain_client)
     elif isinstance(blockchain_client, (BitcoindClient, AuthServiceProxy)):
         return bitcoind.broadcast_transaction(hex_tx, blockchain_client)
+    elif hasattr(blockchain_client, "broadcast_transaction"):
+        return blockchain_client.broadcast_transaction( hex_tx )
     elif isinstance(blockchain_client, BlockchainClient):
         raise Exception('That blockchain interface is not supported.')
     else:
@@ -91,8 +95,12 @@ def make_send_to_address_tx(recipient_address, amount, private_key,
                                           change_address, fee=fee)
     # serialize the transaction
     unsigned_tx = serialize_transaction(inputs, outputs)
-    # sign the unsigned transaction with the private key
-    signed_tx = sign_transaction(unsigned_tx, 0, private_key_obj.to_hex())
+    
+    # generate a scriptSig for each input
+    for i in xrange(0, len(inputs)):
+        signed_tx = sign_transaction( unsigned_tx, i, private_key_obj.to_hex() )
+        unsigned_tx = signed_tx
+
     # return the signed tx
     return signed_tx
 
@@ -112,8 +120,12 @@ def make_op_return_tx(data, private_key,
         fee=fee, format=format)
     # serialize the transaction
     unsigned_tx = serialize_transaction(inputs, outputs)
-    # sign the unsigned transaction with the private key
-    signed_tx = sign_transaction(unsigned_tx, 0, private_key_obj.to_hex())
+    
+    # generate a scriptSig for each input
+    for i in xrange(0, len(inputs)):
+        signed_tx = sign_transaction( unsigned_tx, i, private_key_obj.to_hex() )
+        unsigned_tx = signed_tx
+    
     # return the signed tx
     return signed_tx
 
@@ -148,10 +160,15 @@ def serialize_sign_and_broadcast(inputs, outputs, private_key,
                                  blockchain_client=BlockchainInfoClient()):
     # extract the private key object
     private_key_obj = get_private_key_obj(private_key)
+
     # serialize the transaction
     unsigned_tx = serialize_transaction(inputs, outputs)
-    # sign the unsigned transaction with the private key
-    signed_tx = sign_transaction(unsigned_tx, 0, private_key_obj.to_hex())
+    
+    # generate a scriptSig for each input
+    for i in xrange(0, len(inputs)):
+        signed_tx = sign_transaction( unsigned_tx, i, private_key_obj.to_hex() )
+        unsigned_tx = signed_tx
+
     # dispatch the signed transction to the network
     response = broadcast_transaction(signed_tx, blockchain_client)
     # return the response
