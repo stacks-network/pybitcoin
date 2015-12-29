@@ -47,6 +47,12 @@ def get_unspents(address, blockchain_client=BlockchainInfoClient()):
         url = url + "&api_code=" + auth[0]
 
     r = requests.get(url, auth=auth)
+
+    if r.content == "No free outputs to spend":
+        return []
+    elif r.content == "Invalid Bitcoin Address":
+        raise Exception('Invalid Bitcoin address')
+
     try:
         unspents = r.json()["unspent_outputs"]
     except ValueError, e:
