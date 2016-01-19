@@ -5,6 +5,7 @@ pybitcoin
 [![PyPI](https://img.shields.io/pypi/v/pybitcoin.svg)](https://pypi.python.org/pypi/pybitcoin/)
 [![PyPI](https://img.shields.io/pypi/dm/pybitcoin.svg)](https://pypi.python.org/pypi/pybitcoin/)
 [![PyPI](https://img.shields.io/pypi/l/pybitcoin.svg)](https://github.com/namesystem/pybitcoin/blob/master/LICENSE)
+[![Slack](http://slack.blockstack.org/badge.svg)](http://slack.blockstack.org/)
 
 Python library with tools for Bitcoin and other cryptocurrencies.
 
@@ -14,24 +15,24 @@ Python library with tools for Bitcoin and other cryptocurrencies.
 
 ```python
 >>> from pybitcoin import BitcoinPrivateKey
->>> priv = BitcoinPrivateKey()
->>> priv.to_hex()
+>>> private_key = BitcoinPrivateKey()
+>>> private_key.to_hex()
 '91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d'
->>> priv.to_wif()
+>>> private_key.to_wif()
 '5JvBUBPzU42Y7BHD7thTnySXQXMk8XEJGGQGcyBw7CCkw8RAH7m'
->>> priv2 = BitcoinPrivateKey('91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d')
->>> print priv.to_wif() == priv2.to_wif()
+>>> private_key_2 = BitcoinPrivateKey('91149ee24f1ee9a6f42c3dd64c2287781c8c57a6e8e929c80976e586d5322a3d')
+>>> print private_key.to_wif() == private_key_2.to_wif()
 True
 ```
 
 ### Public Keys
 
 ```python
->>> pub = priv.public_key()
->>> pub.to_hex()
+>>> public_key = priv.public_key()
+>>> public_key.to_hex()
 '042c6b7e6da7633c8f226891cc7fa8e5ec84f8eacc792a46786efc869a408d29539a5e6f8de3f71c0014e8ea71691c7b41f45c083a074fef7ab5c321753ba2b3fe'
->>> pub2 = BitcoinPublicKey(pub.to_hex())
->>> print pub.to_hex() == pub2.to_hex()
+>>> public_key_2 = BitcoinPublicKey(public_key.to_hex())
+>>> print public_key.to_hex() == public_key_2.to_hex()
 True
 ```
 
@@ -57,16 +58,35 @@ True
 True
 ```
 
+### Sending Transactions to Addresses
+
+```python
+>>> from pybitcoin import BlockcypherClient
+>>> recipient_address = '1EEwLZVZMc2EhMf3LXDARbp4mA3qAwhBxu'
+>>> blockchain_client = BlockcypherClient(BLOCKCYPHER_API_KEY)
+>>> send_to_address(recipient_address, 10000, private_key.to_hex(), blockchain_client)
+```
+
+### Sending OP_RETURN Transactions
+
+```python
+>>> from pybitcoin import make_op_return_tx
+>>> data = '00' * 80
+>>> tx = make_op_return_tx(data, private_key.to_hex(), blockchain_client, fee=10000, format='bin')
+>>> broadcast_transaction(tx, blockchain_client)
+{"success": True}
+```
+
 ### Altcoins
 
 ```python
 >>> class NamecoinPrivateKey(BitcoinPrivateKey):
 >>>     _pubkeyhash_version_byte = 52
->>> namecoin_priv = NamecoinPrivateKey(priv.to_hex())
->>> namecoin_priv.to_wif()
+>>> namecoin_private_key = NamecoinPrivateKey(private_key.to_hex())
+>>> namecoin_private_key.to_wif()
 '73zteEjenBCK7qVtG2yRPeco2TP5w93qBW5sJkxYoGYvbWwAbXv'
->>> namecoin_pub = namecoin_priv.public_key()
->>> namecoin_pub.address()
+>>> namecoin_public_key = namecoin_private_key.public_key()
+>>> namecoin_public_key.address()
 'MyMFt8fQdZ6rEyDhZbe2vd19gD8gzagr7Z'
 ```
 
