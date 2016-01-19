@@ -11,6 +11,7 @@ from binascii import hexlify, unhexlify
 import struct
 from .utils import flip_endian, variable_length_int
 from ..constants import UINT_MAX
+from utilitybelt import is_hex
 
 def serialize_input(input, signature_script_hex=''):
     """ Serializes a transaction input.
@@ -18,6 +19,12 @@ def serialize_input(input, signature_script_hex=''):
     if not (isinstance(input, dict) and 'transaction_hash' in input \
             and 'output_index' in input):
         raise Exception('Required parameters: transaction_hash, output_index')
+
+    if is_hex(str(input['transaction_hash'])) and len(str(input['transaction_hash'])) != 64:
+        raise Exception("Transaction hash '%s' must be 32 bytes" % input['transaction_hash'])
+
+    elif not is_hex(str(input['transaction_hash'])) and len(str(input['transaction_hash'])) != 32:
+        raise Exception("Transaction hash '%s' must be 32 bytes" % hexlify(input['transaction_hash']))
 
     if not 'sequence' in input:
         input['sequence'] = UINT_MAX
