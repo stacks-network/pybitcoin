@@ -1,0 +1,9 @@
+python2.7
+python-requests
+python-ecds
+python-commontools
+python-utilitybelt
+python-pybitcointools
+python-bitcoinrpc
+python-keychain
+python-bitcoin
