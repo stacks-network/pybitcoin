@@ -3,7 +3,7 @@
     pybitcoin
     ~~~~~
 
-    :copyright: (c) 2015 by Halfmoon Labs
+    :copyright: (c) 2016 by Halfmoon Labs, Inc.
     :license: MIT, see LICENSE for more details.
 """
 
@@ -17,7 +17,6 @@ from .config import BITCOIND_PASSWD, BITCOIND_WALLET_PASSPHRASE
 from .config import BITCOIND_USE_HTTPS
 
 
-# ---------------------------------------
 class BitcoindClient(object):
 
     def __init__(self, server=BITCOIND_SERVER, port=BITCOIND_PORT,
@@ -56,7 +55,6 @@ class BitcoindClient(object):
         else:
             return func
 
-    # -----------------------------------
     def blocks(self):
 
         reply = self.obj.getinfo()
@@ -66,7 +64,6 @@ class BitcoindClient(object):
 
         return None
 
-    # -----------------------------------
     def unlock_wallet(self, timeout=120):
 
         try:
@@ -79,7 +76,6 @@ class BitcoindClient(object):
 
         return False
 
-    # -----------------------------------
     def sendtoaddress(self, bitcoinaddress, amount):
 
         self.unlock_wallet()
@@ -91,7 +87,6 @@ class BitcoindClient(object):
         except Exception as e:
             return error_reply(str(e))
 
-    # -----------------------------------
     def validateaddress(self, bitcoinaddress):
 
         try:
@@ -100,7 +95,6 @@ class BitcoindClient(object):
         except Exception as e:
             return error_reply(str(e))
 
-    # -----------------------------------
     def importprivkey(self, bitcoinprivkey, label='import', rescan=False):
 
         self.unlock_wallet()
@@ -111,40 +105,6 @@ class BitcoindClient(object):
         except Exception as e:
             return error_reply(str(e))
 
-    # -----------------------------------
-    def sendtousername(self, username, bitcoin_amount):
-
-        # Step 1: get the bitcoin address
-        from coinrpc import namecoind
-        data = namecoind.get_full_profile('u/' + username)
-
-        try:
-            bitcoin_address = data['bitcoin']['address']
-        except:
-            bitcoin_address = ""
-
-        reply = {}
-
-        # Step 2: send bitcoins to that address
-        if bitcoin_address != "":
-
-            if self.unlock_wallet():
-
-                # send the bitcoins
-                # ISSUE: should not be float, needs fix
-                info = self.sendtoaddress(bitcoin_address,
-                                          float(bitcoin_amount))
-
-                if 'status' in info and info['status'] == -1:
-                    return error_reply("couldn't send transaction")
-
-                reply['status'] = 200
-                reply['tx'] = info
-                return reply
-
-        return error_reply("couldn't send BTC")
-
-    # -----------------------------------
     def format_unspents(self, unspents):
         return [{
             "transaction_hash": s["txid"],
@@ -156,7 +116,6 @@ class BitcoindClient(object):
             for s in unspents
         ]
 
-    # -----------------------------------
     def get_unspents(self, address):
         """ Get the spendable transaction outputs, also known as UTXOs or
             unspent transaction outputs.
@@ -166,21 +125,16 @@ class BitcoindClient(object):
             or blockcypher API to grab the unspents for arbitrary addresses.
         """
 
-        all_unspents = self.obj.listunspent()
+        addresses = []
+        addresses.append(str(address))
+        min_confirmations = 0
+        max_confirmation = 2000000000  # just a very large number for max
 
-        unspents = []
-        for u in all_unspents:
-            if 'address' not in u:
-                u['address'] = script_hex_to_address(u['scriptPubKey'],
-                                                     version_byte=self.version_byte)
-            if 'spendable' in u and u['spendable'] is False:
-                continue
-            if u['address'] == address:
-                unspents.append(u)
+        unspents = self.obj.listunspent(min_confirmations, max_confirmation,
+                                        addresses)
 
         return self.format_unspents(unspents)
 
-    # -----------------------------------
     def broadcast_transaction(self, hex_tx):
         """ Dispatch a raw transaction to the network.
         """
