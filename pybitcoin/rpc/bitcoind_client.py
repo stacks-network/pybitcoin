@@ -125,17 +125,13 @@ class BitcoindClient(object):
             or blockcypher API to grab the unspents for arbitrary addresses.
         """
 
-        all_unspents = self.obj.listunspent()
+        addresses = []
+        addresses.append(str(address))
+        min_confirmations = 0
+        max_confirmation = 2000000000  # just a very large number for max
 
-        unspents = []
-        for u in all_unspents:
-            if 'address' not in u:
-                u['address'] = script_hex_to_address(u['scriptPubKey'],
-                                                     version_byte=self.version_byte)
-            if 'spendable' in u and u['spendable'] is False:
-                continue
-            if u['address'] == address:
-                unspents.append(u)
+        unspents = self.obj.listunspent(min_confirmations, max_confirmation,
+                                        addresses)
 
         return self.format_unspents(unspents)
 
