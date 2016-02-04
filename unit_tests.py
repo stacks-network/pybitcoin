@@ -36,13 +36,12 @@ from pybitcoin import PrivateKeychain, PublicKeychain
 get_class = lambda x: globals()[x]
 
 from settings import BITCOIND_RPC_PASSWORD, BITCOIND_RPC_USERNAME, \
-    BLOCKCHAIN_API_KEY, CHAIN_API_ID, CHAIN_API_SECRET, NAMECOIN_PRIVATE_KEY, \
-    BLOCKCYPHER_API_KEY, BLOCKCHAIN_API_KEY, BITCOIN_PRIVATE_KEY, \
-    BITCOIN_PRIVATE_KEY_2
+    BLOCKCHAIN_API_KEY, BLOCKCYPHER_API_KEY, BLOCKCHAIN_API_KEY, \
+    BITCOIN_PRIVATE_KEY, BITCOIN_PRIVATE_KEY_2
 
 
 bitcoind_client = BitcoindClient(
-    server='127.0.0.1', port=8332, user=BITCOIND_RPC_USERNAME,
+    server='btcd.onename.com', port=8332, user=BITCOIND_RPC_USERNAME,
     passwd=BITCOIND_RPC_PASSWORD, use_https=True)
 
 
@@ -484,24 +483,6 @@ class TransactionNetworkFunctionsTest(unittest.TestCase):
         self.assertTrue(isinstance(private_key_obj, BitcoinPrivateKey))
 
 
-"""
-class SendNamecoinTransactionTest(unittest.TestCase):
-    def setUp(self):
-        self.recipient_address = 'NKUDoWmJevpguXZn9fT37zRub4uS2mrqba'
-        self.private_key = NamecoinPrivateKey(NAMECOIN_PRIVATE_KEY)
-        self.namecoind_client = namecoind_client
-
-    def tearDown(self):
-        pass
-
-    def test_namecoin_build_transaction(self):
-        signed_tx = make_send_to_address_tx(self.recipient_address, 1000000,
-            self.private_key, self.namecoind_client)
-        resp = broadcast_transaction(signed_tx, self.namecoind_client)
-        self.assertTrue(resp.get('success'))
-"""
-
-
 class ServicesSendTransactionTest(unittest.TestCase):
     def setUp(self):
         self.recipient_address = '1EEwLZVZMc2EhMf3LXDARbp4mA3qAwhBxu'
@@ -711,6 +692,7 @@ def test_main():
         SequentialWalletTest,
         KeychainTest
     )
+
 
 def test_transactions():
     test_support.run_unittest(
