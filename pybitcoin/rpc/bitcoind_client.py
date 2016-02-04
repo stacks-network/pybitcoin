@@ -112,39 +112,6 @@ class BitcoindClient(object):
             return error_reply(str(e))
 
     # -----------------------------------
-    def sendtousername(self, username, bitcoin_amount):
-
-        # Step 1: get the bitcoin address
-        from coinrpc import namecoind
-        data = namecoind.get_full_profile('u/' + username)
-
-        try:
-            bitcoin_address = data['bitcoin']['address']
-        except:
-            bitcoin_address = ""
-
-        reply = {}
-
-        # Step 2: send bitcoins to that address
-        if bitcoin_address != "":
-
-            if self.unlock_wallet():
-
-                # send the bitcoins
-                # ISSUE: should not be float, needs fix
-                info = self.sendtoaddress(bitcoin_address,
-                                          float(bitcoin_amount))
-
-                if 'status' in info and info['status'] == -1:
-                    return error_reply("couldn't send transaction")
-
-                reply['status'] = 200
-                reply['tx'] = info
-                return reply
-
-        return error_reply("couldn't send BTC")
-
-    # -----------------------------------
     def format_unspents(self, unspents):
         return [{
             "transaction_hash": s["txid"],
