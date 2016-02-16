@@ -25,7 +25,8 @@ setup(
         'pybitcointools==1.1.15',
         'python-bitcoinrpc>=0.1',
         'keychain>=0.1.4',
-        'bitcoin>=1.1.39'
+        'bitcoin>=1.1.39',
+        'future',
     ],
     classifiers=[
         'Intended Audience :: Developers',

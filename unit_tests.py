@@ -568,7 +568,7 @@ class ServicesSendTransactionTest(unittest.TestCase):
     def test_build_transaction(self):
         signed_tx = make_send_to_address_tx(
             recipient_address, 1000, private_key, client)
-        #print signed_tx
+        #print(signed_tx)
         self.assertTrue(True)
     """
 
@@ -615,7 +615,7 @@ class ServicesSendOpReturnTransactionTest(unittest.TestCase):
     def test_short_hex_op_return_tx(self):
         resp = embed_data('0'*2)
         self.assertTrue(resp.get('success'))
-    
+
     def test_bin_op_return_tx(self):
         resp = embed_data("Hello, Blockchain!")
         self.assertTrue(resp.get('success'))

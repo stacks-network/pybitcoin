@@ -6,7 +6,7 @@
     :copyright: (c) 2015 by Halfmoon Labs
     :license: MIT, see LICENSE for more details.
 """
-
+from __future__ import print_function
 import os
 import sys
 import json
@@ -146,7 +146,7 @@ def rebroadcast_tx(server, raw_tx):
 
     namecoind = NamecoindClient(server)
 
-    print namecoind.sendrawtransaction(raw_tx)
+    print(namecoind.sendrawtransaction(raw_tx))
 
 
 # -----------------------------------
@@ -186,7 +186,7 @@ def get_receiver_address(server):
 
     if info['ismine'] is not True:
         msg = "something went wrong"
-        print msg
+        print(msg)
         reply['error'] = msg
     else:
         reply['address'] = address
@@ -205,7 +205,7 @@ def check_if_needs_reload(server, min_balance=MIN_BALANCE):
     balance = float(info['balance'])
 
     if balance < min_balance:
-        print "%s needs reloading" % server
+        print("%s needs reloading" % server)
         return True
 
 
@@ -218,7 +218,7 @@ def send_payment(server, payments):
 
     namecoind.unlock_wallet(NAMECOIND_WALLET_PASSPHRASE)
     for payment in payments:
-        print namecoind.sendtoaddress(payment['address'], payment['amount'])
+        print(namecoind.sendtoaddress(payment['address'], payment['amount']))
 
 
 # -----------------------------------
@@ -227,7 +227,7 @@ def reload_wallets(main_server, slave_servers=LOAD_SERVERS):
     payments = []
 
     for server in LOAD_SERVERS:
-        #print get_receiver_address(server)
+        #print(get_receiver_address(server))
         if check_if_needs_reload(server):
             reload_tx = {}
             reload_tx['amount'] = RELOAD_AMOUNT
@@ -248,4 +248,3 @@ if __name__ == '__main__':
         pass
 
     check_servers(LOAD_SERVERS, clean=False)
-    
