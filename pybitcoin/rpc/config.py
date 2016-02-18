@@ -9,7 +9,7 @@
 
 import os
 
-NAMECOIND_ENABLED = True
+NAMECOIND_ENABLED = False
 BITCOIND_ENABLED = True
 
 DEBUG = True
