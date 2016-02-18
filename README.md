@@ -1,7 +1,7 @@
 pybitcoin
 =====
 
-[![CircleCI](https://img.shields.io/circleci/project/blockstack/pybitcoin.svg)](https://pypi.python.org/pypi/pybitcoin/)
+[![CircleCI](https://img.shields.io/circleci/project/blockstack/pybitcoin.svg)](https://circleci.com/gh/blockstack/pybitcoin)
 [![PyPI](https://img.shields.io/pypi/v/pybitcoin.svg)](https://pypi.python.org/pypi/pybitcoin/)
 [![PyPI](https://img.shields.io/pypi/dm/pybitcoin.svg)](https://pypi.python.org/pypi/pybitcoin/)
 [![PyPI](https://img.shields.io/pypi/l/pybitcoin.svg)](https://github.com/namesystem/pybitcoin/blob/master/LICENSE)
