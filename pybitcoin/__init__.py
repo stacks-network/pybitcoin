@@ -7,13 +7,12 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import services
 from .services import *
 
-import transactions
+from . import transactions
 from .transactions import *
 
-import passphrases
+from . import passphrases
 from .passphrases import create_passphrase
 from .passphrases.legacy import (
     random_160bit_passphrase, random_256bit_passphrase
