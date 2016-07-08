@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pybitcoin',
-    version='0.9.8',
+    version='0.9.9',
     url='https://github.com/blockstack/pybitcoin',
     license='MIT',
     author='Blockstack Developers',
