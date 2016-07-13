@@ -194,7 +194,7 @@ def sign_all_unsigned_inputs(hex_privkey, unsigned_tx_hex):
         Returns: signed hex transaction
     """
     inputs, outputs, locktime, version = deserialize_transaction(unsigned_tx_hex)
-
+    tx_hex = unsigned_tx_hex
     for index in xrange(0, len(inputs)):
         if len(inputs[index]['script_sig']) == 0:
 

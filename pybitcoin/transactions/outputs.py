@@ -17,7 +17,7 @@ def calculate_change_amount(inputs, send_amount, fee):
     change_amount = total_amount_in - send_amount - fee
     # check to ensure the change amount is a non-negative value and return it
     if change_amount < 0:
-        raise Exception('Not enough inputs for transaction.')
+        raise ValueError('Not enough inputs for transaction (total: %s, to spend: %s, fee: %s).' % (total_amount_in, send_amount, fee))
     return change_amount
 
 def make_pay_to_address_outputs(to_address, send_amount, inputs, change_address,
