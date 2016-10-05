@@ -18,7 +18,7 @@ def count_bytes(hex_s):
     return len(hex_s)/2
 
 def flip_endian(s):
-    if is_hex:
+    if is_hex(s):
         return hexlify(unhexlify(s)[::-1])
     return s[::-1]
 
