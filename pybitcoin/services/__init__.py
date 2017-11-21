@@ -12,6 +12,7 @@ from blockcypher import BlockcypherClient
 from blockchain_info import BlockchainInfoClient
 from chain_com import ChainComClient
 from bitcoind import BitcoindClient, create_bitcoind_service_proxy
+from electrum_client import ElectrumClient
 
 import blockcypher
 import blockchain_info
