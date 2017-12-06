@@ -7,7 +7,10 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import httplib
+try:
+    from httplib import BadStatusLine
+except ImportError:
+    from http.client import BadStatusLine
 
 from bitcoinrpc.authproxy import AuthServiceProxy
 
@@ -89,7 +92,7 @@ def broadcast_transaction(hex_tx, blockchain_client):
 
     try:
         resp = bitcoind.sendrawtransaction(hex_tx)
-    except httplib.BadStatusLine:
+    except BadStatusLine:
         raise Exception('Invalid HTTP status code from bitcoind.')
 
     if len(resp) > 0:
