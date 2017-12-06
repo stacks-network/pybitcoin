@@ -51,9 +51,9 @@ def get_unspents(address, blockchain_client=ChainComClient()):
 
     try:
         unspents = r.json()
-    except ValueError, e:
+    except ValueError as e:
         raise Exception('Received non-JSON response from chain.com.')
-    
+
     return format_unspents(unspents)
 
 def broadcast_transaction(hex_tx, blockchain_client):
@@ -72,7 +72,7 @@ def broadcast_transaction(hex_tx, blockchain_client):
 
     try:
         data = r.json()
-    except ValueError, e:
+    except ValueError as e:
         raise Exception('Received non-JSON from chain.com.')
 
     if 'transaction_hash' in data:
@@ -82,4 +82,3 @@ def broadcast_transaction(hex_tx, blockchain_client):
         return reply
     else:
         raise Exception('Tx hash missing from chain.com response: ' + str(data) + '\noriginal: ' + str(payload))
-
