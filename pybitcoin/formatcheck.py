@@ -10,6 +10,7 @@
 import os
 import re
 import random
+import sys
 import binascii
 from utilitybelt import is_int, is_hex
 
@@ -17,7 +18,11 @@ from .b58check import is_b58check
 
 
 def is_secret_exponent(val, curve_order):
-    return (isinstance(val, (int, long)) and val >= 1 and val < curve_order)
+    number_types = [int]
+    if sys.version_info.major < 3:
+        number_types.append(long)
+
+    return (isinstance(val, tuple(number_types)) and val >= 1 and val < curve_order)
 
 
 def is_256bit_hex_string(val):

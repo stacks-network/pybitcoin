@@ -8,6 +8,7 @@
 """
 
 import struct
+import sys
 from binascii import hexlify, unhexlify
 from utilitybelt import is_hex
 
@@ -26,7 +27,11 @@ def variable_length_int(i):
     """ Encodes integers into variable length integers, which are used in
         Bitcoin in order to save space.
     """
-    if not isinstance(i, (int,long)):
+    number_types = [int]
+    if sys.version_info.major < 3:
+        number_types.append(long)
+
+    if not isinstance(i, tuple(number_types)):
         raise Exception('i must be an integer')
 
     if i < (2**8-3):
