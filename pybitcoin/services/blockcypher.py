@@ -17,12 +17,14 @@ from .blockchain_client import BlockchainClient
 
 
 class BlockcypherClient(BlockchainClient):
-    def __init__(self, api_key=None):
+    def __init__(self, api_key=None, timeout=30):
         self.type = 'blockcypher.com'
         if api_key:
             self.auth = (api_key, '')
         else:
             self.auth = None
+
+        self.timeout = timeout
 
 
 def format_unspents(unspents):
@@ -52,9 +54,9 @@ def get_unspents(address, blockchain_client=BlockcypherClient()):
           BLOCKCYPHER_BASE_URL, address)
 
     if blockchain_client.auth:
-        r = requests.get(url + '&token=' + blockchain_client.auth[0])
+        r = requests.get(url + '&token=' + blockchain_client.auth[0], timeout=blockchain_client.timeout)
     else:
-        r = requests.get(url)
+        r = requests.get(url, timeout=blockchain_client.timeout)
 
     try:
         unspents = r.json()
@@ -74,7 +76,7 @@ def broadcast_transaction(hex_tx, blockchain_client):
 
     url = '%s/txs/push' % (BLOCKCYPHER_BASE_URL)
     payload = json.dumps({'tx': hex_tx})
-    r = requests.post(url, data=payload)
+    r = requests.post(url, data=payload, timeout=blockchain_client.timeout)
 
     try:
         data = r.json()

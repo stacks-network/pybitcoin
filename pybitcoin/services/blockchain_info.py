@@ -15,8 +15,9 @@ BLOCKCHAIN_API_BASE_URL = "https://blockchain.info"
 from .blockchain_client import BlockchainClient
 
 class BlockchainInfoClient(BlockchainClient):
-    def __init__(self, api_key=None):
+    def __init__(self, api_key=None, timeout=30):
         self.type = 'blockchain.info'
+        self.timeout = timeout
         if api_key:
             self.auth = (api_key, '')
         else:
@@ -46,7 +47,7 @@ def get_unspents(address, blockchain_client=BlockchainInfoClient()):
     if auth and len(auth) == 2 and isinstance(auth[0], str):
         url = url + "&api_code=" + auth[0]
 
-    r = requests.get(url, auth=auth)
+    r = requests.get(url, auth=auth, timeout=blockchain_client.timeout)
     try:
         unspents = r.json()["unspent_outputs"]
     except ValueError, e:
@@ -59,7 +60,7 @@ def broadcast_transaction(hex_tx, blockchain_client=BlockchainInfoClient()):
     """
     url = BLOCKCHAIN_API_BASE_URL + '/pushtx'
     payload = {'tx': hex_tx}
-    r = requests.post(url, data=payload, auth=blockchain_client.auth)
+    r = requests.post(url, data=payload, auth=blockchain_client.auth, timeout=blockchain_client.timeout)
     
     if 'submitted' in r.text.lower():
         return {'success': True}

@@ -13,7 +13,7 @@ import hashlib
 import ecdsa
 from binascii import hexlify, unhexlify
 from ecdsa.keys import SigningKey
-from utilitybelt import is_int, dev_random_entropy, dev_urandom_entropy
+from utilitybelt import is_int, dev_urandom_entropy
 from bitcoin import compress, encode_privkey, get_privkey_format
 
 from .errors import _errors
@@ -29,7 +29,7 @@ def random_secret_exponent(curve_order):
     # than the curve order
     while True:
         # generate a random 256 bit hex string
-        random_hex = hexlify(dev_random_entropy(32))
+        random_hex = hexlify(dev_urandom_entropy(32))
         random_int = int(random_hex, 16)
         if random_int >= 1 and random_int < curve_order:
             break

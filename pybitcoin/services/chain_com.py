@@ -14,8 +14,9 @@ CHAIN_API_BASE_URL = 'https://api.chain.com/v2'
 from .blockchain_client import BlockchainClient
 
 class ChainComClient(BlockchainClient):
-    def __init__(self, api_key_id=None, api_key_secret=None):
+    def __init__(self, api_key_id=None, api_key_secret=None, timeout=30):
         self.type = 'chain.com'
+        self.timeout = timeout
         if api_key_id and api_key_secret:
             self.auth = (api_key_id, api_key_secret)
         else:
@@ -45,9 +46,9 @@ def get_unspents(address, blockchain_client=ChainComClient()):
 
     auth = blockchain_client.auth
     if auth:
-        r = requests.get(url, auth=auth)
+        r = requests.get(url, auth=auth, timeout=blockchain_client.timeout)
     else:
-        r = requests.get(url + '?api-key-id=DEMO-4a5e1e4')
+        r = requests.get(url + '?api-key-id=DEMO-4a5e1e4', timeout=blockchain_client.timeout)
 
     try:
         unspents = r.json()
@@ -68,7 +69,7 @@ def broadcast_transaction(hex_tx, blockchain_client):
 
     url = CHAIN_API_BASE_URL + '/bitcoin/transactions/send'
     payload = json.dumps({ 'signed_hex': hex_tx })
-    r = requests.post(url, data=payload, auth=auth)
+    r = requests.post(url, data=payload, auth=auth, timeout=blockchain_client.timeout)
 
     try:
         data = r.json()
