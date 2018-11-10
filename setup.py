@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pybitcoin',
-    version='0.9.9',
+    version='0.9.10',
     url='https://github.com/blockstack/pybitcoin',
     license='MIT',
     author='Blockstack Developers',
@@ -25,7 +25,8 @@ setup(
         'utilitybelt>=0.2.6',
         'python-bitcoinrpc==0.1',
         'keychain>=0.1.4',
-        'bitcoin>=1.1.42'
+        'bitcoin>=1.1.42',
+        'jsonrpclib-pelix'
     ],
     classifiers=[
         'Intended Audience :: Developers',
