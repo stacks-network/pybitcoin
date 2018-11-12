@@ -7,8 +7,6 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import opcodes
-
 from .network import broadcast_transaction, send_to_address, get_unspents, \
     embed_data_in_blockchain, make_send_to_address_tx, make_op_return_tx, \
     analyze_private_key, serialize_sign_and_broadcast, \

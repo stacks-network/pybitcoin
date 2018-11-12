@@ -16,38 +16,42 @@ from .config import NAMECOIND_PASSWD, NAMECOIND_WALLET_PASSPHRASE
 from .config import NAMECOIND_USE_HTTPS, VALUE_MAX_LIMIT
 
 import ssl
-import httplib
 
-create_ssl_authproxy = False 
+try:
+    from httplib import HTTPSConnection
+except ImportError:
+    from http.client import HTTPSConnection
+
+create_ssl_authproxy = False
 do_wrap_socket = False
 
 if hasattr( ssl, "_create_unverified_context" ):
    #opt-out for verifying self-signed certificates (typically used in namecoin/bitcoind)
    ssl._create_default_https_context = ssl._create_unverified_context
-   create_ssl_authproxy = True 
+   create_ssl_authproxy = True
 
 if not hasattr( ssl, "create_default_context" ):
    create_ssl_authproxy = False
    do_wrap_socket = True
 
 
-class NamecoindConnection( httplib.HTTPSConnection ):
+class NamecoindConnection(HTTPSConnection):
    """
    Wrapped SSL connection, if we can't use SSLContext.
    """
 
    def __init__(self, host, port, timeout=None ):
-   
-      httplib.HTTPSConnection.__init__(self, host, port )
+
+      HTTPSConnection.__init__(self, host, port )
       self.timeout = timeout
-        
+
    def connect( self ):
-      
+
       sock = socket.create_connection((self.host, self.port), self.timeout)
       if self._tunnel_host:
          self.sock = sock
          self._tunnel()
-         
+
       self.sock = ssl.wrap_socket( sock, cert_reqs=ssl.CERT_NONE )
 
 
@@ -59,7 +63,7 @@ class NamecoindClient(object):
                  passphrase=NAMECOIND_WALLET_PASSPHRASE):
 
         global create_ssl_authproxy, do_wrap_socket
-        
+
         if use_https:
             http_string = 'https://'
         else:
@@ -69,23 +73,23 @@ class NamecoindClient(object):
 
         self.passphrase = passphrase
         self.server = server
-        
+
         if do_wrap_socket:
            # ssl._create_unverified_context and ssl.create_default_context are not supported.
-           # wrap the socket directly 
+           # wrap the socket directly
            connection = NamecoindConnection( server, int(port) )
            self.obj = AuthServiceProxy(authproxy_config_uri, connection=connection)
-       
+
         elif create_ssl_authproxy:
-           # ssl has _create_unverified_context, so we're good to go 
+           # ssl has _create_unverified_context, so we're good to go
            self.obj = AuthServiceProxy(authproxy_config_uri)
-    
+
         else:
-           # have to set up an unverified context ourselves 
+           # have to set up an unverified context ourselves
            ssl_ctx = ssl.create_default_context()
            ssl_ctx.check_hostname = False
            ssl_ctx.verify_mode = ssl.CERT_NONE
-           connection = httplib.HTTPSConnection( server, int(port), context=ssl_ctx )
+           connection = HTTPSConnection( server, int(port), context=ssl_ctx )
            self.obj = AuthServiceProxy(authproxy_config_uri, connection=connection)
 
 

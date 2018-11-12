@@ -49,9 +49,9 @@ def get_unspents(address, blockchain_client=BlockchainInfoClient()):
     r = requests.get(url, auth=auth)
     try:
         unspents = r.json()["unspent_outputs"]
-    except ValueError, e:
+    except ValueError as e:
         raise Exception('Invalid response from blockchain.info.')
-    
+
     return format_unspents(unspents)
 
 def broadcast_transaction(hex_tx, blockchain_client=BlockchainInfoClient()):
@@ -60,10 +60,8 @@ def broadcast_transaction(hex_tx, blockchain_client=BlockchainInfoClient()):
     url = BLOCKCHAIN_API_BASE_URL + '/pushtx'
     payload = {'tx': hex_tx}
     r = requests.post(url, data=payload, auth=blockchain_client.auth)
-    
+
     if 'submitted' in r.text.lower():
         return {'success': True}
     else:
         raise Exception('Invalid response from blockchain.info.')
-
-
