@@ -69,12 +69,17 @@ def get_unspents(address, blockchain_client=BlockcypherClient()):
 def broadcast_transaction(hex_tx, blockchain_client):
     """ Dispatch a raw hex transaction to the network.
     """
+
     if not isinstance(blockchain_client, BlockcypherClient):
         raise Exception('A BlockcypherClient object is required')
 
     url = '%s/txs/push' % (BLOCKCYPHER_BASE_URL)
-    payload = json.dumps({'tx': hex_tx})
-    r = requests.post(url, data=payload)
+    payload = {'tx': hex_tx}
+
+    if blockchain_client.auth:
+        payload['token'] = blockchain_client.auth[0]
+
+    r = requests.post(url, data=json.dumps(payload))
 
     try:
         data = r.json()
