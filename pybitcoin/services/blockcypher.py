@@ -87,5 +87,6 @@ def broadcast_transaction(hex_tx, blockchain_client):
         reply['success'] = True
         return reply
     else:
-        err_str = 'Tx hash missing from blockcypher response: ' + str(data)
+        err_str = 'Tx hash missing from blockcypher response: ' + str(data) + "\n\n"
+        err_str = err_str + 'Raw transaction hex: ' + str(hex_tx)
         raise Exception(err_str)
